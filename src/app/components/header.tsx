@@ -28,7 +28,6 @@
 //   />
 // </span>
 
-        
 //         </div>
 
 //         <div className="search-bar">
@@ -106,10 +105,11 @@
 //     </>
 //   );
 // }
-'use client';
 
-import React from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+"use client";
+import "../css/headerhome.css";
+import React from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faMapMarkerAlt,
   faHeadset,
@@ -119,13 +119,13 @@ import {
   faMagnifyingGlass,
   faChevronDown,
   faFire,
-} from '@fortawesome/free-solid-svg-icons';
+} from "@fortawesome/free-solid-svg-icons";
 import {
   faTwitter,
   faFacebookF,
   faInstagram,
   faYoutube,
-} from '@fortawesome/free-brands-svg-icons';
+} from "@fortawesome/free-brands-svg-icons";
 
 export default function HeaderHome() {
   return (
@@ -136,97 +136,152 @@ export default function HeaderHome() {
           <FontAwesomeIcon icon={faMapMarkerAlt} /> Find a Store
         </div>
         <div className="right">
-          <a href="#"><FontAwesomeIcon icon={faTwitter} /></a>
-          <a href="#"><FontAwesomeIcon icon={faFacebookF} /></a>
-          <a href="#"><FontAwesomeIcon icon={faInstagram} /></a>
-          <a href="#"><FontAwesomeIcon icon={faYoutube} /></a>
+          <a href="#">
+            <FontAwesomeIcon icon={faTwitter} />
+          </a>
+          <a href="#">
+            <FontAwesomeIcon icon={faFacebookF} />
+          </a>
+          <a href="#">
+            <FontAwesomeIcon icon={faInstagram} />
+          </a>
+          <a href="#">
+            <FontAwesomeIcon icon={faYoutube} />
+          </a>
         </div>
       </div>
 
       {/* Header */}
-      <header>
-        <div className="logo">
-          <span>
-            <img
-              style={{ width: '200px', height: 'auto', objectFit: 'cover' }}
-              src="/img/logo2.png"
-              alt="TeeSpace Logo"
-            />
-          </span>
-        </div>
-
-        <div className="search-bar">
-          <span className="search-icon">
-            <FontAwesomeIcon icon={faMagnifyingGlass} />
-          </span>
-          <input type="text" placeholder="What are you looking for?" />
-          <button>Search</button>
-        </div>
-
-        {/* Hotline & Icons */}
-        <div className="right-section">
-          <div className="hotline">
-            <div><FontAwesomeIcon icon={faHeadset} /> Hotline: 19008188</div>
-            <small>Pickup your order for free</small>
+      <div className="header">
+        <header>
+          <div className="logo">
+            <span>
+              <img
+                style={{ width: "200px", height: "auto", objectFit: "cover" }}
+                src="/img/logo2.png"
+                alt="TeeSpace Logo"
+              />
+            </span>
           </div>
-          <div className="icons">
-            <a href="#"><FontAwesomeIcon icon={faUser} /></a>
-            <a href="#"><FontAwesomeIcon icon={faStar} /><span className="badge">0</span></a>
-            <a href="#"><FontAwesomeIcon icon={faShoppingBag} /><span className="badge">0</span></a>
-          </div>
-        </div>
-      </header>
 
-      <nav>
-        <div className="menu-item reveal-blur">
-          <a href="#" className="active">
-            Home <span className="arrow"><FontAwesomeIcon icon={faChevronDown} /></span>
-          </a>
-          <ul className="dropdown">
-            <li><a href="#">Home 1</a></li>
-            <li><a href="#">Home 2</a></li>
-          </ul>
-        </div>
-        <div className="menu-item">
-          <a href="#">
-            TeeSpace <span className="arrow"><FontAwesomeIcon icon={faChevronDown} /></span>
-          </a>
-          <ul className="dropdown">
-            <li><a href="#">T-Shirt</a></li>
-            <li><a href="#">Hoodie</a></li>
-          </ul>
-        </div>
-        <div className="menu-item">
-          <a href="#">
-            Shop <span className="arrow"><FontAwesomeIcon icon={faChevronDown} /></span>
-          </a>
-          <ul className="dropdown">
-            <li><a href="#">All Products</a></li>
-            <li><a href="#">Sale</a></li>
-          </ul>
-        </div>
-        <div className="menu-item">
-          <a href="#">
-            Blog <span className="arrow"><FontAwesomeIcon icon={faChevronDown} /></span>
-          </a>
-          <ul className="dropdown">
-            <li><a href="#">Latest Posts</a></li>
-            <li><a href="#">News</a></li>
-          </ul>
-        </div>
-        <div className="menu-item">
-          <a href="#">
-            Pages <span className="arrow"><FontAwesomeIcon icon={faChevronDown} /></span>
-          </a>
-          <ul className="dropdown">
-            <li><a href="#">About</a></li>
-            <li><a href="#">Contact</a></li>
-          </ul>
-        </div>
-        <div className="sale-badge">
-          <FontAwesomeIcon icon={faFire} /> Extra <span>Sale 30% off</span>
-        </div>
-      </nav>
+          <div className="search-bar">
+            <span className="search-icon">
+              <FontAwesomeIcon icon={faMagnifyingGlass} />
+            </span>
+            <input type="text" placeholder="Tìm phong cách của bạn!" />
+            <button>Search</button>
+          </div>
+
+          {/* Hotline & Icons */}
+          <div className="right-section">
+            <div className="hotline">
+              <div>
+                <FontAwesomeIcon icon={faHeadset} /> Hotline: 19008188
+              </div>
+              <small>Miễn phí nhận hàng</small>
+            </div>
+            <div className="icons">
+              <a href="#">
+                <FontAwesomeIcon icon={faUser} />
+              </a>
+              <a href="#">
+                <FontAwesomeIcon icon={faStar} />
+                <span className="badge">0</span>
+              </a>
+              <a href="#">
+                <FontAwesomeIcon icon={faShoppingBag} />
+                <span className="badge">0</span>
+              </a>
+            </div>
+          </div>
+        </header>
+
+        <nav>
+          <div className="menu-item reveal-blur">
+            <a href="#" className="active">
+              Home{" "}
+              <span style={{ color: "darkgray" }} className="arrow">
+                <FontAwesomeIcon icon={faChevronDown} />
+              </span>
+            </a>
+            <ul className="dropdown">
+              <li>
+                <a href="#">Home 1</a>
+              </li>
+              <li>
+                <a href="#">Home 2</a>
+              </li>
+            </ul>
+          </div>
+          {/* <div className="menu-item">
+            <a href="#">
+              TeeSpace{" "}
+              <span style={{ color: "darkgray" }} className="arrow">
+                <FontAwesomeIcon icon={faChevronDown} />
+              </span>
+            </a>
+            <ul className="dropdown">
+              <li>
+                <a href="#">T-Shirt</a>
+              </li>
+              <li>
+                <a href="#">Hoodie</a>
+              </li>
+            </ul>
+          </div> */}
+          <div className="menu-item">
+            <a href="">
+              Shop{" "}
+              <span style={{ color: "darkgray" }} className="arrow">
+                <FontAwesomeIcon icon={faChevronDown} />
+              </span>
+            </a>
+            <ul className="dropdown">
+              <li>
+                <a href="/products">All Products</a>
+              </li>
+              <li>
+                <a href="#">Sale</a>
+              </li>
+            </ul>
+          </div>
+          <div className="menu-item">
+            <a href="#">
+              Blog{" "}
+              <span style={{ color: "darkgray" }} className="arrow">
+                <FontAwesomeIcon icon={faChevronDown} />
+              </span>
+            </a>
+            <ul className="dropdown">
+              <li>
+                <a href="#">Latest Posts</a>
+              </li>
+              <li>
+                <a href="#">News</a>
+              </li>
+            </ul>
+          </div>
+          <div className="menu-item">
+            <a href="#">
+              Pages{" "}
+              <span style={{ color: "darkgray" }} className="arrow">
+                <FontAwesomeIcon icon={faChevronDown} />
+              </span>
+            </a>
+            <ul className="dropdown">
+              <li>
+                <a href="#">About</a>
+              </li>
+              <li>
+                <a href="#">Contact</a>
+              </li>
+            </ul>
+          </div>
+          <div style={{ color: "darkgray" }} className="sale-badge">
+            <FontAwesomeIcon icon={faFire} /> Extra <span>Sale 30% off</span>
+          </div>
+        </nav>
+      </div>
     </>
   );
 }

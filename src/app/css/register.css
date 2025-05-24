@@ -1,0 +1,340 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: "Inter", sans-serif;
+}
+
+body {
+  background: #f9f9fb;
+  display: flex;
+  justify-content: center;
+  padding: 0 100px;
+}
+
+.container {
+  display: flex;
+  max-width: 1000px;
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  width: 100%;
+}
+
+.form-container {
+  flex: 1;
+  padding: 40px;
+}
+
+.form-container h2 {
+  color: #6c3fd8;
+  font-size: 22px;
+  margin-bottom: 5px;
+}
+
+.form-container p {
+  font-size: 14px;
+  color: #999;
+  margin-bottom: 20px;
+}
+
+form label {
+  display: block;
+  margin-top: 10px;
+  margin-bottom: 5px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+form input[type="text"],
+form input[type="email"],
+form input[type="password"] {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+.note {
+  font-size: 12px;
+  color: #999;
+  margin-bottom: 15px;
+}
+
+.otp-inputs input {
+  width: 40px;
+  height: 40px;
+  margin-right: 5px;
+  text-align: center;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.verify {
+  display: flex;
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.verify input,
+.verify button {
+  height: 44px;
+  font-size: 14px;
+  padding: 0 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.verify button {
+  background: #ccc;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.register-btn {
+  background: #e1d8fb;
+  color: #6c3fd8;
+  border: none;
+  width: 100%;
+  padding: 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+.login-link {
+  text-align: center;
+  margin: 10px 0;
+  font-size: 14px;
+}
+
+.login-link a {
+  color: #6c3fd8;
+  text-decoration: none;
+}
+
+.divider {
+  text-align: center;
+  margin: 10px 0;
+  font-size: 14px;
+  color: #aaa;
+}
+
+.google-btn {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 44px;
+  background-color: #4285f4;
+  color: white;
+  font-weight: 500;
+  font-size: 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-top: 10px;
+}
+
+.google-icon-wrapper {
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 8px 4px;
+  padding: 8px 12px;
+  border-radius: 4px;
+}
+
+.google-icon-wrapper img {
+  width: 20px;
+  height: 20px;
+}
+
+.google-text {
+  flex: 1;
+  text-align: center;
+}
+
+.image-container {
+  flex: 1;
+  background: #f2ecfc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.image-container img {
+  width: 100%;
+  max-width: 400px;
+  object-fit: contain;
+}
+
+.strength-bars {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.bar {
+  flex: 1;
+  height: 4px;
+  background-color: #ddd;
+  border-radius: 2px;
+}
+
+.bar.pass {
+  background-color: #4caf50; /* xanh */
+}
+
+.bar.fail {
+  background-color: #f44336; /* đỏ */
+}
+
+#strength-text {
+  font-size: 13px;
+  margin: 6px 0;
+  font-weight: 500;
+}
+
+#strength-text.weak {
+  color: #f44336;
+}
+
+#strength-text.strong {
+  color: #4caf50;
+}
+
+/* Số điện thoại */
+.phone-input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  transition: border 0.3s;
+}
+
+.phone-input:focus {
+  outline: none;
+  border-color: #6c3fd8;
+  box-shadow: 0 0 0 2px rgba(108, 63, 216, 0.2);
+}
+
+/* Mật khẩu */
+.password-input {
+  width: 100%;
+  padding: 12px 40px 12px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  transition: border 0.3s;
+  height: 44px;
+}
+
+.password-input:focus {
+  outline: none;
+  border-color: #6c3fd8;
+  box-shadow: 0 0 0 2px rgba(108, 63, 216, 0.2);
+}
+
+.password-field {
+  position: relative;
+}
+
+.eye-icon {
+  position: absolute;
+  top: 21px;
+  right: 12px;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 18px;
+  color: #999;
+  z-index: 2;
+  background-color: white;
+  padding-left: 4px;
+}
+
+@media (max-width: 768px) {
+  body {
+    padding: 0 20px;
+  }
+
+  .container {
+    flex-direction: column;
+    max-width: 100%;
+  }
+
+  .image-container {
+    order: -1;
+    padding: 20px 0;
+  }
+
+  .form-container {
+    padding: 20px;
+  }
+
+  .otp-inputs input {
+    width: 35px;
+    height: 35px;
+  }
+
+  .verify {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .verify input,
+  .verify button {
+    width: 100%;
+  }
+
+  .google-btn {
+    flex-direction: row;
+    justify-content: center;
+  }
+
+  .google-icon-wrapper {
+    margin-right: 10px;
+  }
+
+  .google-text {
+    text-align: center;
+  }
+}
+
+input,
+button,
+.google-btn,
+.register-btn {
+  transition: all 0.3s ease;
+}
+
+.register-btn:hover {
+  background: #d1c1fa;
+}
+
+.google-btn:hover {
+  background-color: #357ae8;
+}
+
+.verify button:hover {
+  background: #bbb;
+}
+
+.container {
+  animation: fadeInUp 0.6s ease forwards;
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

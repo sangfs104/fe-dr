@@ -1,11 +1,17 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-
-export default function BannerSection() {
+import ProductCard from "../components/ProductList";
+import Banner from "./Banner";
+import "../css/homepage.css";
+export default function HomePage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [activeTab, setActiveTab] = useState<"new" | "hot">("new");
-  const router = useRouter(); // BẠN PHẢI GỌI NÀY TRONG FUNCTION COMPONENT
+  const router = useRouter();
+  const handleViewDetail = (productId: number) => {
+    router.push(`/product/${productId}`);
+  };
+
   const fetchProducts = async (type: "new" | "hot") => {
     const url =
       type === "hot"
@@ -77,7 +83,7 @@ export default function BannerSection() {
   type Product = {
     id: number;
     name: string;
-    variant: string[]; // hoặc bất kỳ kiểu gì bạn đang dùng
+    variant: string[];
     img: string[];
   };
 
@@ -101,22 +107,8 @@ export default function BannerSection() {
   };
   return (
     <>
-      <div className="banner-container reveal-banner">
-        <img
-          id="banner-image"
-          className="reveal-banner-item delay-1"
-          src="/img/banner3.webp"
-          alt="Banner"
-        />
-      </div>
-
-      <div className="dots reveal-banner-item delay-2" id="dots">
-        <span className="dot active" data-index="0"></span>
-        <span className="dot" data-index="1"></span>
-        <span className="dot" data-index="2"></span>
-      </div>
-
-      <h2 className="shop">Shopping by Categories</h2>
+      <Banner />
+      <h2 className="shop">DANH MỤC SẢN PHẨM</h2>
 
       <div className="categories reveal">
         {[
@@ -137,102 +129,59 @@ export default function BannerSection() {
           </div>
         ))}
       </div>
+      <div className="wrapper">
+        <div className="container reveal">
+          {/* Card 1 */}
+          <div className="card reveal">
+            <div className="card-text">
+              <h2>Hàng ngàn mẫu áo cực chất đang chờ bạn</h2>
+              <p>Free and easy way to bring your ideas to life</p>
+              <button className="btn">Xem tất cả sản phẩm →</button>
+            </div>
+            <div className="card-images">
+              {[1, 2, 3, 4].map((i) => (
+                <img key={i} src={`/img/sp${i}.webp`} alt={`Image ${i}`} />
+              ))}
+            </div>
+          </div>
 
-      <div className="container reveal">
-        {/* Card 1 */}
-        <div className="card reveal">
-          <div className="card-text">
-            <h2>Thousands of free templates</h2>
-            <p>Free and easy way to bring your ideas to life</p>
-            <button className="btn">Explore More →</button>
-          </div>
-          <div className="card-images">
-            {[1, 2, 3, 4].map((i) => (
-              <img key={i} src={`/img/sp${i}.webp`} alt={`Image ${i}`} />
-            ))}
-          </div>
-        </div>
-
-        {/* Card 2 */}
-        <div className="card reveal">
-          <div className="card-text">
-            <h2>Create your unique style</h2>
-            <p>Free and easy way to create your ideas to life</p>
-            <button className="btn">Shop Now →</button>
-          </div>
-          <div className="card-image-single">
-            <img src="/img/sp5.webp" alt="T-shirt" />
+          {/* Card 2 */}
+          <div className="card reveal">
+            <div className="card-text">
+              <h2>Khẳng định cá tính – Chọn phong cách riêng</h2>
+              <p>Mua sắm dễ dàng – Nhận hàng tận tay</p>
+              <button className="btn">Mua ngay →</button>
+            </div>
+            <div className="card-image-single">
+              <img src="/img/sp5.webp" alt="T-shirt" />
+            </div>
           </div>
         </div>
       </div>
-
       <div className="product-section reveal-left">
         <div className="tabs">
           <button
             className={`tab ${activeTab === "new" ? "active" : ""}`}
             onClick={() => setActiveTab("new")}
           >
-            New Arrivals
+            Sản Phẩm Mới
           </button>
           <button
             className={`tab ${activeTab === "hot" ? "active" : ""}`}
             onClick={() => setActiveTab("hot")}
           >
-            Best Seller
+            Sản Phẩm Bán Chạy
           </button>
         </div>
 
-        {/* Product List */}
-        <div className="product-listp5">
+        <div className="product-grid">
           {products.map((product) => (
-            <div className="product-cardp5" key={product.id}>
-              <div className="image-containerp5">
-                <img
-                  src={`/img/sp${product.img[0]}.webp`}
-                  className="image-defaultp5"
-                  alt="Product Front"
-                />
-                <img
-                  src={`/img/sp${product.img[1]}.webp`}
-                  className="image-hoverp5"
-                  alt="Product Back"
-                />
-                <div className="hover-iconsp5">
-                  {/* <div className="iconp5">
-                    👁 <span className="icon-text">Xem chi tiết</span>
-                  </div> */}
-                  <div
-                    className="iconp5"
-                    onClick={() => router.push(`/detail/${product.id}`)}
-                  >
-                    👁 <span className="icon-text">Xem chi tiết</span>
-                  </div>
-
-                  <div
-                    className="iconp55"
-                    onClick={() =>
-                      handleAddToCart(
-                        product.name,
-                        `VARIANT-ID ${product.variant[0]}`,
-                        589000,
-                        `/img/sp${product.img[0]}.webp`
-                      )
-                    }
-                  >
-                    ➕ <span className="icon-text">Thêm vào giỏ hàng</span>
-                  </div>
-                </div>
-              </div>
-              <div className="product-infop5">
-                <p className="p5">{product.name}</p>
-                <p className="product-pricep5">589,000₫</p>
-              </div>
-            </div>
+            <ProductCard key={product.id} product={product} />
           ))}
         </div>
       </div>
       <div className="bannerp3 scroll-animate">
-        GIẢM GIÁ 20 % CHO ĐƠN HÀNG ĐẦU TIÊN KHI TẠO TÀI KHOẢN
+        <p> GIẢM GIÁ 20 % CHO ĐƠN HÀNG ĐẦU TIÊN KHI TẠO TÀI KHOẢN</p>
       </div>
 
       <div className="section">

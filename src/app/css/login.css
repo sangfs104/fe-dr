@@ -1,304 +1,291 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;1,500&display=swap');
-*{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: "poppins",sans-serif;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
-body{
-    height: 100vh;
-    width: 100%;
-    background: #000;
-  
+
+body {
+  font-family: "Inter", sans-serif;
+  background-color: #f8f8fc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  padding: 0 100px;
 }
-/* Giao diện tối (mặc định) */
-body,
-.dark {
-  background: #000;
+
+.container {
+  display: flex;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  width: 900px;
+  max-width: 100%;
+}
+
+.image-section {
+  flex: 1;
+  background: linear-gradient(to bottom, #f8f8f9, #fff);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.image-section img {
+  width: 90%;
+  height: auto;
+}
+
+.login-section {
+  flex: 1;
+  padding: 40px;
+}
+
+.login-section h2 {
+  color: #6f42c1;
+  font-size: 24px;
+  margin-bottom: 5px;
+}
+
+.sub {
+  color: #666;
+  margin-bottom: 20px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  font-size: 14px;
+  margin-bottom: 5px;
+  margin-top: 15px;
+  color: #333;
+}
+
+input[type="email"],
+input[type="password"] {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.password-wrapper {
+  position: relative;
+}
+
+.eye-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+.forgot {
+  margin-top: 10px;
+  text-align: left;
+}
+
+.forgot a {
+  color: #6c3fd8;
+  text-decoration: none;
+  font-size: 13px;
+}
+
+.login-btn {
+  background-color: #d9c5fa;
   color: #fff;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  margin-top: 20px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.3s ease;
 }
 
-/* Giao diện sáng */
-.light {
-  background: #fff;
-  color: #000;
+.login-btn:hover {
+  background-color: #b897f0;
 }
 
-.light .background {
-  filter: none;
-  background: #f5f5f5;
+.register {
+  text-align: center;
+  margin-top: 15px;
+  font-size: 14px;
 }
 
-.light .item,
-.light .form-box,
-.light .input-box {
-  color: #000;
+.register a {
+  color: #6f42c1;
+  text-decoration: none;
+  font-weight: 600;
 }
 
-.light .input-box {
-  border-bottom: 2px solid #000;
+.divider {
+  text-align: center;
+  margin: 25px 0 10px;
+  color: #aaa;
+  font-size: 13px;
+  position: relative;
 }
 
-.light .input-box .icon,
-.light .remember-password a {
-  color: #000;
+.divider::before,
+.divider::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 40%;
+  height: 1px;
+  background-color: #ddd;
 }
 
-.light .btn {
-  background: #222;
-  color: #fff;
+.divider::before {
+  left: 0;
 }
 
-.background{
-     background: url(/img/BANNERREAM3.png) no-repeat;
-    background-position: center;
-    background-size:cover ;
-    height: 100vh;
-    width: 100%;
-    filter: blur(10px);
+.divider::after {
+  right: 0;
 }
 
-
-.navbar a{
-    position: relative;
-    font-size: 16px;
-    color: #fff;
-    margin-right: 30px;
-    text-decoration: none;
+.google-btn {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 44px;
+  background-color: #4285f4;
+  color: white;
+  font-weight: 500;
+  font-size: 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-top: 10px;
 }
-.navbar a::after{
-    content: "";
-    position: absolute;
-    left: 0;
-    width: 100%;
-    height: 2px;
-    background: #fff;
-    bottom: -5px;
-    border-radius: 5px;
-    transform: translateY(10px);
+
+.google-icon-wrapper {
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 8px 4px;
+  padding: 8px 12px;
+  border-radius: 4px;
+}
+
+.google-icon-wrapper img {
+  width: 20px;
+  height: 20px;
+}
+
+.google-text {
+  flex: 1;
+  text-align: center;
+}
+
+.password-input {
+  width: 100%;
+  padding: 12px 40px 12px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  transition: border 0.3s;
+  height: 44px;
+}
+
+.password-input:focus {
+  outline: none;
+  border-color: #6c3fd8;
+  box-shadow: 0 0 0 2px rgba(108, 63, 216, 0.2);
+}
+
+.password-field {
+  position: relative;
+}
+
+.eye-icon {
+  position: absolute;
+  top: 21px;
+  right: 12px;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 18px;
+  color: #999;
+  z-index: 2;
+  background-color: white;
+  padding-left: 4px;
+}
+
+/* Animation khi vào trang */
+@keyframes fadeInUp {
+  from {
     opacity: 0;
-    transition: .5s ease;
-}
-.navbar a:hover:after{
-    transform: translateY(0);
+    transform: translateY(30px);
+  }
+  to {
     opacity: 1;
+    transform: translateY(0);
+  }
 }
-.search-bar{
-    width: 250px;
-    height: 45px;
-    background-color: transparent;
-    border: 2px solid #fff;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
+
+body {
+  animation: fadeInUp 0.6s ease-in-out;
 }
-.search-bar input{
-    width: 100%;
-    background-color: transparent;
-    border: none;
-    outline: none;
-    color: #fff;
-    font-size: 16px;
-    padding-left: 10px;
+
+/* Animation nhẹ cho container */
+.container {
+  animation: fadeInUp 0.7s ease;
 }
-.search-bar button{
-    width: 40px;
-    height: 100%;
-    background: transparent;
-    outline: none;
-    border: none;
-    color: #fff;
-    cursor: pointer;
+
+/* ========== EFFECT DÔ (fadeIn lên nhẹ) ========== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
-.search-bar input::placeholder{
-    color: #fff;
+
+body {
+  animation: fadeInUp 0.6s ease-in-out;
 }
-.search-bar button i{
-    font-size: 22px;
+
+.container {
+  animation: fadeInUp 0.7s ease;
 }
-.container{
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%,-50%);
-    width: 75%;
-    height: 550px;
-    margin-top: 20px;
-     background: url(/img/BANNERREAM3.png) no-repeat;
-    background-position: center;
-    background-size:cover ;
-    border-radius: 20px;
-    overflow: hidden;
-    
-    
-}
-.item{
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 58%;
-    height: 100%;
-    color: #fff;
-    background: transparent;
-    padding: 80px;
-    display: flex;
-    justify-content: space-between;
+
+/* ========== RESPONSIVE MOBILE ========== */
+@media (max-width: 768px) {
+  body {
+    padding: 20px;
+    height: auto;
+    align-items: flex-start;
+  }
+
+  .container {
     flex-direction: column;
-    
+    width: 100%;
+    box-shadow: none;
+    border-radius: 0;
+  }
 
-
-}
-.item .logo{
-    color: #fff;
-    font-size: 30px;
-
-}
-.text-item h2{
-    font-size: 40px;
-    line-height: 1;
-}
-.text-item p{
-    font-size: 16px;
-    margin: 20px 0;
-}
-.social-icon a i{
-    color: #fff;
-    font-size: 24px;
-    margin-left: 10px;
-    cursor: pointer;
-    transition: .5s ease;
-}
-.social-icon a:hover i{
-    transform: scale(1.2);
-}
-.container .login-section{
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: calc(100% - 58%);
-    height: 100%;
-    color: #fff;
-    backdrop-filter: blur(10px);
-}
-
-.login-section .form-box{
-    position: absolute;
+  .image-section {
     display: flex;
-    justify-content: center;
-    align-items: center;
+    padding: 20px 0;
+  }
+
+  .image-section img {
     width: 100%;
-    height: 100%;
-    
-}
-.login-section .form-box.register{
-    transform: translateX(430px);
-    transition: transform .6s ease;
-    transition-delay: 0s;
-}
-.login-section.active .form-box.register{
-    transform: translateX(0px);
-    transition-delay: .7s;
-}
+    height: auto;
+  }
 
-.login-section .form-box.login{
-    transform: translateX(0px);
-    transition: transform .6s ease;
-    transition-delay: 0.7s;
-}
-.login-section.active .form-box.login{
-    transform: translateX(430px);
-    transition-delay: 0s;
-}
-
-
-
-.login-section .form-box h2{
-    text-align: center;
-    font-size: 25px;
-}
-
-.form-box .input-box{
-    width: 340px;
-    height: 50px;
-    border-bottom: 2px solid#fff;
-    margin: 30px 0;
-    position: relative;
-}
-.input-box input{
-    width: 100%;
-    height: 100%;
-    background: transparent;
-    border: none;
-    outline: none;
-    font-size: 16px;
-    padding-right: 28px;
-
-
-}
-.input-box label{
-    position: absolute;
-    top: 50%;
-    left: 0;
-    transform: translateY(-50%);
-    font-size: 16px;
-    font-weight: 600px;
-    pointer-events: none;
-    transition: .5s ease;
-
-}
-.input-box .icon{
-    position: absolute;
-    top: 13px;
-    right: 0;
-    font-size: 19px;
-}
-.input-box input:focus~ label,
-.input-box input:valid~ label{
-    top: -5px;
-}
-.remember-password{
-    font-size: 14px;
-    font-weight: 500;
-    margin: -15px 0 15px ;
-    display: flex;
-    justify-content: space-between;
-}
-.remember-password label input{
-    accent-color: #fff;
-    margin-right: 3px;
-
-}
-.remember-password a{
-    color: #fff;
-    text-decoration: none;
-}
-.remember-password a:hover{
-    text-decoration: underline;
-}
-.btn{
-    background: #fff;
-    width: 100%;
-    height: 45px;
-    outline: none;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    background: #f72d7a;
-    font-size: 16px;
-    color: #fff;
-    box-shadow: rgba(0,0,0,0.4);
-
-}
-.create-account{
-    font-size: 14.5px;
-    text-align: center;
-    margin: 25px;
-}
-.create-account p a{
-    color: #fff;
-    font-weight: 600px;
-    text-decoration: none;
-}
-.create-account p a:hover{
-    text-decoration: underline;
+  .login-section {
+    padding: 30px 20px;
+  }
 }

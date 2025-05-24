@@ -1,0 +1,322 @@
+   body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        background: #fff;
+      }
+
+      .breadcrumb-container {
+        border: 1px solid #eee;
+        padding: 16px 100px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #fff;
+        position: relative;
+      }
+
+      .breadcrumb-left {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+      }
+
+      .product-count {
+        font-weight: bold;
+      }
+
+      .breadcrumbs {
+        color: #888;
+        font-size: 14px;
+      }
+
+      .breadcrumbs span {
+        color: #000;
+        font-weight: bold;
+      }
+
+      .breadcrumbs i {
+        margin: 0 8px;
+        color: #ccc;
+      }
+
+      .breadcrumb-right {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        font-size: 18px;
+        color: #444;
+        cursor: pointer;
+      }
+
+      .breadcrumb-right i:hover {
+        color: #000;
+      }
+
+      /* Modal bộ lọc */
+      .filter-modal,
+      .sort-dropdown {
+        position: absolute;
+        top: 60px;
+        background: white;
+        border: 1px solid #ccc;
+        padding: 16px 20px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        display: none;
+        z-index: 10;
+      }
+
+      .filter-modal.show,
+      .sort-dropdown.show {
+        display: block;
+      }
+
+      .filter-modal {
+        right: 70px;
+        width: 300px;
+      }
+
+      .sort-dropdown {
+        right: 24px;
+        width: 200px;
+      }
+
+      .filter-modal h4,
+      .sort-dropdown h4 {
+        margin: 0 0 12px;
+        font-size: 16px;
+      }
+
+      .filter-options {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 16px;
+      }
+
+      .filter-options button {
+        padding: 8px 12px;
+        border: 1px solid #ccc;
+        background: white;
+        cursor: pointer;
+      }
+
+      .filter-actions {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .filter-actions button {
+        /* flex: 1; */
+        /* padding: 12px;
+        font-weight: bold;
+        cursor: pointer;
+        border: 1px solid #888; */
+            height: 45px;
+    width: 117px;
+    font-size: 14px;
+    cursor: pointer;
+    border: 1px solid #888;
+    padding: 12px;
+      }
+
+      .clear-btn {
+        background: #f4f4f4;
+        border: 1px solid #ccc;
+      }
+
+      .apply-btn {
+        background: black;
+        color: white;
+      }
+      .sub-categories {
+        font-size: 14px;
+        display: flex;
+        gap: 12px;
+        padding: 16px 100px;
+        border-bottom: 1px solid #eee;
+        flex-wrap: wrap;
+      }
+
+      .sub-categories button {
+        padding: 4px 10px;
+        border: 1px solid #ccc;
+        background: white;
+        cursor: pointer;
+      }
+
+      .sort-dropdown ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      .sort-dropdown li {
+        padding: 8px 0;
+        cursor: pointer;
+        font-size: 14px;
+        border-bottom: 1px solid #eee;
+      }
+
+      .sort-dropdown li:last-child {
+        border-bottom: none;
+      }
+
+      .sort-dropdown li:hover {
+        font-weight: bold;
+      }
+      .filter-tab {
+        padding: 8px 12px;
+        border: 1px solid #ccc;
+        background: white;
+        cursor: pointer;
+      }
+
+      .filter-tab.active {
+        border: 2px solid black;
+        font-weight: bold;
+      }
+
+      .filter-tab-content {
+        display: none;
+        margin: 16px 0;
+      }
+
+      .filter-tab-content.active {
+        display: block;
+      }
+      .filter-tab-content {
+        opacity: 0;
+        transform: translateY(10px);
+        pointer-events: none;
+        transition: opacity 0.4s ease, transform 0.4s ease;
+        position: absolute;
+        width: 100%;
+      }
+
+      .filter-tab-content.active {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+        position: relative;
+      }
+
+      .color-boxes,
+      .size-boxes {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .color-item {
+        width: 40px;
+        height: 40px;
+        border: 1px solid #ccc;
+      }
+
+      .size-item {
+        /* height: 40px; */
+        width: 50px;
+        padding: 5px;
+        border: 1px solid #ccc;
+        text-align: center;
+      }
+
+      .price-range {
+        margin-top: 20px;
+      }
+
+      .price-range input[type="range"] {
+        width: 100%;
+      }
+
+      .price-labels {
+        display: flex;
+        justify-content: space-between;
+        font-size: 14px;
+        margin-top: 8px;
+      }
+      .color-item.selected {
+        border: 2px solid black;
+      }
+      .size-item.selected {
+        border: 2px solid black;
+        font-weight: bold;
+      }
+      .color-item,
+      .size-item {
+        transition: all -4.75s ease-in-out;
+        position: relative;
+        overflow: hidden; /* để ripple không tràn ra ngoài */
+      }
+
+      /* Hover */
+      .color-item:hover,
+      .size-item:hover {
+        transform: scale(1.05);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      }
+
+      /* Khi được chọn */
+      .color-item.selected,
+      .size-item.selected {
+        border: 2px solid black;
+        transform: scale(1.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      }
+      .ripple {
+        position: absolute;
+        border-radius: 50%;
+        transform: scale(0);
+        animation: ripple 0.6s linear;
+        background-color: rgba(0, 0, 0, 0.2);
+        pointer-events: none;
+      }
+
+      @keyframes ripple {
+        to {
+          transform: scale(4);
+          opacity: 0;
+        }
+      }
+      .filter-tab {
+        padding: 10px 16px;
+        border: 1px solid #ccc;
+        background: white;
+        cursor: pointer;
+        border-radius: 8px;
+        transform: scale(1);
+        transition: background-color 0.2s ease, color 0.2s ease,
+          border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      }
+
+      .filter-tab:hover {
+        background-color: #f0f0f0;
+        transform: scale(1.04);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+      }
+
+      .filter-tab.active {
+        background-color: black;
+        color: white;
+        border-color: black;
+        transform: scale(1.06);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+      }
+
+      .filter-tab-content {
+        opacity: 0;
+        transform: translateY(10px);
+        transition: opacity 0.3s ease, transform 0.3s ease;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        pointer-events: none;
+      }
+
+      .filter-tab-content.active {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+      }

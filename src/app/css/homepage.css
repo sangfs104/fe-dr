@@ -1,483 +1,8 @@
-  body {
-        margin: 0;
-        font-family: Arial, sans-serif;
-      }
 
-      /* Topbar */
-      .topbar {
-        background-color: #f5f5f5;
-        padding: 6px 20px;
-        display: flex;
-        justify-content: space-between;
-        font-size: 13px;
-        color: #666;
-      }
-
-      .topbar .left {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-      }
-
-      .topbar .right a {
-        margin-left: 15px;
-        color: #666;
-        text-decoration: none;
-      }
-
-      /* Header */
-      header {
-        background-color: #fff;
-        padding: 15px 20px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        border-bottom: 1px solid #e5e5e5;
-      }
-
-      .logo {
-        display: flex;
-        align-items: center;
-      }
-
-      .logo img {
-        width: 28px;
-        height: 28px;
-        margin-right: 8px;
-      }
-
-      .logo span {
-        font-size: 20px;
-        font-weight: bold;
-        color: #000;
-      }
-
-      .search-bar {
-        display: flex;
-        align-items: center;
-        max-width: 600px;
-        width: 100%;
-        border-radius: 9999px;
-        box-shadow: 0 0 6px rgba(0, 0, 0, 0.05);
-        overflow: hidden;
-        background-color: white;
-      }
-
-      .search-icon {
-        padding-left: 16px;
-        color: #aaa;
-        font-size: 16px;
-      }
-
-      .search-bar input {
-        flex: 1;
-        border: none;
-        outline: none;
-        padding: 12px 16px;
-        font-size: 14px;
-      }
-
-      .search-bar button {
-        background-color: #000;
-        color: #fff;
-        border: none;
-        padding: 12px 24px;
-        font-size: 14px;
-        cursor: pointer;
-        border-radius: 0 9999px 9999px 0;
-      }
-
-      .right-section {
-        display: flex;
-        align-items: center;
-      }
-
-      .hotline {
-        margin-right: 20px;
-        text-align: right;
-      }
-
-      .hotline div {
-        font-weight: bold;
-        color: #000;
-      }
-
-      .hotline small {
-        font-size: 12px;
-        color: #888;
-      }
-
-      .icons {
-        display: flex;
-        align-items: center;
-      }
-
-      .icons a {
-        margin-left: 18px;
-        color: #333;
-        font-size: 18px;
-        position: relative;
-        text-decoration: none;
-      }
-
-      .icons .badge {
-        position: absolute;
-        top: -6px;
-        right: -10px;
-        background-color: green;
-        color: white;
-        font-size: 10px;
-        padding: 2px 5px;
-        border-radius: 50%;
-      }
-/* For small screens */
-@media (max-width: 768px) {
-  .topbar {
-    padding: 6px 10px;
-    font-size: 12px;
-  }
-
-  .topbar .left {
-    font-size: 12px;
-  }
-
-  .topbar .right a {
-    margin-left: 10px;
-    font-size: 14px;
-  }
-
-  header {
-    padding: 10px 15px;
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .logo {
-    margin-bottom: 10px;
-  }
-
-  .search-bar {
-    max-width: 100%;
-    margin-bottom: 10px;
-  }
-
-  .search-bar input {
-    font-size: 16px;
-  }
-
-  .search-bar button {
-    padding: 10px 18px;
-    font-size: 14px;
-  }
-
-  .right-section {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    margin-top: 10px;
-  }
-
-  .hotline {
-    font-size: 12px;
-    text-align: left;
-  }
-
-  .icons a {
-    margin-left: 10px;
-    font-size: 16px;
-  }
-
-  .icons .badge {
-    font-size: 8px;
-    padding: 2px 4px;
-  }
-}
-
-/* For very small screens */
-@media (max-width: 480px) {
-  header {
-    padding: 8px 10px;
-  }
-
-  .logo {
-    font-size: 16px;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .logo span {
-    font-size: 18px;
-    margin-top: 5px;
-  }
-
-  .search-bar {
-    max-width: 100%;
-    margin-bottom: 8px;
-  }
-
-  .search-bar input {
-    font-size: 14px;
-  }
-
-  .search-bar button {
-    font-size: 12px;
-    padding: 8px 16px;
-  }
-
-  .right-section {
-    flex-direction: column;
-    align-items: flex-start;
-    width: 100%;
-  }
-
-  .icons {
-    justify-content: space-around;
-    width: 100%;
-    margin-top: 10px;
-  }
-
-  .icons a {
-    font-size: 16px;
-  }
-
-  .hotline {
-    font-size: 12px;
-  }
-}
-
-      nav {
-        display: flex;
-        align-items: center;
-        padding: 28px 30px;
-        font-size: 15px;
-        gap: 25px;
-        background-color: #fff;
-        font-family: "Segoe UI", sans-serif;
-      }
-
-      nav a {
-        text-decoration: none;
-        color: #000;
-        font-weight: 500;
-        position: relative;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        transition: color 0.3s;
-      }
-
-      nav a:hover {
-        color: #00b894;
-      }
-
-      nav a.active {
-        color: #00b894;
-      }
-
-      .arrow {
-        font-size: 10px;
-        transition: transform 0.3s;
-      }
-
-      /* rotate arrow on hover */
-      .menu-item:hover .arrow {
-        transform: rotate(180deg);
-      }
-
-      .menu-item {
-        position: relative;
-      }
-
-      .dropdown {
-        display: none;
-        position: absolute;
-        top: 120%;
-        left: 0;
-        background-color: white;
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
-        list-style: none;
-        padding: 10px 0;
-        margin: 0;
-        z-index: 1000;
-        border-radius: 8px;
-        min-width: 180px;
-        opacity: 0;
-        transform: translateY(10px);
-        transition: all 0.3s ease;
-      }
-
-      .dropdown li a {
-        display: block;
-        padding: 10px 20px;
-        color: #333;
-        transition: background 0.3s, color 0.3s;
-      }
-
-      .dropdown li a:hover {
-        background-color: #f2f2f2;
-        color: #00b894;
-      }
-
-      .menu-item:hover .dropdown {
-        display: block;
-        opacity: 1;
-        transform: translateY(0);
-      }
-
-      .sale-badge {
-        margin-left: auto;
-        font-size: 14px;
-        color: #000;
-        display: flex;
-        align-items: center;
-      }
-
-      .sale-badge span {
-        color: #00b894;
-        font-weight: bold;
-        margin-left: 4px;
-      }
-
-      .sale-badge i {
-        color: orange;
-        margin-right: 4px;
-      }
-      @media (max-width: 768px) {
-  /* Đổi sang menu dạng hamburger trên thiết bị di động */
-  .menu-item {
-    display: block;
-  }
-
-  nav {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  /* Ẩn các dropdown mặc định */
-  .menu-item > a {
-    padding: 10px 15px;
-    text-align: left;
-  }
-
-  /* Thêm hiệu ứng chuyển động khi mở menu */
-  .dropdown {
-    display: none;
-    position: absolute;
-    left: 0;
-    background-color: #fff;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
-    list-style: none;
-    padding: 10px 0;
-    margin: 0;
-    z-index: 1000;
-    border-radius: 8px;
-    min-width: 180px;
-    opacity: 0;
-    transform: translateY(10px);
-    transition: all 0.3s ease;
-  }
-
-  .dropdown li a {
-    padding: 10px 20px;
-    color: #333;
-    transition: background 0.3s, color 0.3s;
-  }
-
-  .dropdown li a:hover {
-    background-color: #f2f2f2;
-    color: #00b894;
-  }
-
-  /* Mở dropdown khi menu-item được nhấn */
-  .menu-item.active .dropdown {
-    display: block;
-    opacity: 1;
-    transform: translateY(0);
-  }
-  
-  /* Thêm icon burger để mở menu trên di động */
-  .menu-item > a::after {
-    content: "▼"; /* Mũi tên hoặc biểu tượng burger */
-    font-size: 12px;
-    margin-left: 8px;
-  }
-
-  .menu-item.active > a::after {
-    content: "▲"; /* Đổi mũi tên khi menu được mở */
-  }
-
-  /* Tăng cỡ chữ cho sale badge */
-  .sale-badge {
-    font-size: 16px;
-    margin-top: 10px;
-  }
-}
-/* Responsive cho điện thoại */
-@media (max-width: 768px) {
-  nav {
-    flex-direction: column;
-    padding: 20px;
-  }
-
-  nav a {
-    font-size: 14px;
-    padding: 10px 0;
-    text-align: center;
-  }
-
-  .menu-item {
-    width: 100%;
-    text-align: center;
-    margin-bottom: 5px;
-  }
-
-  .dropdown {
-    position: static;
-    width: 100%;
-    opacity: 1;
-    transform: translateY(0);
-    display: none;
-    box-shadow: none;
-    margin: 0;
-  }
-
-  .menu-item:hover .dropdown {
-    display: block;
-  }
-
-  .sale-badge {
-    margin-top: 10px;
-    font-size: 12px;
-  }
-}
-
-/* Responsive cho điện thoại nhỏ hơn */
-@media (max-width: 480px) {
-  nav {
-    padding: 15px;
-  }
-
-  .menu-item {
-    font-size: 14px;
-    padding: 8px;
-  }
-
-  .arrow {
-    font-size: 8px;
-  }
-
-  .dropdown li a {
-    padding: 8px 16px;
-  }
-
-  .sale-badge {
-    font-size: 12px;
-    margin-top: 5px;
-  }
-}
       .shop {
-        padding: 20px;
-        font-size: 20px;
+        margin-top: 40px;
+        padding: 0 100px;
+        font-size: 18px;
         font-weight: bold;
         margin-bottom: 40px;
       }
@@ -523,32 +48,38 @@
         font-size: 12px;
         vertical-align: super;
       }
-      .container {
-        margin-top: 50px;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 24px;
-        justify-content: center;
-      }
+    .wrapper {
+  padding: 0 100px;
+}
 
-      .card {
-        background-color: #f9f9fb;
-        padding: 24px;
-        border-radius: 16px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        display: flex;
-        flex-direction: row;
-        gap: 24px;
-        width: 100%;
-        max-width: 600px;
-      }
+.container {
+  margin-top: 50px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  justify-content: space-between; /* hoặc flex-start nếu bạn muốn nó dính bên trái */
+}
+
+.card {
+  background-color: #f9f9fb;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: row;
+  gap: 24px;
+  flex: 1 1 48%; /* Cho phép các card chiếm 48% chiều ngang */
+  min-width: 300px;
+  max-width: 600px; /* Có thể giữ lại nếu muốn giới hạn không vượt quá */
+}
+
 
       .card-text {
         flex: 1;
       }
 
       .card-text h2 {
-        font-size: 24px;
+        font-size: 20px;
         font-weight: bold;
         margin-bottom: 12px;
       }
@@ -882,11 +413,12 @@
         }
       }
       .product-section {
-        padding: 20px;
+        /* padding: 20px; */
         font-family: sans-serif;
       }
 
       .tabs {
+        padding: 0 100px;
         margin-top: 50px;
         display: flex;
         gap: 20px;
@@ -906,11 +438,12 @@
         color: black;
       }
       .section {
-        padding: 40px 20px;
+        /* padding: 40px 20px; */
         font-family: sans-serif;
       }
 
       .section-header {
+        padding: 0 100px;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -935,11 +468,11 @@
         text-align: center;
         padding: 10px;
         font-weight: bold;
-      }
+      }  
       .fashion-trendsp4 {
         font-family: Arial, sans-serif;
         margin: 0;
-        padding: 0px 20px;
+        padding: 0px 100px;
         text-align: center;
       }
       .fashion-trendsp4 .trends-containerp4 {
@@ -1188,7 +721,3 @@
       .scroll-animate.trend-itemp4.active {
         animation: rotateIn 1s ease forwards;
       }
-  .fashion-trendsp4 h2{   
-      font-size: 24px;
-    font-weight: bold;
-  }

@@ -1,5 +1,5 @@
 "use client";
-
+import "../css/homepage.css";
 import { useEffect } from "react";
 
 export default function BannerSection() {
@@ -48,10 +48,8 @@ export default function BannerSection() {
         }
       });
     };
-
     window.addEventListener("scroll", checkScrollAnimation);
     window.addEventListener("load", checkScrollAnimation);
-
     return () => {
       window.removeEventListener("scroll", checkScrollAnimation);
       window.removeEventListener("load", checkScrollAnimation);
@@ -65,7 +63,6 @@ export default function BannerSection() {
     image: string
   ) => {
     console.log("Add to cart:", { name, variation, price, image });
-    // Bạn có thể tích hợp vào state hoặc backend ở đây
   };
 
   return (

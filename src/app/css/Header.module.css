@@ -1,0 +1,93 @@
+/* components/Header.module.css */
+.header {
+  width: 100%;
+  font-family: sans-serif;
+}
+
+.topBar {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 20px;
+  font-size: 14px;
+  background-color: #f9f9f9;
+  align-items: center;
+}
+
+.socialIcons {
+  display: flex;
+  gap: 10px;
+}
+
+.icon {
+  background: #eee;
+  border-radius: 50%;
+  padding: 6px;
+  text-align: center;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.saleText {
+  font-weight: bold;
+}
+
+.langUser {
+  display: flex;
+  gap: 10px;
+}
+
+.dropdown {
+  padding: 3px 5px;
+}
+
+.mainHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-top: 1px solid #eee;
+}
+
+.logo h1 {
+  font-size: 24px;
+  margin: 0;
+}
+
+.nav {
+  display: flex;
+  gap: 20px;
+}
+
+.navItem {
+  cursor: pointer;
+  font-size: 16px;
+  position: relative;
+}
+
+.icons {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  font-size: 18px;
+}
+
+.iconWithBadge {
+  position: relative;
+  cursor: pointer;
+}
+
+.badge {
+  background: red;
+  color: white;
+  font-size: 12px;
+  padding: 2px 5px;
+  border-radius: 50%;
+  position: absolute;
+  top: -8px;
+  right: -10px;
+}

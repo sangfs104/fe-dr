@@ -5,7 +5,7 @@ import "../css/payment.css";
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
-import HeaderHome from "../components/header";
+import HeaderHome from "../components/Header";
 export default function PaymentPage() {
   const [showLogin, setShowLogin] = useState(false);
   const [showCoupon, setShowCoupon] = useState(false);

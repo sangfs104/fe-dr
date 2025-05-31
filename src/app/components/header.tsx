@@ -1,287 +1,350 @@
-// 'use client';
+// "use client";
+// import { ChevronDown } from "lucide-react";
+// import { useState } from "react";
+// import DropdownMenu from "./DropdownMenu";
+// import BannerCarousel from "./BannerCarousel";
+// import { Search, User, Heart, ShoppingCart } from "lucide-react";
+// import { useCart } from "../../context/CartContext";
+// import CartModal from "./CartModal";
 
-// import React from 'react';
+// export default function Header() {
+//   const [language, setLanguage] = useState<"vi" | "en">("vi");
+//   const { cartItems } = useCart();
+//   const [showCartModal, setShowCartModal] = useState(false);
+//   const totalQty = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
-// export default function HeaderHome() {
+//   const shopMenu = [
+//     { label: { vi: "Tất cả sản phẩm", en: "All Products" }, link: "#" },
+//     { label: { vi: "Khuyến mãi", en: "Sale" }, link: "#" },
+//     { label: { vi: "Hàng mới", en: "New Arrivals" }, link: "#" },
+//   ];
+
+//   const pagesMenu = [
+//     { label: { vi: "Về chúng tôi", en: "About Us" }, link: "#" },
+//     { label: { vi: "Liên hệ", en: "Contact" }, link: "#" },
+//     { label: { vi: "Câu hỏi thường gặp", en: "FAQ" }, link: "#" },
+//   ];
+
+//   const blogMenu = [
+//     { label: { vi: "Lưới bài viết", en: "Grid layout" }, link: "#" },
+//     { label: { vi: "Sidebar trái", en: "Left sidebar" }, link: "#" },
+//     { label: { vi: "Sidebar phải", en: "Right sidebar" }, link: "#" },
+//     { label: { vi: "Danh sách blog", en: "Blog list" }, link: "#" },
+//     { label: { vi: "Bài viết đơn", en: "Single Post" }, link: "#" },
+//   ];
+
 //   return (
-//     <>
-//       {/* Topbar */}
-//       <div className="topbar reveal-flip-left">
-//         <div className="left"><i className="fas fa-map-marker-alt"></i> Find a Store</div>
-//         <div className="right">
-//           <a href="#"><i className="fab fa-twitter"></i></a>
-//           <a href="#"><i className="fab fa-facebook-f"></i></a>
-//           <a href="#"><i className="fab fa-instagram"></i></a>
-//           <a href="#"><i className="fab fa-youtube"></i></a>
-//         </div>
+//     <div className="w-full sticky top-0 z-50 bg-white shadow-md">
+//       {/* Top Bar */}
+//       <div className="bg-[tomato] text-white text-sm text-center py-1 font-semibold">
+//         <marquee behavior="scroll" direction="left" scrollamount="5">
+//           {language === "vi"
+//             ? "MÙA MỚI, PHONG CÁCH MỚI: ƯU ĐÃI THỜI TRANG KHÔNG THỂ BỎ LỠ — MIỄN PHÍ VẬN CHUYỂN VÀ TRẢ HÀNG"
+//             : "NEW SEASON, NEW STYLES: FASHION SALE YOU CAN’T MISS — FREE SHIPPING AND RETURNS"}
+//         </marquee>
 //       </div>
 
 //       {/* Header */}
-//       <header>
-//         {/* Logo */}
-//         <div className="logo">
-//          <span>
-//   <img
-//     style={{ width: '200px', height: 'auto', objectFit: 'cover' }}
-//     src="/img/logo2.png"
-//     alt="TeeSpace Logo"
-//   />
-// </span>
-
+//       <header className="flex justify-between items-center px-6 py-4 border-b bg-white">
+//         <div className="relative">
+//           <select
+//             className="appearance-none bg-transparent pr-6 pl-2 outline-none cursor-pointer"
+//             value={language}
+//             onChange={(e) => setLanguage(e.target.value as "vi" | "en")}
+//           >
+//             <option value="vi">Tiếng Việt</option>
+//             <option value="en">English</option>
+//           </select>
+//           <ChevronDown className="absolute right-1 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none text-gray-500" />
 //         </div>
-
-//         <div className="search-bar">
-//           <span className="search-icon">
-//             <i className="fa-solid fa-magnifying-glass"></i>
+//         <h1 className="text-3xl font-bold tracking-wide">DREAMS</h1>
+//         <div className="flex gap-6 items-center text-xl relative">
+//           <Search className="cursor-pointer size-5" />
+//           <User className="cursor-pointer size-5" />
+//           <span className="cursor-pointer relative">
+//             <Heart className="size-5" />
+//             <span className="absolute -top-2 -right-3 text-xs bg-red-500 text-white rounded-full px-1">
+//               0
+//             </span>
 //           </span>
-//           <input type="text" placeholder="What are you looking for?" />
-//           <button>Search</button>
-//         </div>
 
-//         {/* Hotline & Icons */}
-//         <div className="right-section">
-//           <div className="hotline">
-//             <div><i className="fas fa-headset"></i> Hotline: 19008188</div>
-//             <small>Pickup your order for free</small>
-//           </div>
-//           <div className="icons">
-//             <a href="#"><i className="fas fa-user"></i></a>
-//             <a href="#"><i className="fas fa-star"></i><span className="badge">0</span></a>
-//             <a href="#"><i className="fas fa-shopping-bag"></i><span className="badge">0</span></a>
-//           </div>
+//           <span
+//             className="cursor-pointer relative"
+//             onClick={() => setShowCartModal(true)}
+//           >
+//             <ShoppingCart className="size-5" />
+//             {totalQty > 0 && (
+//               <span className="absolute -top-2 -right-3 text-xs bg-red-500 text-white rounded-full px-1">
+//                 {totalQty}
+//               </span>
+//             )}
+//           </span>
 //         </div>
 //       </header>
 
-//       <nav>
-//         <div className="menu-item reveal-blur">
-//           <a href="#" className="active">
-//             Home <span className="arrow"><i className="fas fa-chevron-down"></i></span>
-//           </a>
-//           <ul className="dropdown">
-//             <li><a href="#">Home 1</a></li>
-//             <li><a href="#">Home 2</a></li>
-//           </ul>
-//         </div>
-//         <div className="menu-item">
-//           <a href="#">
-//             TeeSpace <span className="arrow"><i className="fas fa-chevron-down"></i></span>
-//           </a>
-//           <ul className="dropdown">
-//             <li><a href="#">T-Shirt</a></li>
-//             <li><a href="#">Hoodie</a></li>
-//           </ul>
-//         </div>
-//         <div className="menu-item">
-//           <a href="#">
-//             Shop <span className="arrow"><i className="fas fa-chevron-down"></i></span>
-//           </a>
-//           <ul className="dropdown">
-//             <li><a href="#">All Products</a></li>
-//             <li><a href="#">Sale</a></li>
-//           </ul>
-//         </div>
-//         <div className="menu-item">
-//           <a href="#">
-//             Blog <span className="arrow"><i className="fas fa-chevron-down"></i></span>
-//           </a>
-//           <ul className="dropdown">
-//             <li><a href="#">Latest Posts</a></li>
-//             <li><a href="#">News</a></li>
-//           </ul>
-//         </div>
-//         <div className="menu-item">
-//           <a href="#">
-//             Pages <span className="arrow"><i className="fas fa-chevron-down"></i></span>
-//           </a>
-//           <ul className="dropdown">
-//             <li><a href="#">About</a></li>
-//             <li><a href="#">Contact</a></li>
-//           </ul>
-//         </div>
-//         <div className="sale-badge">
-//           <i className="fas fa-fire"></i> Extra <span>Sale 30% off</span>
-//         </div>
+//       {/* Cart Modal */}
+//       {showCartModal && <CartModal onClose={() => setShowCartModal(false)} />}
+
+//       {/* Navigation */}
+//       <nav className="flex justify-center gap-8 py-4 mt-1 font-medium text-sm border-b relative z-40 bg-white">
+//         <span className="cursor-pointer hover:text-purple-600">
+//           {language === "vi" ? "Trang chủ" : "Home"}
+//         </span>
+
+//         <DropdownMenu
+//           label={language === "vi" ? "Cửa hàng" : "Shop"}
+//           items={shopMenu}
+//           language={language}
+//         />
+
+//         <DropdownMenu
+//           label={language === "vi" ? "Trang" : "Pages"}
+//           items={pagesMenu}
+//           language={language}
+//         />
+
+//         <span className="cursor-pointer hover:text-purple-600">
+//           {language === "vi" ? "Mua ngay" : "Buy now"}
+//         </span>
+
+//         <DropdownMenu label="Blog" items={blogMenu} language={language} />
 //       </nav>
-//     </>
+//     </div>
 //   );
 // }
 
-"use client";
-import "../css/headerhome.css";
-import React from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faMapMarkerAlt,
-  faHeadset,
-  faUser,
-  faStar,
-  faShoppingBag,
-  faMagnifyingGlass,
-  faChevronDown,
-  faFire,
-} from "@fortawesome/free-solid-svg-icons";
-import {
-  faTwitter,
-  faFacebookF,
-  faInstagram,
-  faYoutube,
-} from "@fortawesome/free-brands-svg-icons";
+// "use client";
+// import { ChevronDown, Search, User, Heart, ShoppingCart } from "lucide-react";
+// import { useState } from "react";
+// import DropdownMenu from "./DropdownMenu";
+// import CartModal from "./CartModal";
+// import { useCart } from "../../context/CartContext";
 
-export default function HeaderHome() {
+// export default function Header() {
+//   const [language, setLanguage] = useState<"vi" | "en">("vi");
+//   const { cartItems } = useCart();
+//   const [showCartModal, setShowCartModal] = useState(false);
+//   const totalQty = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+
+//   const shopMenu = [
+//     { label: { vi: "Tất cả sản phẩm", en: "All Products" }, link: "#" },
+//     { label: { vi: "Khuyến mãi", en: "Sale" }, link: "#" },
+//     { label: { vi: "Hàng mới", en: "New Arrivals" }, link: "#" },
+//   ];
+
+//   const pagesMenu = [
+//     { label: { vi: "Về chúng tôi", en: "About Us" }, link: "#" },
+//     { label: { vi: "Liên hệ", en: "Contact" }, link: "#" },
+//     { label: { vi: "Câu hỏi thường gặp", en: "FAQ" }, link: "#" },
+//   ];
+
+//   const blogMenu = [
+//     { label: { vi: "Lưới bài viết", en: "Grid layout" }, link: "#" },
+//     { label: { vi: "Sidebar trái", en: "Left sidebar" }, link: "#" },
+//     { label: { vi: "Sidebar phải", en: "Right sidebar" }, link: "#" },
+//     { label: { vi: "Danh sách blog", en: "Blog list" }, link: "#" },
+//     { label: { vi: "Bài viết đơn", en: "Single Post" }, link: "#" },
+//   ];
+
+//   return (
+//     <div className="w-full bg-white">
+//       {/* Top Bar - NOT sticky */}
+//       <div className="bg-[tomato] text-white text-sm text-center py-1 font-semibold">
+//         <marquee behavior="scroll" direction="left" scrollAmount={5}>
+//           {language === "vi"
+//             ? "MÙA MỚI, PHONG CÁCH MỚI: ƯU ĐÃI THỜI TRANG KHÔNG THỂ BỎ LỠ — MIỄN PHÍ VẬN CHUYỂN VÀ TRẢ HÀNG"
+//             : "NEW SEASON, NEW STYLES: FASHION SALE YOU CAN’T MISS — FREE SHIPPING AND RETURNS"}
+//         </marquee>
+//       </div>
+
+//       {/* Sticky Header + Nav container */}
+//       <div className="sticky top-0 z-50 bg-white shadow-md">
+//         {/* Header */}
+//         <header className="flex justify-between items-center px-6 py-4 border-b bg-white">
+//           <div className="relative">
+//             <select
+//               className="appearance-none bg-transparent pr-6 pl-2 outline-none cursor-pointer"
+//               value={language}
+//               onChange={(e) => setLanguage(e.target.value as "vi" | "en")}
+//             >
+//               <option value="vi">Tiếng Việt</option>
+//               <option value="en">English</option>
+//             </select>
+//             <ChevronDown className="absolute right-1 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none text-gray-500" />
+//           </div>
+//           <h1 className="text-3xl font-bold tracking-wide">DREAMS</h1>
+//           <div className="flex gap-6 items-center text-xl relative">
+//             <Search className="cursor-pointer size-5" />
+//             <User className="cursor-pointer size-5" />
+//             <span className="cursor-pointer relative">
+//               <Heart className="size-5" />
+//               <span className="absolute -top-2 -right-3 text-xs bg-red-500 text-white rounded-full px-1">
+//                 0
+//               </span>
+//             </span>
+
+//             <span
+//               className="cursor-pointer relative"
+//               onClick={() => setShowCartModal(true)}
+//             >
+//               <ShoppingCart className="size-5" />
+//               {totalQty > 0 && (
+//                 <span className="absolute -top-2 -right-3 text-xs bg-red-500 text-white rounded-full px-1">
+//                   {totalQty}
+//                 </span>
+//               )}
+//             </span>
+//           </div>
+//         </header>
+
+//         {/* Navigation */}
+//         <nav className="flex justify-center gap-8 py-4 font-medium text-sm border-b bg-white">
+//           <span className="cursor-pointer hover:text-purple-600">
+//             {language === "vi" ? "Trang chủ" : "Home"}
+//           </span>
+
+//           <DropdownMenu
+//             label={language === "vi" ? "Cửa hàng" : "Shop"}
+//             items={shopMenu}
+//             language={language}
+//           />
+
+//           <DropdownMenu
+//             label={language === "vi" ? "Trang" : "Pages"}
+//             items={pagesMenu}
+//             language={language}
+//           />
+
+//           <span className="cursor-pointer hover:text-purple-600">
+//             {language === "vi" ? "Mua ngay" : "Buy now"}
+//           </span>
+
+//           <DropdownMenu label="Blog" items={blogMenu} language={language} />
+//         </nav>
+//       </div>
+
+//       {/* Cart Modal */}
+//       {showCartModal && <CartModal onClose={() => setShowCartModal(false)} />}
+//     </div>
+//   );
+// }
+"use client";
+import { ChevronDown, Search, User, Heart, ShoppingCart } from "lucide-react";
+import { useState } from "react";
+import DropdownMenu from "./DropdownMenu";
+import CartModal from "./CartModal";
+import { useCart } from "../../context/CartContext";
+
+export default function Header() {
+  const [language, setLanguage] = useState<"vi" | "en">("vi");
+  const { cartItems } = useCart();
+  const [showCartModal, setShowCartModal] = useState(false);
+  const totalQty = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+
+  const shopMenu = [
+    { label: { vi: "Tất cả sản phẩm", en: "All Products" }, link: "#" },
+    { label: { vi: "Khuyến mãi", en: "Sale" }, link: "#" },
+    { label: { vi: "Hàng mới", en: "New Arrivals" }, link: "#" },
+  ];
+
+  const pagesMenu = [
+    { label: { vi: "Về chúng tôi", en: "About Us" }, link: "#" },
+    { label: { vi: "Liên hệ", en: "Contact" }, link: "#" },
+    { label: { vi: "Câu hỏi thường gặp", en: "FAQ" }, link: "#" },
+  ];
+
+  const blogMenu = [
+    { label: { vi: "Lưới bài viết", en: "Grid layout" }, link: "#" },
+    { label: { vi: "Sidebar trái", en: "Left sidebar" }, link: "#" },
+    { label: { vi: "Sidebar phải", en: "Right sidebar" }, link: "#" },
+    { label: { vi: "Danh sách blog", en: "Blog list" }, link: "#" },
+    { label: { vi: "Bài viết đơn", en: "Single Post" }, link: "#" },
+  ];
+
   return (
-    <>
-      {/* Topbar */}
-      <div className="topbar reveal-flip-left">
-        <div className="left">
-          <FontAwesomeIcon icon={faMapMarkerAlt} /> Find a Store
-        </div>
-        <div className="right">
-          <a href="#">
-            <FontAwesomeIcon icon={faTwitter} />
-          </a>
-          <a href="#">
-            <FontAwesomeIcon icon={faFacebookF} />
-          </a>
-          <a href="#">
-            <FontAwesomeIcon icon={faInstagram} />
-          </a>
-          <a href="#">
-            <FontAwesomeIcon icon={faYoutube} />
-          </a>
-        </div>
+    <div className="w-full bg-white">
+      {/* Top Bar - NOT sticky */}
+      <div className="bg-[tomato] text-white text-sm text-center py-1 font-semibold">
+        {/* ✅ Đã sửa scrollAmount => scrollamount */}
+        <marquee behavior="scroll" direction="left" scrollamount="5">
+          {language === "vi"
+            ? "MÙA MỚI, PHONG CÁCH MỚI: ƯU ĐÃI THỜI TRANG KHÔNG THỂ BỎ LỠ — MIỄN PHÍ VẬN CHUYỂN VÀ TRẢ HÀNG"
+            : "NEW SEASON, NEW STYLES: FASHION SALE YOU CAN’T MISS — FREE SHIPPING AND RETURNS"}
+        </marquee>
       </div>
 
-      {/* Header */}
-      <div className="header">
-        <header>
-          <div className="logo">
-            <span>
-              <img
-                style={{ width: "200px", height: "auto", objectFit: "cover" }}
-                src="/img/logo2.png"
-                alt="TeeSpace Logo"
-              />
-            </span>
+      {/* Sticky Header + Nav container */}
+      <div className="sticky top-0 z-50 bg-white shadow-md">
+        {/* Header */}
+        <header className="flex justify-between items-center px-6 py-4 border-b bg-white">
+          {/* Language Selector */}
+          <div className="relative">
+            <select
+              className="appearance-none bg-transparent pr-6 pl-2 outline-none cursor-pointer"
+              value={language}
+              onChange={(e) => setLanguage(e.target.value as "vi" | "en")}
+            >
+              <option value="vi">Tiếng Việt</option>
+              <option value="en">English</option>
+            </select>
+            <ChevronDown className="absolute right-1 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none text-gray-500" />
           </div>
 
-          <div className="search-bar">
-            <span className="search-icon">
-              <FontAwesomeIcon icon={faMagnifyingGlass} />
-            </span>
-            <input type="text" placeholder="Tìm phong cách của bạn!" />
-            <button>Search</button>
-          </div>
+          {/* Logo */}
+          <h1 className="text-3xl font-bold tracking-wide">DREAMS</h1>
 
-          {/* Hotline & Icons */}
-          <div className="right-section">
-            <div className="hotline">
-              <div>
-                <FontAwesomeIcon icon={faHeadset} /> Hotline: 19008188
-              </div>
-              <small>Miễn phí nhận hàng</small>
-            </div>
-            <div className="icons">
-              <a href="#">
-                <FontAwesomeIcon icon={faUser} />
-              </a>
-              <a href="#">
-                <FontAwesomeIcon icon={faStar} />
-                <span className="badge">0</span>
-              </a>
-              <a href="#">
-                <FontAwesomeIcon icon={faShoppingBag} />
-                <span className="badge">0</span>
-              </a>
-            </div>
+          {/* Icons */}
+          <div className="flex gap-6 items-center text-xl relative">
+            <Search className="cursor-pointer size-5" />
+            <User className="cursor-pointer size-5" />
+            <span className="cursor-pointer relative">
+              <Heart className="size-5" />
+              <span className="absolute -top-2 -right-3 text-xs bg-red-500 text-white rounded-full px-1">
+                0
+              </span>
+            </span>
+            <span
+              className="cursor-pointer relative"
+              onClick={() => setShowCartModal(true)}
+            >
+              <ShoppingCart className="size-5" />
+              {totalQty > 0 && (
+                <span className="absolute -top-2 -right-3 text-xs bg-red-500 text-white rounded-full px-1">
+                  {totalQty}
+                </span>
+              )}
+            </span>
           </div>
         </header>
 
-        <nav>
-          <div className="menu-item reveal-blur">
-            <a href="#" className="active">
-              Home{" "}
-              <span style={{ color: "darkgray" }} className="arrow">
-                <FontAwesomeIcon icon={faChevronDown} />
-              </span>
-            </a>
-            <ul className="dropdown">
-              <li>
-                <a href="#">Home 1</a>
-              </li>
-              <li>
-                <a href="#">Home 2</a>
-              </li>
-            </ul>
-          </div>
-          {/* <div className="menu-item">
-            <a href="#">
-              TeeSpace{" "}
-              <span style={{ color: "darkgray" }} className="arrow">
-                <FontAwesomeIcon icon={faChevronDown} />
-              </span>
-            </a>
-            <ul className="dropdown">
-              <li>
-                <a href="#">T-Shirt</a>
-              </li>
-              <li>
-                <a href="#">Hoodie</a>
-              </li>
-            </ul>
-          </div> */}
-          <div className="menu-item">
-            <a href="">
-              Shop{" "}
-              <span style={{ color: "darkgray" }} className="arrow">
-                <FontAwesomeIcon icon={faChevronDown} />
-              </span>
-            </a>
-            <ul className="dropdown">
-              <li>
-                <a href="/products">All Products</a>
-              </li>
-              <li>
-                <a href="#">Sale</a>
-              </li>
-            </ul>
-          </div>
-          <div className="menu-item">
-            <a href="#">
-              Blog{" "}
-              <span style={{ color: "darkgray" }} className="arrow">
-                <FontAwesomeIcon icon={faChevronDown} />
-              </span>
-            </a>
-            <ul className="dropdown">
-              <li>
-                <a href="#">Latest Posts</a>
-              </li>
-              <li>
-                <a href="#">News</a>
-              </li>
-            </ul>
-          </div>
-          <div className="menu-item">
-            <a href="#">
-              Pages{" "}
-              <span style={{ color: "darkgray" }} className="arrow">
-                <FontAwesomeIcon icon={faChevronDown} />
-              </span>
-            </a>
-            <ul className="dropdown">
-              <li>
-                <a href="#">About</a>
-              </li>
-              <li>
-                <a href="#">Contact</a>
-              </li>
-            </ul>
-          </div>
-          <div style={{ color: "darkgray" }} className="sale-badge">
-            <FontAwesomeIcon icon={faFire} /> Extra <span>Sale 30% off</span>
-          </div>
+        {/* Navigation */}
+        <nav className="flex justify-center gap-8 py-4 font-medium text-sm border-b bg-white">
+          <span className="cursor-pointer hover:text-purple-600">
+            {language === "vi" ? "Trang chủ" : "Home"}
+          </span>
+
+          <DropdownMenu
+            label={language === "vi" ? "Cửa hàng" : "Shop"}
+            items={shopMenu}
+            language={language}
+          />
+
+          <DropdownMenu
+            label={language === "vi" ? "Trang" : "Pages"}
+            items={pagesMenu}
+            language={language}
+          />
+
+          <span className="cursor-pointer hover:text-purple-600">
+            {language === "vi" ? "Mua ngay" : "Buy now"}
+          </span>
+
+          <DropdownMenu label="Blog" items={blogMenu} language={language} />
         </nav>
       </div>
-    </>
+
+      {/* Cart Modal */}
+      {showCartModal && <CartModal onClose={() => setShowCartModal(false)} />}
+    </div>
   );
 }

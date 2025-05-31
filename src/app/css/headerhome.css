@@ -476,9 +476,4 @@
     margin-top: 5px;
   }
 }
-.header {
-  position: sticky;
-  top: 0;
-  z-index: 999;
-  background: white; /* Đảm bảo không bị xuyên qua */
-}
+

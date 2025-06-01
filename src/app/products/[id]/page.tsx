@@ -31,7 +31,8 @@
 // }
 import ProductDetailClient from "./ProductDetailPage";
 import HeaderHome from "../../components/Header";
-
+import Footer from "../../components/Footer";
+import CheckoutProgress from "../../components/CheckoutProgress";
 async function getProduct(id: string) {
   try {
     const res = await fetch(`http://127.0.0.1:8000/product/${id}`, {
@@ -72,7 +73,10 @@ export default async function ProductDetailPage({
   return (
     <>
       <HeaderHome />
+      <CheckoutProgress currentStep="detail" />
+
       <ProductDetailClient product={product} reviews={reviews} />
+      <Footer></Footer>
     </>
   );
 }

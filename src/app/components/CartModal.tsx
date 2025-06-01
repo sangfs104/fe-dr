@@ -127,26 +127,6 @@ export default function CartModal({ onClose }: { onClose: () => void }) {
             </span>
           </div>
 
-          {/* <div className="flex gap-2">
-            <button
-              onClick={() => {
-                onClose();
-                window.location.href = "/cart";
-              }}
-              className="flex-1 px-4 py-2 rounded bg-gray-100 hover:bg-gray-200 text-sm"
-            >
-              Tới giỏ hàng
-            </button>
-            <button
-              onClick={() => {
-                onClose();
-                window.location.href = "/checkout";
-              }}
-              className="flex-1 px-4 py-2 rounded bg-black text-white hover:bg-gray-800 text-sm"
-            >
-              Tới thanh toán
-            </button>
-          </div> */}
           <div className="flex gap-2">
             {/* Nút Tới giỏ hàng (nút phụ) */}
             <button

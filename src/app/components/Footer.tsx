@@ -10,7 +10,7 @@ import {
 
 export default function Footer() {
   return (
-    <footer className="bg-white text-gray-800 px-6 py-12 border-t border-gray-200">
+    <footer className="bg-white text-gray-800 px-24 py-12 border-t border-gray-200">
       <div className="grid md:grid-cols-4 gap-8">
         {/* Cột 1: Logo và mô tả */}
         <div>

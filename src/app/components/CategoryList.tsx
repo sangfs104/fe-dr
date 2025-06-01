@@ -37,7 +37,7 @@ export default async function CategoryGrid() {
   const categories = await getCategories();
 
   return (
-    <div className="px-6 py-10 bg-white">
+    <div className="px-24 py-10 bg-white">
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
         {categories.map((category: any) => (
           <div

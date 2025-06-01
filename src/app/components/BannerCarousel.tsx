@@ -249,7 +249,7 @@ export default function BannerCarousel({ language = "vi" }) {
           <div
             className={`absolute inset-0 bg-black/40 flex flex-col justify-center ${
               contentAlignment[banner.layout]
-            } px-6 gap-4`}
+            } px-24 gap-4`}
           >
             <motion.h2
               className="text-4xl md:text-6xl font-bold text-white"
@@ -274,7 +274,7 @@ export default function BannerCarousel({ language = "vi" }) {
               {banner.subtitle}
             </motion.p>
             <motion.button
-              className="bg-white text-black px-6 py-3 rounded-md font-medium hover:bg-purple-600 hover:text-white transition"
+              className="bg-white text-black px-24 py-3 rounded-md font-medium hover:bg-purple-600 hover:text-white transition"
               key={`button-${idx}-${currentSlide}`}
               initial={{ opacity: 0, scale: 0.9 }}
               animate={

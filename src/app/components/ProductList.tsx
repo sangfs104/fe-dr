@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCartShopping } from "@fortawesome/free-solid-svg-icons";
 import { faEye } from "@fortawesome/free-regular-svg-icons";
 import { useCart } from "../../context/CartContext";
+import toast from "react-hot-toast";
 
 interface ProductImage {
   id: number;
@@ -76,7 +77,7 @@ export default function ProductCard({ product }: { product: Product }) {
           </Link>
 
           <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition">
-            <button
+            {/* <button
               className="bg-white p-2 rounded-full shadow hover:bg-gray-100"
               disabled={!selectedVariant}
               onClick={() =>
@@ -93,6 +94,28 @@ export default function ProductCard({ product }: { product: Product }) {
                   variantList: product.variant,
                 })
               }
+            >
+              <FontAwesomeIcon icon={faCartShopping} />
+            </button> */}
+            <button
+              className="bg-white p-2 rounded-full shadow hover:bg-gray-100"
+              disabled={!selectedVariant}
+              onClick={() => {
+                if (selectedVariant) {
+                  addToCart({
+                    productId: product.id,
+                    variantId: selectedVariant.id,
+                    name: product.name,
+                    img: `/img/${mainImage}`,
+                    price: selectedVariant.price,
+                    sale_price: selectedVariant.sale_price,
+                    size: selectedVariant.size,
+                    quantity: 1,
+                    variantList: product.variant,
+                  });
+                  toast.success("Đã thêm vào giỏ hàng "); // ✅ Hiển thị thông báo
+                }
+              }}
             >
               <FontAwesomeIcon icon={faCartShopping} />
             </button>

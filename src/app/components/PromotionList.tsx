@@ -86,7 +86,7 @@ const promotions = [
 
 const PromotionList = () => {
   return (
-    <div className="px-6 py-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="px-24 py-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       {promotions.map((promo, index) => (
         <PromotionCard key={index} promo={promo} />
       ))}

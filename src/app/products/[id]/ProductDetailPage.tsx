@@ -1,14 +1,155 @@
+// "use client";
+// import { useCart } from "../../../context/CartContext";
+// import { Star } from "lucide-react"; // Nếu dùng lucide-react cho icon đẹp
+// import { useState, useEffect } from "react";
+// import Image from "next/image";
+// import { motion } from "framer-motion";
+// import ReactImageMagnify from "react-image-magnify";
+// import { toast } from "react-hot-toast";
+// import * as Dialog from "@radix-ui/react-dialog";
+// import { X } from "lucide-react";
+// import AddToCartModal from "../../components/AddToCartModal"; // Cập nhật đúng đường dẫn
+
+// interface Review {
+//   id: number;
+//   rating: number;
+//   comment: string;
+//   created_at: string;
+//   user: {
+//     id: number;
+//     name: string;
+//   };
+// }
+// interface ProductDetailClientProps {
+//   product: Product;
+//   reviews: Review[];
+// }
+// interface ProductImage {
+//   id: number;
+//   product_id: number;
+//   name: string;
+// }
+
+// interface ProductVariant {
+//   id: number;
+//   product_id: number;
+//   img_id: number;
+//   size: string;
+//   price: number;
+//   sale_price: string | null;
+//   stock_quantity: number;
+//   status: string;
+// }
+
+// interface Product {
+//   id: number;
+//   name: string;
+//   description: string;
+//   status: string;
+//   category: { id: number; name: string };
+//   img: ProductImage[];
+//   variant: ProductVariant[];
+// }
+// // Hàm sinh màu theo tên người dùng
+// function getColorByName(name: string): string {
+//   const colors = [
+//     "bg-red-500",
+//     "bg-blue-500",
+//     "bg-green-500",
+//     "bg-purple-500",
+//     "bg-pink-500",
+//     "bg-indigo-500",
+//     "bg-yellow-500",
+//     "bg-rose-500",
+//     "bg-teal-500",
+//     "bg-cyan-500",
+//   ];
+//   const index = name.charCodeAt(0) % colors.length;
+//   return colors[index];
+// }
+// // export default function ProductDetailClient({ product }: { product: Product }) {
+// export default function ProductDetailClient({
+//   product,
+//   reviews,
+// }: ProductDetailClientProps) {
+//   const [mainImg, setMainImg] = useState<string>("");
+//   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
+//     null
+//   );
+//   const [quantity, setQuantity] = useState<number>(1);
+//   const [showModal, setShowModal] = useState(false);
+
+//   useEffect(() => {
+//     if (product.variant.length > 0) {
+//       const firstVariant = product.variant[0];
+//       setSelectedVariant(firstVariant);
+//       const matchedImg = product.img.find(
+//         (img) => img.id === firstVariant.img_id
+//       );
+//       if (matchedImg) {
+//         setMainImg(matchedImg.name);
+//       } else {
+//         setMainImg(product.img[0]?.name || "");
+//       }
+//     } else {
+//       setMainImg(product.img[0]?.name || "");
+//     }
+//   }, [product]);
+
+//   const { addToCart } = useCart(); // <-- Thêm dòng này trong component
+
+//   // const handleAddToCart = () => {
+//   //   if (!selectedVariant) {
+//   //     toast.error("Vui lòng chọn kích thước");
+//   //     return;
+//   //   }
+
+//   //   addToCart({
+//   //     productId: product.id,
+//   //     variantId: selectedVariant.id,
+//   //     name: product.name,
+//   //     img: `/img/${mainImg}`,
+//   //     price: selectedVariant.price,
+//   //     sale_price: selectedVariant.sale_price,
+//   //     size: selectedVariant.size,
+//   //     quantity,
+//   //     variantList: product.variant,
+//   //   });
+
+//   //   toast.success(`Đã thêm ${quantity} sản phẩm vào giỏ hàng!`);
+//   // };
+//   const handleAddToCart = () => {
+//     if (!selectedVariant) {
+//       toast.error("Vui lòng chọn kích thước");
+//       return;
+//     }
+
+//     addToCart({
+//       productId: product.id,
+//       variantId: selectedVariant.id,
+//       name: product.name,
+//       img: `/img/${mainImg}`,
+//       price: selectedVariant.price,
+//       sale_price: selectedVariant.sale_price,
+//       size: selectedVariant.size,
+//       quantity,
+//       variantList: product.variant,
+//     });
+
+//     toast.success(`Đã thêm ${quantity} sản phẩm vào giỏ hàng!`);
+//     setShowModal(true);
+//   };
 "use client";
-import { useCart } from "../../../context/CartContext";
-import { Star } from "lucide-react"; // Nếu dùng lucide-react cho icon đẹp
+import { useAppDispatch } from "@/store/hooks";
+import { addToCart } from "@/store/cartSlice";
+import { Star, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import ReactImageMagnify from "react-image-magnify";
 import { toast } from "react-hot-toast";
 import * as Dialog from "@radix-ui/react-dialog";
-import { X } from "lucide-react";
-import AddToCartModal from "../../components/AddToCartModal"; // Cập nhật đúng đường dẫn
+import AddToCartModal from "../../components/AddToCartModal";
 
 interface Review {
   id: number;
@@ -24,7 +165,6 @@ interface ProductDetailClientProps {
   product: Product;
   reviews: Review[];
 }
-
 interface ProductImage {
   id: number;
   product_id: number;
@@ -51,7 +191,7 @@ interface Product {
   img: ProductImage[];
   variant: ProductVariant[];
 }
-// Hàm sinh màu theo tên người dùng
+
 function getColorByName(name: string): string {
   const colors = [
     "bg-red-500",
@@ -68,11 +208,12 @@ function getColorByName(name: string): string {
   const index = name.charCodeAt(0) % colors.length;
   return colors[index];
 }
-// export default function ProductDetailClient({ product }: { product: Product }) {
+
 export default function ProductDetailClient({
   product,
   reviews,
 }: ProductDetailClientProps) {
+  const dispatch = useAppDispatch();
   const [mainImg, setMainImg] = useState<string>("");
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
     null
@@ -97,45 +238,25 @@ export default function ProductDetailClient({
     }
   }, [product]);
 
-  const { addToCart } = useCart(); // <-- Thêm dòng này trong component
-
-  // const handleAddToCart = () => {
-  //   if (!selectedVariant) {
-  //     toast.error("Vui lòng chọn kích thước");
-  //     return;
-  //   }
-
-  //   addToCart({
-  //     productId: product.id,
-  //     variantId: selectedVariant.id,
-  //     name: product.name,
-  //     img: `/img/${mainImg}`,
-  //     price: selectedVariant.price,
-  //     sale_price: selectedVariant.sale_price,
-  //     size: selectedVariant.size,
-  //     quantity,
-  //     variantList: product.variant,
-  //   });
-
-  //   toast.success(`Đã thêm ${quantity} sản phẩm vào giỏ hàng!`);
-  // };
   const handleAddToCart = () => {
     if (!selectedVariant) {
       toast.error("Vui lòng chọn kích thước");
       return;
     }
 
-    addToCart({
-      productId: product.id,
-      variantId: selectedVariant.id,
-      name: product.name,
-      img: `/img/${mainImg}`,
-      price: selectedVariant.price,
-      sale_price: selectedVariant.sale_price,
-      size: selectedVariant.size,
-      quantity,
-      variantList: product.variant,
-    });
+    dispatch(
+      addToCart({
+        productId: product.id,
+        variantId: selectedVariant.id,
+        name: product.name,
+        img: `/img/${mainImg}`,
+        price: selectedVariant.price,
+        sale_price: selectedVariant.sale_price,
+        size: selectedVariant.size,
+        quantity,
+        variantList: product.variant,
+      })
+    );
 
     toast.success(`Đã thêm ${quantity} sản phẩm vào giỏ hàng!`);
     setShowModal(true);

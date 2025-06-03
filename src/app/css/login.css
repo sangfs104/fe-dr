@@ -4,7 +4,7 @@
   box-sizing: border-box;
 }
 
-body {
+/* body {
   font-family: "Inter", sans-serif;
   background-color: #f8f8fc;
   display: flex;
@@ -12,9 +12,15 @@ body {
   align-items: center;
   height: 100vh;
   padding: 0 100px;
+} */
+
+body {
+  background: #f9f9fb;
+  display: flex;
+  justify-content: center;
 }
 
-.container {
+/* .container {
   display: flex;
   background-color: #fff;
   border-radius: 12px;
@@ -22,6 +28,25 @@ body {
   overflow: hidden;
   width: 900px;
   max-width: 100%;
+} */
+
+.container {
+  display: flex;
+  max-width: 1000px;
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  width: 100%;
+}
+
+.page-center {
+  min-height: calc(100vh - 200px); /* Trừ chiều cao header + footer ước lượng */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+  box-sizing: border-box;
 }
 
 .image-section {

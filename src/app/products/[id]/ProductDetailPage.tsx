@@ -208,7 +208,15 @@ function getColorByName(name: string): string {
   const index = name.charCodeAt(0) % colors.length;
   return colors[index];
 }
-
+function getEffectivePrice(variant: ProductVariant & { final_price?: number }) {
+  if (variant.final_price && variant.final_price > 0) {
+    return variant.final_price;
+  }
+  if (variant.sale_price && Number(variant.sale_price) > 0) {
+    return Number(variant.sale_price);
+  }
+  return variant.price;
+}
 export default function ProductDetailClient({
   product,
   reviews,
@@ -220,7 +228,25 @@ export default function ProductDetailClient({
   );
   const [quantity, setQuantity] = useState<number>(1);
   const [showModal, setShowModal] = useState(false);
+  // Hàm lấy giá ưu tiên: sale_price > price
+  // Hàm lấy giá ưu tiên: final_price > sale_price > price
 
+  // useEffect(() => {
+  //   if (product.variant.length > 0) {
+  //     const firstVariant = product.variant[0];
+  //     setSelectedVariant(firstVariant);
+  //     const matchedImg = product.img.find(
+  //       (img) => img.id === firstVariant.img_id
+  //     );
+  //     if (matchedImg) {
+  //       setMainImg(matchedImg.name);
+  //     } else {
+  //       setMainImg(product.img[0]?.name || "");
+  //     }
+  //   } else {
+  //     setMainImg(product.img[0]?.name || "");
+  //   }
+  // }, [product]);
   useEffect(() => {
     if (product.variant.length > 0) {
       const firstVariant = product.variant[0];
@@ -237,7 +263,29 @@ export default function ProductDetailClient({
       setMainImg(product.img[0]?.name || "");
     }
   }, [product]);
+  // const handleAddToCart = () => {
+  //   if (!selectedVariant) {
+  //     toast.error("Vui lòng chọn kích thước");
+  //     return;
+  //   }
 
+  //   dispatch(
+  //     addToCart({
+  //       productId: product.id,
+  //       variantId: selectedVariant.id,
+  //       name: product.name,
+  //       img: `/img/${mainImg}`,
+  //       price: selectedVariant.price,
+  //       sale_price: selectedVariant.sale_price,
+  //       size: selectedVariant.size,
+  //       quantity,
+  //       variantList: product.variant,
+  //     })
+  //   );
+
+  //   toast.success(`Đã thêm ${quantity} sản phẩm vào giỏ hàng!`);
+  //   setShowModal(true);
+  // };
   const handleAddToCart = () => {
     if (!selectedVariant) {
       toast.error("Vui lòng chọn kích thước");
@@ -250,7 +298,7 @@ export default function ProductDetailClient({
         variantId: selectedVariant.id,
         name: product.name,
         img: `/img/${mainImg}`,
-        price: selectedVariant.price,
+        price: getEffectivePrice(selectedVariant),
         sale_price: selectedVariant.sale_price,
         size: selectedVariant.size,
         quantity,
@@ -261,13 +309,12 @@ export default function ProductDetailClient({
     toast.success(`Đã thêm ${quantity} sản phẩm vào giỏ hàng!`);
     setShowModal(true);
   };
-
   return (
     <>
-      <div className="w-full px-24 py-8 max-w-7xl ">
-        <div className="grid md:grid-cols-2 gap-6">
+      <div className="w-full px-40 py-8 max-w-7xl ">
+        <div className="grid md:grid-cols-2 gap-12">
           {/* Ảnh sản phẩm */}
-          <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex flex-col md:flex-row gap-12">
             <div className="flex md:flex-col gap-2 overflow-x-auto md:overflow-visible md:max-h-[500px] scrollbar-thin pr-1">
               {product.img.map((img) => {
                 const isActive = mainImg === img.name;
@@ -363,7 +410,7 @@ export default function ProductDetailClient({
             </div>
             {selectedVariant && (
               <>
-                <p>
+                {/* <p>
                   <strong>Giá:</strong>{" "}
                   <span className="text-blue-600 text-lg font-semibold">
                     {selectedVariant.sale_price
@@ -372,6 +419,19 @@ export default function ProductDetailClient({
                         ) + " ₫"
                       : selectedVariant.price.toLocaleString("vi-VN") + " ₫"}
                   </span>
+                </p> */}
+                <p>
+                  <strong>Giá:</strong>{" "}
+                  <span className="text-blue-600 text-lg font-semibold">
+                    {getEffectivePrice(selectedVariant).toLocaleString("vi-VN")}{" "}
+                    ₫
+                  </span>
+                  {selectedVariant.sale_price &&
+                    Number(selectedVariant.sale_price) > 0 && (
+                      <span className="ml-2 text-gray-500 line-through text-base">
+                        {selectedVariant.price.toLocaleString("vi-VN")} ₫
+                      </span>
+                    )}
                 </p>
                 <p>
                   <strong>Số lượng còn:</strong>{" "}
@@ -551,12 +611,21 @@ export default function ProductDetailClient({
         productName={product.name}
         quantity={quantity}
       /> */}
-      <AddToCartModal
+      {/* <AddToCartModal
         open={showModal}
         onClose={() => setShowModal(false)}
         productName={product.name}
         quantity={quantity}
         price={selectedVariant?.price || 0}
+        salePrice={selectedVariant?.sale_price}
+        image={mainImg}
+      /> */}
+      <AddToCartModal
+        open={showModal}
+        onClose={() => setShowModal(false)}
+        productName={product.name}
+        quantity={quantity}
+        price={selectedVariant ? getEffectivePrice(selectedVariant) : 0}
         salePrice={selectedVariant?.sale_price}
         image={mainImg}
       />

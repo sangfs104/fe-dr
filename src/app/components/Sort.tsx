@@ -10,30 +10,15 @@ import {
   faArrowDown91,
 } from "@fortawesome/free-solid-svg-icons";
 
-// const colors = [
-//   "#7f212d",
-//   "#67a55f",
-//   "#3430b2",
-//   "#ce8549",
-//   "#7f215d",
-//   "#a57e5f",
-//   "#7f212d",
-//   "#a57e5f",
-//   "#7f212d",
-//   "#a57e5f",
-//   "#7f212d",
-//   "#a57e5f",
-// ];
-
 const sizes = ["S", "M", "L", "XL"];
 
-export default function BreadcrumbFilter() {
+export default function BreadcrumbFilter({ onSortChange, onSizeChange, onPriceChange, currentPrice }) {
   const [filterOpen, setFilterOpen] = useState(false);
   const [sortOpen, setSortOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("color");
   const [selectedColors, setSelectedColors] = useState([]);
   const [selectedSize, setSelectedSize] = useState(null);
-  const [priceRange, setPriceRange] = useState(0);
+  const [priceRange, setPriceRange] = useState(currentPrice ?? 0);
 
   function toggleFilter() {
     setFilterOpen(!filterOpen);
@@ -43,14 +28,6 @@ export default function BreadcrumbFilter() {
   function toggleSort() {
     setSortOpen(!sortOpen);
     if (!sortOpen) setFilterOpen(false);
-  }
-
-  function selectColor(color) {
-    if (selectedColors.includes(color)) {
-      setSelectedColors(selectedColors.filter((c) => c !== color));
-    } else {
-      setSelectedColors([...selectedColors, color]);
-    }
   }
 
   function selectSize(size) {
@@ -76,9 +53,33 @@ export default function BreadcrumbFilter() {
     }, 600);
   }
 
+  function handleSort(sortOrder) {
+    if (onSortChange) {
+      onSortChange(sortOrder);
+    }
+  }
+
+  function handleApplyFilters() {
+    if (activeTab === "size" && selectedSize) {
+      onSizeChange?.(selectedSize);
+    }
+    if (activeTab === "price" && priceRange > 0) {
+      onPriceChange?.(priceRange);
+    }
+    setFilterOpen(false);
+  }
+
+  function handleClearFilters() {
+    setSelectedColors([]);
+    setSelectedSize(null);
+    setPriceRange(0);
+    onSizeChange?.(null);
+    onPriceChange?.(0);
+  }
+
   return (
     <>
-      <div className="border px-24 py-4 flex justify-between items-center bg-white relative">
+      <div className="border px-40 py-4 flex justify-between items-center bg-white relative">
         <div className="flex items-center gap-6">
           <div className="font-bold">Sản phẩm</div>
           <div className="text-gray-500 text-sm">
@@ -91,7 +92,7 @@ export default function BreadcrumbFilter() {
           <FontAwesomeIcon icon={faGrip} />
         </div>
 
-        {/* Filter modal */}
+        {/* Bộ lọc */}
         {filterOpen && (
           <div className="absolute top-16 right-[70px] w-72 bg-white border p-5 shadow-lg z-10">
             <h4 className="text-base mb-3 font-medium">Bộ lọc</h4>
@@ -110,24 +111,6 @@ export default function BreadcrumbFilter() {
                 </button>
               ))}
             </div>
-            {/* 
-            {activeTab === "color" && (
-              <div className="flex flex-wrap gap-3">
-                {colors.map((color, i) => (
-                  <div
-                    key={i}
-                    className={`w-10 h-10 border ${
-                      selectedColors.includes(color) ? "ring-2 ring-black" : ""
-                    }`}
-                    style={{ backgroundColor: color }}
-                    onClick={(e) => {
-                      createRipple(e);
-                      selectColor(color);
-                    }}
-                  ></div>
-                ))}
-              </div>
-            )} */}
 
             {activeTab === "size" && (
               <div className="flex flex-wrap gap-3">
@@ -165,46 +148,54 @@ export default function BreadcrumbFilter() {
                   <span>0đ</span>
                   <span>2,000,000đ</span>
                 </div>
+                <div className="text-center text-sm mt-2">
+                  Giá dưới: {priceRange.toLocaleString("vi-VN")}₫
+                </div>
               </div>
             )}
 
             <div className="flex justify-between mt-4 gap-2">
               <button
                 className="w-[117px] h-[45px] text-sm bg-gray-100 border border-gray-300"
-                onClick={() => {
-                  setSelectedColors([]);
-                  setSelectedSize(null);
-                  setPriceRange(0);
-                }}
+                onClick={handleClearFilters}
               >
                 Xoá hết
               </button>
-              <button className="w-[117px] h-[45px] text-sm bg-black text-white">
+              <button
+                className="w-[117px] h-[45px] text-sm bg-black text-white"
+                onClick={handleApplyFilters}
+              >
                 Xem kết quả
               </button>
             </div>
           </div>
         )}
 
-        {/* Sort dropdown */}
+        {/* Sắp xếp */}
         {sortOpen && (
           <div className="absolute top-16 right-6 w-52 bg-white border p-4 shadow-lg z-10">
             <h4 className="text-base mb-3 font-medium">Sắp xếp theo</h4>
             <ul className="text-sm">
-              <li className="py-2 border-b cursor-pointer hover:font-bold">
-                <FontAwesomeIcon icon={faArrowDown19} className="mr-2" /> Giá
-                giảm dần
+              <li
+                className="py-2 border-b cursor-pointer hover:font-bold"
+                onClick={() => handleSort("desc")}
+              >
+                <FontAwesomeIcon icon={faArrowDown19} className="mr-2" />
+                Giá giảm dần
               </li>
-              <li className="py-2 cursor-pointer hover:font-bold">
-                <FontAwesomeIcon icon={faArrowDown91} className="mr-2" /> Giá
-                tăng dần
+              <li
+                className="py-2 cursor-pointer hover:font-bold"
+                onClick={() => handleSort("asc")}
+              >
+                <FontAwesomeIcon icon={faArrowDown91} className="mr-2" />
+                Giá tăng dần
               </li>
             </ul>
           </div>
         )}
       </div>
 
-      <div className="flex flex-wrap gap-3 px-24 py-4 border-b text-sm">
+      <div className="flex flex-wrap gap-3 px-40 py-4 border-b text-sm">
         <button className="border px-2 py-1 bg-white">GIÁ TỐT</button>
         <button className="border px-2 py-1 bg-white">Áo Thun Nữ</button>
         <button className="border px-2 py-1 bg-white">Áo Tank Top Nữ</button>

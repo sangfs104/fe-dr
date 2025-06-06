@@ -26,7 +26,7 @@ export default async function ProductTabs({
     type === "new" ? await getNewProducts() : await getHotProducts();
 
   return (
-    <div className="px-24 py-8">
+    <div className="px-40 py-8">
       {/* Tabs */}
       <div className="flex justify-center space-x-12 mb-8">
         <Link

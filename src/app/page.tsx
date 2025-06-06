@@ -6,30 +6,8 @@ import PromotionList from "./components/PromotionList";
 import HeroSlider from "./components/HeroSlider";
 import Footer from "./components/Footer";
 import CategoryList from "./components/CategoryList";
-// import FlashSale from "./components/FlashSale";
+import FlashSaleList from "./components/FlashSaleList";
 
-// export default function ProductPage({
-//   searchParams,
-// }: {
-//   searchParams: { type?: string };
-// }) {
-//   const type = (searchParams?.type as "hot" | "new" | "sale") || "hot";
-
-//   return (
-//     <>
-//       <HeaderHome />
-//       <BannerCarousel />
-//       <ServiceHighlights />
-//       <FlashSale />
-//       {/* ✅ Pass type từ searchParams xuống ProductTabs như initialType */}
-//       <ProductTabs initialType={type} />
-//       <PromotionList />
-//       <HeroSlider />
-//       <CategoryList />
-//       <Footer />
-//     </>
-//   );
-// }
 export default function ProductPage({
   searchParams,
 }: {
@@ -42,6 +20,7 @@ export default function ProductPage({
       <HeaderHome />
       <BannerCarousel />
       <CategoryList />
+      <FlashSaleList />
       <ProductTabs type={type} />
       <PromotionList />
       <HeroSlider />

@@ -2,6 +2,8 @@
 import { useState } from "react";
 import Image from "next/image";
 import "../css/login.css";
+import HeaderHome from "../components/Header";
+import Footer from "../components/Footer";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -74,111 +76,117 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="container">
-      <div className="image-section">
-        <Image
-          src="/img/dir.webp"
-          alt="shopping illustration"
-          width={400}
-          height={400}
-        />
-      </div>
-      <div className="login-section">
-        <h2>Đăng nhập</h2>
-        <p className="sub">Đăng nhập tài khoản mua sắm nhiều ưu đãi</p>
-
-        <form onSubmit={handleSubmit}>
-          <label htmlFor="email">Email</label>
-          <input
-            type="email"
-            id="email"
-            placeholder="example@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-
-          <label htmlFor="password">Mật khẩu</label>
-          <div className="password-field">
-            <input
-              id="password"
-              type={showPassword ? "text" : "password"}
-              className="password-input"
-              placeholder="*********"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            <span className="eye-icon" onClick={togglePassword}>
-              <i
-                className={`fa-solid ${
-                  showPassword ? "fa-eye-slash" : "fa-eye"
-                }`}
-              ></i>
-            </span>
-          </div>
-
-          <div className="forgot">
-            <a href="#" onClick={() => setShowForgotModal(true)}>
-              Quên mật khẩu?
-            </a>
-          </div>
-
-          <button type="submit" className="login-btn">
-            Đăng nhập
-          </button>
-
-          {message && <p>{message}</p>}
-        </form>
-
-        <p className="register">
-          Bạn chưa có tài khoản? <a href="/register">Đăng ký</a>
-        </p>
-
-        <div className="divider">Hoặc</div>
-
-        <button className="google-btn">
-          <div className="google-icon-wrapper">
+    <div className="wrapper">
+      <HeaderHome />
+      <main className="page-center">
+        <div className="container">
+          <div className="image-section">
             <Image
-              src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-              alt="Google"
-              width={20}
-              height={20}
+              src="/img/dir.webp"
+              alt="shopping illustration"
+              width={400}
+              height={400}
             />
           </div>
-          <span className="google-text">Đăng nhập bằng Google</span>
-        </button>
-      </div>
-      {/* Forgot Password Modal */}
-      {showForgotModal && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <h3>Khôi phục mật khẩu</h3>
-            <form onSubmit={handleForgotPassword}>
-              <label htmlFor="forgot-email">Nhập email</label>
+          <div className="login-section">
+            <h2>Đăng nhập</h2>
+            <p className="sub">Đăng nhập tài khoản mua sắm nhiều ưu đãi</p>
+
+            <form onSubmit={handleSubmit}>
+              <label htmlFor="email">Email</label>
               <input
                 type="email"
-                id="forgot-email"
-                value={forgotEmail}
-                onChange={(e) => setForgotEmail(e.target.value)}
+                id="email"
+                placeholder="example@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
               />
-              <button type="submit">Gửi yêu cầu</button>
-              <button
-                type="button"
-                onClick={() => {
-                  setShowForgotModal(false);
-                  setForgotEmail("");
-                  setForgotMessage("");
-                }}
-              >
-                Đóng
+
+              <label htmlFor="password">Mật khẩu</label>
+              <div className="password-field">
+                <input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  className="password-input"
+                  placeholder="*********"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <span className="eye-icon" onClick={togglePassword}>
+                  <i
+                    className={`fa-solid ${
+                      showPassword ? "fa-eye-slash" : "fa-eye"
+                    }`}
+                  ></i>
+                </span>
+              </div>
+
+              <div className="forgot">
+                <a href="#" onClick={() => setShowForgotModal(true)}>
+                  Quên mật khẩu?
+                </a>
+              </div>
+
+              <button type="submit" className="login-btn">
+                Đăng nhập
               </button>
+
+              {message && <p>{message}</p>}
             </form>
-            {forgotMessage && <p>{forgotMessage}</p>}
+
+            <p className="register">
+              Bạn chưa có tài khoản? <a href="/register">Đăng ký</a>
+            </p>
+
+            <div className="divider">Hoặc</div>
+
+            <button className="google-btn">
+              <div className="google-icon-wrapper">
+                <Image
+                  src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                  alt="Google"
+                  width={20}
+                  height={20}
+                />
+              </div>
+              <span className="google-text">Đăng nhập bằng Google</span>
+            </button>
           </div>
+          {/* Forgot Password Modal */}
+          {showForgotModal && (
+            <div className="modal-overlay">
+              <div className="modal">
+                <h3>Khôi phục mật khẩu</h3>
+                <form onSubmit={handleForgotPassword}>
+                  <label htmlFor="forgot-email">Nhập email</label>
+                  <input
+                    type="email"
+                    id="forgot-email"
+                    value={forgotEmail}
+                    onChange={(e) => setForgotEmail(e.target.value)}
+                    required
+                  />
+                  <button type="submit">Gửi yêu cầu</button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowForgotModal(false);
+                      setForgotEmail("");
+                      setForgotMessage("");
+                    }}
+                  >
+                    Đóng
+                  </button>
+                </form>
+                {forgotMessage && <p>{forgotMessage}</p>}
+              </div>
+            </div>
+          )}
         </div>
-      )}
+      </main>
+      <Footer></Footer>
     </div>
   );
 }

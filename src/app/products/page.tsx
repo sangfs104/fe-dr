@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import ProductCard from "../components/ProductList";
 import BreadcrumbFilter from "../components/Sort";
 import HeaderHome from "../components/Header";

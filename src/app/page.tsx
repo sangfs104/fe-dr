@@ -42,11 +42,9 @@ export default function ProductPage({
       <HeaderHome />
       <BannerCarousel />
       <CategoryList />
-
       <ProductTabs type={type} />
       <PromotionList />
       <HeroSlider />
-
       <ServiceHighlights />
       <Footer />
     </>

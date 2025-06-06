@@ -79,7 +79,7 @@ export default function BreadcrumbFilter({ onSortChange, onSizeChange, onPriceCh
 
   return (
     <>
-      <div className="border px-24 py-4 flex justify-between items-center bg-white relative">
+      <div className="border px-40 py-4 flex justify-between items-center bg-white relative">
         <div className="flex items-center gap-6">
           <div className="font-bold">Sản phẩm</div>
           <div className="text-gray-500 text-sm">
@@ -195,7 +195,7 @@ export default function BreadcrumbFilter({ onSortChange, onSizeChange, onPriceCh
         )}
       </div>
 
-      <div className="flex flex-wrap gap-3 px-24 py-4 border-b text-sm">
+      <div className="flex flex-wrap gap-3 px-40 py-4 border-b text-sm">
         <button className="border px-2 py-1 bg-white">GIÁ TỐT</button>
         <button className="border px-2 py-1 bg-white">Áo Thun Nữ</button>
         <button className="border px-2 py-1 bg-white">Áo Tank Top Nữ</button>

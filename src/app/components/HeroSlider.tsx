@@ -40,7 +40,7 @@ export default function HeroSlider() {
   }, []);
 
   return (
-    <div className="relative w-full px-24 overflow-hidden">
+    <div className="relative w-full px-40 overflow-hidden">
       <div
         className="flex transition-transform duration-700 ease-[cubic-bezier(0.4,0,0.2,1)]"
         style={{ transform: `translateX(-${current * 100}%)` }}

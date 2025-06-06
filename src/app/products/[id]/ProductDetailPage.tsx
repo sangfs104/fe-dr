@@ -264,10 +264,10 @@ export default function ProductDetailClient({
 
   return (
     <>
-      <div className="w-full px-24 py-8 max-w-7xl ">
-        <div className="grid md:grid-cols-2 gap-6">
+      <div className="w-full px-40 py-8 max-w-7xl ">
+        <div className="grid md:grid-cols-2 gap-12">
           {/* Ảnh sản phẩm */}
-          <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex flex-col md:flex-row gap-12">
             <div className="flex md:flex-col gap-2 overflow-x-auto md:overflow-visible md:max-h-[500px] scrollbar-thin pr-1">
               {product.img.map((img) => {
                 const isActive = mainImg === img.name;

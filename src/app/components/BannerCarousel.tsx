@@ -249,7 +249,7 @@ export default function BannerCarousel({ language = "vi" }) {
           <div
             className={`absolute inset-0 bg-black/40 flex flex-col justify-center ${
               contentAlignment[banner.layout]
-            } px-24 gap-4`}
+            } px-40 gap-4`}
           >
             <motion.h2
               className="text-4xl md:text-6xl font-bold text-white"

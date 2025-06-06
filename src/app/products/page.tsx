@@ -49,7 +49,7 @@ export default async function ProductPage() {
       <BreadcrumbFilter />
       {/* Flash Sale Section */}
       {/* <FlashSale /> */}
-      <div className="px-24">
+      <div className="px-40">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
           {products.map((product) => (
             <ProductCard key={product.id} product={product} />

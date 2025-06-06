@@ -442,15 +442,31 @@ import CheckoutProgress from "../components/CheckoutProgress";
 import Footer from "../components/Footer";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { removeFromCart, updateQuantity } from "@/store/cartSlice";
+import { CartItem } from "../types/cart";
+import { useRouter } from "next/navigation";
 
 export default function CartPage() {
-  const cartItems = useAppSelector((state) => state.cart.items);
+  const cartItems = useAppSelector(
+    (state: any) => state.cart.items as CartItem[]
+  );
   const dispatch = useAppDispatch();
 
   const totalPrice = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
+    (sum: number, item: CartItem) => sum + item.price * item.quantity,
     0
   );
+
+  {
+    cartItems.map((item: CartItem, i: number) => (
+      <div key={i} className="flex flex-col gap-4 mb-4">
+        {/* ... */}
+      </div>
+    ));
+  }
+
+  const router = useRouter();
+
+  // types/cart.ts (tạo file nếu chưa có)
 
   return (
     <>
@@ -465,7 +481,7 @@ export default function CartPage() {
             hàng
           </p>
 
-          {cartItems.map((item, i) => (
+          {cartItems.map((item: CartItem, i: number) => (
             <div key={i} className="flex flex-col gap-4 mb-4">
               <div className="flex justify-between items-center gap-4 border-b border-gray-200 pb-4">
                 <Image
@@ -489,8 +505,8 @@ export default function CartPage() {
                       onClick={() =>
                         dispatch(
                           updateQuantity({
-                            productId: item.productId,
-                            variantId: item.variantId,
+                            productId: +item.productId,
+                            variantId: +item.variantId,
                             newQuantity: item.quantity - 1,
                           })
                         )
@@ -510,8 +526,8 @@ export default function CartPage() {
                       onClick={() =>
                         dispatch(
                           updateQuantity({
-                            productId: item.productId,
-                            variantId: item.variantId,
+                            productId: +item.productId,
+                            variantId: +item.variantId,
                             newQuantity: item.quantity + 1,
                           })
                         )
@@ -528,8 +544,8 @@ export default function CartPage() {
                     onClick={() =>
                       dispatch(
                         removeFromCart({
-                          productId: item.productId,
-                          variantId: item.variantId,
+                          productId: +item.productId,
+                          variantId: +item.variantId,
                         })
                       )
                     }
@@ -582,7 +598,10 @@ export default function CartPage() {
           <p className="text-sm mb-4 text-gray-600">
             Bạn có thể nhập mã giảm giá ở trang thanh toán
           </p>
-          <button className="w-full bg-[#FF5722] hover:bg-[#F44336] text-white py-2 px-4 text-base rounded-2xl shadow-md transition-colors duration-200">
+          <button
+            onClick={() => router.push("/payment")}
+            className="w-full bg-[#FF5722] hover:bg-[#F44336] text-white py-2 px-4 text-base rounded-2xl shadow-md"
+          >
             THANH TOÁN
           </button>
         </div>

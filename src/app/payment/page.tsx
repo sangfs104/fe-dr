@@ -6,10 +6,55 @@ import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
 import HeaderHome from "../components/Header";
+import Footer from "../components/Footer";
+import { useSelector } from "react-redux";
+import CheckoutProgress from "../components/CheckoutProgress";
+import axios from "axios";
+
+import { RootState } from "@/store/store";
+
 export default function PaymentPage() {
   const [showLogin, setShowLogin] = useState(false);
   const [showCoupon, setShowCoupon] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<"bank" | "cod">("bank");
+  const cartItems = useSelector((state: RootState) => state.cart.items);
+
+  const handlePayment = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      // Chuyển đổi cartItems sang định dạng API yêu cầu
+      const cartData = cartItems.map((item) => ({
+        variant_id: item.variantId,
+        price: item.price,
+        quantity: item.quantity,
+      }));
+
+      const response = await axios.post(
+        "http://localhost:8000/api/payment/vnpay",
+        {
+          cart: cartData,
+          coupon_id: null,
+          shipping_id: 1,
+          address_id: 1,
+          payment_id: 1,
+          order_desc: "Thanh toán đơn hàng VNPAY",
+          bank_code: "",
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.data.payment_url) {
+        window.location.href = response.data.payment_url;
+      }
+    } catch (err) {
+      console.error("Payment error", err);
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -35,9 +80,10 @@ export default function PaymentPage() {
   return (
     <>
       <HeaderHome></HeaderHome>
+      <CheckoutProgress currentStep="checkout" />
       <div>
         <div className="top-notice">
-          <p>
+          {/* <p>
             Khách hàng phản hồi?{" "}
             <a
               href="#"
@@ -48,7 +94,7 @@ export default function PaymentPage() {
             >
               Ấn vào đây để đăng nhập <FontAwesomeIcon icon={faChevronDown} />
             </a>
-          </p>
+          </p> */}
 
           {showLogin && (
             <div id="login-box">
@@ -112,18 +158,27 @@ export default function PaymentPage() {
               <select required>
                 <option value="">Quốc gia/Khu vực *</option>
                 <option value="VN">Việt Nam</option>
-                <option value="JP">Nhật Bản</option>
+                {/* <option value="JP">Nhật Bản</option>
                 <option value="KH">Campuchia</option>
                 <option value="TH">Thái Lan</option>
-                <option value="CA">Canada</option>
+                <option value="CA">Canada</option> */}
               </select>
               <input type="text" placeholder="Địa chỉ" />
-              <input
-                type="text"
-                placeholder="Apartment, suite, unit, etc. (optional)"
-              />
-              <input type="text" placeholder="Mã bưu điện" />
-              <input type="text" placeholder="Tỉnh / Thành phố *" required />
+
+              <select required>
+                <option value="">Tỉnh / Thành phố *</option>
+                <option value="HCM">TP. Hồ Chí Minh</option>
+                <option value="HN">Hà Nội</option>
+                <option value="DN">Đà Nẵng</option>
+                <option value="CT">Cần Thơ</option>
+                <option value="HP">Hải Phòng</option>
+                <option value="BD">Bình Dương</option>
+                <option value="LA">Long An</option>
+                <option value="KH">Khánh Hòa</option>
+                <option value="QN">Quảng Ninh</option>
+                {/* Thêm các tỉnh/thành khác nếu muốn */}
+              </select>
+
               <div className="row">
                 <div className="col">
                   <input type="text" placeholder="Số điện thoại *" required />
@@ -132,18 +187,7 @@ export default function PaymentPage() {
                   <input type="email" placeholder="Địa chỉ email *" required />
                 </div>
               </div>
-              <div className="checkbox-container">
-                <div className="checkbox">
-                  <input type="checkbox" id="new-account" />
-                  <label htmlFor="new-account">Tạo tài khoản mới?</label>
-                </div>
-                <div className="checkbox">
-                  <input type="checkbox" id="ship-different" />
-                  <label htmlFor="ship-different">
-                    <strong>Giao hàng tới địa chỉ khác?</strong>
-                  </label>
-                </div>
-              </div>
+
               <textarea placeholder="Ghi chú về đơn hàng..."></textarea>
             </form>
           </div>
@@ -156,42 +200,54 @@ export default function PaymentPage() {
                 <span>SẢN PHẨM</span>
                 <span>TỔNG PHỤ</span>
               </div>
-              <div className="order-item">
-                <img
-                  src="https://coutura.monamedia.net/wp-content/uploads/2024/04/5232502622_2_6_1.jpg"
-                  alt="Sản phẩm"
-                />
-                <div>
-                  <p>
-                    <strong>Short Sleeved Kaws</strong>
-                  </p>
-                  <p className="small-text">LADIES-TEE / PINK / L</p>
+
+              {cartItems.map((item) => (
+                <div
+                  className="order-item"
+                  key={`${item.productId}-${item.variantId}`}
+                >
+                  <div className="item-left">
+                    <img src={item.img} alt={item.name} />
+                    <div className="item-details">
+                      <p>
+                        <strong>{item.name}</strong>
+                      </p>
+                      <p className="small-text">
+                        {item.size} / Số lượng: {item.quantity}
+                      </p>
+                    </div>
+                  </div>
+                  <p className="price">{item.price.toLocaleString("vi-VN")}đ</p>
                 </div>
-                <p className="price">345,000đ</p>
-              </div>
-              <div className="order-item">
-                <img
-                  src="https://coutura.monamedia.net/wp-content/uploads/2018/02/9471507600_2_6_1.jpg"
-                  alt="Sản phẩm"
-                />
-                <div>
-                  <p>
-                    <strong>Short Sleeved Kaws</strong>
-                  </p>
-                  <p className="small-text">LADIES-TEE / PINK / L</p>
-                </div>
-                <p className="price">345,000đ</p>
-              </div>
+              ))}
+
               <div className="summary-box">
                 <p>
-                  Tổng phụ: <span>345,000đ</span>
+                  Tổng phụ:{" "}
+                  <span>
+                    {cartItems
+                      .reduce(
+                        (sum, item) => sum + item.price * item.quantity,
+                        0
+                      )
+                      .toLocaleString("vi-VN")}
+                    đ
+                  </span>
                 </p>
                 <p>
                   Giao hàng: <span>Giao hàng miễn phí</span>
                 </p>
                 <div className="total-line">
                   <span>TỔNG</span>
-                  <span>345,000đ</span>
+                  <span>
+                    {cartItems
+                      .reduce(
+                        (sum, item) => sum + item.price * item.quantity,
+                        0
+                      )
+                      .toLocaleString("vi-VN")}
+                    đ
+                  </span>
                 </div>
               </div>
             </div>
@@ -205,14 +261,11 @@ export default function PaymentPage() {
                   checked={paymentMethod === "bank"}
                   onChange={() => setPaymentMethod("bank")}
                 />
-                <span>Chuyển khoản ngân hàng</span>
+                <span>Thực hiện thanh toán qua VNPAY</span>
               </label>
               {paymentMethod === "bank" && (
                 <div id="bank-info" className="payment-info">
-                  <p>
-                    Thực hiện thanh toán vào tài khoản ngân hàng của chúng
-                    tôi...
-                  </p>
+                  <p>Thực hiện thanh toán qua VNPAY.</p>
                 </div>
               )}
 
@@ -232,10 +285,13 @@ export default function PaymentPage() {
                 </div>
               )}
             </div>
-            <button className="order-btn">ĐẶT HÀNG</button>
+            <button className="order-btn" onClick={handlePayment}>
+              ĐẶT HÀNG
+            </button>
           </div>
         </div>
       </div>
+      <Footer />
     </>
   );
 }

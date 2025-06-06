@@ -38,6 +38,7 @@ export default function LoginPage() {
 
         setMessage("✅ Đăng nhập thành công!");
 
+        setMessage("Đăng nhập thành công!");
         setTimeout(() => {
           window.location.href = "/";
         }, 1000);

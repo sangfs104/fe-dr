@@ -228,8 +228,13 @@ export default function Header() {
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<UserInfo | null>(null);
 
-  const cartItems = useAppSelector((state) => state.cart.items);
-  const totalQty = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  const cartItems = useAppSelector(
+    (state: { cart: { items: any } }) => state.cart.items
+  );
+  const totalQty = cartItems.reduce(
+    (sum: any, item: { quantity: any }) => sum + item.quantity,
+    0
+  );
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");

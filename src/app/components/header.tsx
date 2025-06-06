@@ -419,8 +419,13 @@ export default function Header() {
   const [showCartModal, setShowCartModal] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const cartItems = useAppSelector((state) => state.cart.items);
-  const totalQty = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  const cartItems = useAppSelector(
+    (state: { cart: { items: any } }) => state.cart.items
+  );
+  const totalQty = cartItems.reduce(
+    (sum: any, item: { quantity: any }) => sum + item.quantity,
+    0
+  );
 
   const handleLinkClick = (href: string) => {
     setLoading(true);

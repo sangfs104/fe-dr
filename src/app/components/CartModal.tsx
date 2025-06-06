@@ -306,7 +306,7 @@ export default function CartModal({ onClose }: { onClose: () => void }) {
             <button
               onClick={() => {
                 onClose();
-                window.location.href = "/checkout";
+                window.location.href = "/payment";
               }}
               className="flex-1 px-4 py-2 rounded-xl bg-[#E55300] text-white hover:bg-[#cc4400] text-sm font-semibold transition"
             >

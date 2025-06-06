@@ -34,9 +34,11 @@ export default function LoginPage() {
       const data = await res.json();
 
       if (res.ok && data.status === 200) {
-        localStorage.setItem("user", JSON.stringify(data.data));
-        setMessage("Đăng nhập thành công!");
+        // Lưu token và user riêng biệt
+        localStorage.setItem("token", data.access_token);
+        localStorage.setItem("user", JSON.stringify(data.user));
 
+        setMessage("Đăng nhập thành công!");
         setTimeout(() => {
           window.location.href = "/";
         }, 1000);

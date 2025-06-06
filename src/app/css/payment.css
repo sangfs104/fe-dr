@@ -226,17 +226,30 @@
 
 .order-item {
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
   gap: 12px;
   padding: 12px 0;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
+.item-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1; /* Cho phép co giãn nội dung bên trái */
+}
+
 .order-item img {
   width: 60px;
   height: 60px;
+  object-fit: cover;
   border-radius: 5px;
+}
+
+.item-details p {
+  margin: 0;
+  line-height: 1.4;
 }
 
 .price {
@@ -323,6 +336,11 @@
   padding-top: 10px;
   border-top: 1px solid #ddd;
   margin-top: 10px;
+}
+
+.required-star {
+  color: red;
+  margin-left: 2px;
 }
 
 /* Thanh toán */

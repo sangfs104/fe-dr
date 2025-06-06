@@ -1,4 +1,5 @@
 // "use client";
+
 // import ProductModal from "./ProductModal";
 // import Image from "next/image";
 // import Link from "next/link";
@@ -6,8 +7,9 @@
 // import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 // import { faCartShopping } from "@fortawesome/free-solid-svg-icons";
 // import { faEye } from "@fortawesome/free-regular-svg-icons";
-// import { useCart } from "../../context/CartContext";
 // import toast from "react-hot-toast";
+// import { useAppDispatch } from "@/store/hooks";
+// import { addToCart } from "@/store/cartSlice";
 
 // interface ProductImage {
 //   id: number;
@@ -42,7 +44,7 @@
 // }
 
 // export default function ProductCard({ product }: { product: Product }) {
-//   const { addToCart } = useCart();
+//   const dispatch = useAppDispatch();
 //   const defaultImg = product.img?.[0];
 //   const [mainImage, setMainImage] = useState<string | undefined>(
 //     defaultImg?.name
@@ -54,6 +56,26 @@
 
 //   const handleImageHover = (imgName: string) => {
 //     setMainImage(imgName);
+//   };
+
+//   const handleAddToCart = () => {
+//     if (!selectedVariant) return;
+
+//     dispatch(
+//       addToCart({
+//         productId: product.id,
+//         variantId: selectedVariant.id,
+//         name: product.name,
+//         img: `/img/${mainImage}`,
+//         price: selectedVariant.price,
+//         sale_price: selectedVariant.sale_price,
+//         size: selectedVariant.size,
+//         quantity: 1,
+//         variantList: product.variant,
+//       })
+//     );
+
+//     toast.success("Đã thêm vào giỏ hàng");
 //   };
 
 //   return (
@@ -77,45 +99,10 @@
 //           </Link>
 
 //           <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition">
-//             {/* <button
-//               className="bg-white p-2 rounded-full shadow hover:bg-gray-100"
-//               disabled={!selectedVariant}
-//               onClick={() =>
-//                 selectedVariant &&
-//                 addToCart({
-//                   productId: product.id,
-//                   variantId: selectedVariant.id,
-//                   name: product.name,
-//                   img: `/img/${mainImage}`,
-//                   price: selectedVariant.price,
-//                   sale_price: selectedVariant.sale_price,
-//                   size: selectedVariant.size,
-//                   quantity: 1,
-//                   variantList: product.variant,
-//                 })
-//               }
-//             >
-//               <FontAwesomeIcon icon={faCartShopping} />
-//             </button> */}
 //             <button
 //               className="bg-white p-2 rounded-full shadow hover:bg-gray-100"
 //               disabled={!selectedVariant}
-//               onClick={() => {
-//                 if (selectedVariant) {
-//                   addToCart({
-//                     productId: product.id,
-//                     variantId: selectedVariant.id,
-//                     name: product.name,
-//                     img: `/img/${mainImage}`,
-//                     price: selectedVariant.price,
-//                     sale_price: selectedVariant.sale_price,
-//                     size: selectedVariant.size,
-//                     quantity: 1,
-//                     variantList: product.variant,
-//                   });
-//                   toast.success("Đã thêm vào giỏ hàng "); // ✅ Hiển thị thông báo
-//                 }
-//               }}
+//               onClick={handleAddToCart}
 //             >
 //               <FontAwesomeIcon icon={faCartShopping} />
 //             </button>
@@ -128,8 +115,9 @@
 //             </button>
 //           </div>
 //         </div>
+
 //         <div className="flex gap-2 mt-2">
-//           {product.img.slice(0, 2).map((img, idx) => (
+//           {product.img?.slice(0, 2).map((img, idx) => (
 //             <div
 //               key={idx}
 //               className={`w-10 h-10 rounded border cursor-pointer ${
@@ -151,12 +139,6 @@
 //         <div className="mt-3">
 //           <h3 className="text-sm text-gray-500">{product.category.name}</h3>
 //           <h2 className="text-lg font-semibold">{product.name}</h2>
-//           {/*
-//           {selectedVariant && (
-//             <div className="text-sm text-gray-600">
-//               Size: {selectedVariant.size}
-//             </div>
-//           )} */}
 
 //           <div className="mt-1 text-base font-medium">
 //             {selectedVariant?.sale_price ? (
@@ -175,6 +157,7 @@
 //           </div>
 //         </div>
 //       </div>
+
 //       {showModal && (
 //         <ProductModal product={product} onClose={() => setShowModal(false)} />
 //       )}
@@ -192,7 +175,7 @@ import { faCartShopping } from "@fortawesome/free-solid-svg-icons";
 import { faEye } from "@fortawesome/free-regular-svg-icons";
 import toast from "react-hot-toast";
 import { useAppDispatch } from "@/store/hooks";
-import { addToCart } from "@/store/cartSlice";
+import { addToCart, getEffectivePrice } from "@/store/cartSlice";
 
 interface ProductImage {
   id: number;
@@ -244,14 +227,20 @@ export default function ProductCard({ product }: { product: Product }) {
   const handleAddToCart = () => {
     if (!selectedVariant) return;
 
+    const priceToUse =
+      selectedVariant.final_price && selectedVariant.final_price > 0
+        ? selectedVariant.final_price
+        : selectedVariant.sale_price && Number(selectedVariant.sale_price) > 0
+        ? Number(selectedVariant.sale_price)
+        : selectedVariant.price;
+
     dispatch(
       addToCart({
         productId: product.id,
         variantId: selectedVariant.id,
         name: product.name,
         img: `/img/${mainImage}`,
-        price: selectedVariant.price,
-        sale_price: selectedVariant.sale_price,
+        price: priceToUse,
         size: selectedVariant.size,
         quantity: 1,
         variantList: product.variant,
@@ -286,6 +275,7 @@ export default function ProductCard({ product }: { product: Product }) {
               className="bg-white p-2 rounded-full shadow hover:bg-gray-100"
               disabled={!selectedVariant}
               onClick={handleAddToCart}
+              aria-label="Add to cart"
             >
               <FontAwesomeIcon icon={faCartShopping} />
             </button>
@@ -293,6 +283,7 @@ export default function ProductCard({ product }: { product: Product }) {
             <button
               className="bg-white p-2 rounded-full shadow hover:bg-gray-100"
               onClick={() => setShowModal(true)}
+              aria-label="View details"
             >
               <FontAwesomeIcon icon={faEye} />
             </button>
@@ -324,11 +315,11 @@ export default function ProductCard({ product }: { product: Product }) {
           <h2 className="text-lg font-semibold">{product.name}</h2>
 
           <div className="mt-1 text-base font-medium">
-            {selectedVariant?.sale_price ? (
+            {selectedVariant?.sale_price &&
+            Number(selectedVariant.sale_price) > 0 ? (
               <>
                 <span className="text-red-500 font-semibold">
-                  {parseInt(selectedVariant.sale_price).toLocaleString("vi-VN")}{" "}
-                  ₫
+                  {Number(selectedVariant.sale_price).toLocaleString("vi-VN")} ₫
                 </span>
                 <span className="ml-2 text-gray-500 line-through text-sm">
                   {selectedVariant.price.toLocaleString("vi-VN")} ₫

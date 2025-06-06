@@ -27,3 +27,19 @@
     animation: marquee 15s linear infinite;
   }
 }
+@keyframes fire-glow {
+  0% {
+    box-shadow: 0 0 8px #ff4500, 0 0 16px #ff6347, 0 0 24px #ff8c00;
+  }
+  50% {
+    box-shadow: 0 0 12px #ff6347, 0 0 20px #ff4500, 0 0 30px #ffa500;
+  }
+  100% {
+    box-shadow: 0 0 8px #ff4500, 0 0 16px #ff6347, 0 0 24px #ff8c00;
+  }
+}
+
+.fire-card {
+  animation: fire-glow 1.2s infinite ease-in-out;
+  border-radius: 1rem;
+}

@@ -473,7 +473,7 @@ export default function CartPage() {
       <HeaderHome />
       <CheckoutProgress currentStep="cart" />
 
-      <div className="mt-10 px-40 flex gap-5">
+      <div className="mt-10 px-24 flex gap-5">
         {/* Cart Items */}
         <div className="flex-[6] max-h-[500px] overflow-y-auto border border-gray-300 bg-white p-4 rounded-md">
           <p className="text-base mb-4">

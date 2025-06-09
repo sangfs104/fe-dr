@@ -43,3 +43,26 @@
   animation: fire-glow 1.2s infinite ease-in-out;
   border-radius: 1rem;
 }
+@keyframes fireFlicker {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  25% {
+    transform: scale(1.1) rotate(-5deg);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(0.95) rotate(3deg);
+    opacity: 0.8;
+  }
+  75% {
+    transform: scale(1.05) rotate(-2deg);
+    opacity: 0.95;
+  }
+}
+
+.fire-flicker {
+  animation: fireFlicker 1s infinite ease-in-out;
+  display: inline-block;
+}

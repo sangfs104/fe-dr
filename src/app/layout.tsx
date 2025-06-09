@@ -20,13 +20,14 @@
 //     </html>
 //   );
 // }
+
 "use client";
 
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import { Provider } from "react-redux";
 import { store } from "../store/store";
-
+import { DreamToast } from "./components/DreamToast"; // nhớ chỉnh path đúng nhé
 export default function RootLayout({
   children,
 }: {
@@ -37,7 +38,8 @@ export default function RootLayout({
       <body>
         <Provider store={store}>
           {children}
-          <Toaster position="top-right" reverseOrder={false} />
+          {/* <Toaster position="top-right" reverseOrder={false} /> */}
+          <DreamToast />
         </Provider>
       </body>
     </html>

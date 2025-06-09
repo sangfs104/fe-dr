@@ -14,7 +14,7 @@ async function getCategories() {
   });
 
   const json = await res.json();
-  return json.data.slice(0, 5); // Lấy 5 danh mục đầu tiên
+  return json.data;
 }
 
 // Map icon theo tên danh mục

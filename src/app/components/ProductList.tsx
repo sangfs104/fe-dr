@@ -338,6 +338,7 @@
 //     </>
 //   );
 // }
+
 "use client";
 
 import ProductModal from "./ProductModal";
@@ -350,7 +351,7 @@ import { faEye } from "@fortawesome/free-regular-svg-icons";
 import toast from "react-hot-toast";
 import { useAppDispatch } from "@/store/hooks";
 import { addToCart } from "@/store/cartSlice";
-
+import { faHeart } from "@fortawesome/free-regular-svg-icons";
 interface ProductImage {
   id: number;
   product_id: number;
@@ -476,6 +477,13 @@ export default function ProductCard({ product }: { product: Product }) {
               aria-label="View details"
             >
               <FontAwesomeIcon icon={faEye} />
+            </button>
+            <button
+              className="bg-white p-2 rounded-full shadow hover:bg-gray-100"
+              onClick={() => toast.success("Đã thêm vào wishlist 💖")} // có thể thay bằng hàm thật
+              aria-label="Add to wishlist"
+            >
+              <FontAwesomeIcon icon={faHeart} />
             </button>
           </div>
         </div>

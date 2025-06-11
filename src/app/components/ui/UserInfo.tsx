@@ -58,18 +58,20 @@
 //   if (!user) return null;
 
 //   return (
-//     <section className="bg-white rounded-xl shadow p-6 hover:shadow-md transition space-y-6">
-//       <div className="flex justify-between items-center mb-6">
+//     <section className="bg-white rounded-lg border border-gray-200 px-6 py-5 shadow-sm">
+//       <div className="flex items-center justify-between border-b pb-4 mb-4">
 //         <div>
-//           <h2 className="text-2xl font-bold text-gray-800">
+//           <h2 className="text-lg font-semibold text-gray-800">
 //             Thông tin cá nhân
 //           </h2>
-//           <p className="text-gray-500 text-sm">Chi tiết tài khoản của bạn</p>
+//           <p className="text-sm text-gray-500">
+//             Quản lý thông tin hồ sơ để bảo mật tài khoản
+//           </p>
 //         </div>
 //         {!isEditing ? (
 //           <button
 //             onClick={() => setIsEditing(true)}
-//             className="text-sm text-orange-600 hover:underline flex items-center gap-1"
+//             className="text-sm text-orange-600 hover:text-orange-700 flex items-center gap-1"
 //           >
 //             <Pencil size={16} /> Chỉnh sửa
 //           </button>
@@ -77,13 +79,13 @@
 //           <div className="flex gap-2">
 //             <button
 //               onClick={handleSave}
-//               className="bg-orange-500 hover:bg-orange-600 text-white text-sm px-4 py-1.5 rounded flex items-center gap-1"
+//               className="bg-orange-500 hover:bg-orange-600 text-white text-sm px-3 py-1.5 rounded flex items-center gap-1"
 //             >
 //               <Save size={16} /> Lưu
 //             </button>
 //             <button
 //               onClick={() => setIsEditing(false)}
-//               className="text-gray-500 hover:underline text-sm flex items-center gap-1"
+//               className="text-gray-600 hover:text-gray-800 text-sm flex items-center gap-1"
 //             >
 //               <X size={16} /> Hủy
 //             </button>
@@ -92,13 +94,13 @@
 //       </div>
 
 //       <div className="flex items-center gap-4 mb-6">
-//         <div className="w-16 h-16 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center font-bold text-xl">
+//         <div className="w-16 h-16 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center font-bold text-xl uppercase">
 //           {user.name.charAt(0)}
 //         </div>
 //         <div>
-//           <div className="font-semibold text-lg">{user.name}</div>
+//           <div className="font-semibold text-base">{user.name}</div>
 //           <span
-//             className={`text-xs font-medium px-2 py-1 rounded-full ${
+//             className={`text-xs font-medium px-2 py-1 rounded-full mt-1 inline-block ${
 //               user.role === "admin"
 //                 ? "bg-red-100 text-red-600"
 //                 : "bg-blue-100 text-blue-600"
@@ -109,7 +111,7 @@
 //         </div>
 //       </div>
 
-//       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+//       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 //         {isEditing ? (
 //           <>
 //             <InputField
@@ -147,7 +149,7 @@
 //   return (
 //     <div>
 //       <div className="text-sm text-gray-500 mb-1">{label}</div>
-//       <div className="text-base font-medium text-gray-800">{value}</div>
+//       <div className="text-base text-gray-800">{value}</div>
 //     </div>
 //   );
 // }
@@ -165,14 +167,12 @@
 // }) {
 //   return (
 //     <div>
-//       <label className="block text-sm font-medium text-gray-700 mb-1">
-//         {label}
-//       </label>
+//       <label className="block text-sm text-gray-600 mb-1">{label}</label>
 //       <input
 //         name={name}
 //         value={value}
 //         onChange={onChange}
-//         className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500 transition"
+//         className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 transition"
 //       />
 //     </div>
 //   );
@@ -180,7 +180,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { toast } from "sonner";
+import { toast } from "react-hot-toast"; // ✅ đổi từ 'sonner' sang 'react-hot-toast'
 import { Pencil, Save, X } from "lucide-react";
 
 type UserInfo = {
@@ -224,12 +224,12 @@ export default function UserInfo() {
           },
         }
       );
-      toast.success("✅ Cập nhật thông tin thành công!");
+      toast.success(" Cập nhật thông tin thành công!");
       setUser(res.data.data);
       localStorage.setItem("user", JSON.stringify(res.data.data));
       setIsEditing(false);
     } catch (err: any) {
-      toast.error("❌ Có lỗi xảy ra khi cập nhật.");
+      toast.error(" Có lỗi xảy ra khi cập nhật.");
       console.error(err);
     }
   };

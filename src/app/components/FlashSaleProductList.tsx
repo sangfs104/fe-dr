@@ -3,7 +3,7 @@
 // import { useEffect, useState } from "react";
 // import axios from "axios";
 // import FlashSaleHeader from "./FlashSaleHeader";
-// import ProductCard from "./ProductList"; // Giữ nguyên đường dẫn của bạn
+// import ProductCard from "./ProductList";
 
 // interface FlashSaleVariant {
 //   product_id: number;
@@ -84,60 +84,147 @@
 //   if (flashSales.length === 0) return <div>Loading flash sale products...</div>;
 
 //   return (
-//     <div className="space-y-14">
+//     //     <div className="space-y-14  px-40">
+//     //       {flashSales.map((sale) => (
+//     //         <div key={sale.flash_sale_id} className="relative">
+//     //           <div
+//     //             className="
+//     //               relative z-10
+//     //  space-y-6
+//     //               from-[#FF7043]/20 via-[#FF5722]/20 to-[#FF8A50]/10
+//     //               rounded-3xl
+
+//     //               animate-fade-in-up
+//     //               transition-transform duration-500
+
+//     //             "
+//     //           >
+//     //             <FlashSaleHeader
+//     //               name={sale.flash_sale_name}
+//     //               timeLeft={countdowns[sale.flash_sale_id] ?? ""}
+//     //             />
+
+//     //             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+//     //               {sale.variants.map((variant) => (
+//     //                 <div key={variant.id} className="fire-card">
+//     //                   <ProductCard
+//     //                     product={{
+//     //                       id: variant.product_id,
+//     //                       name: variant.name,
+//     //                       description: variant.description,
+//     //                       status: variant.status,
+//     //                       img: variant.images.map((img, idx) => ({
+//     //                         id: idx,
+//     //                         product_id: variant.product_id,
+//     //                         name: img,
+//     //                       })),
+//     //                       variant: [
+//     //                         {
+//     //                           id: variant.variant_id,
+//     //                           product_id: variant.product_id,
+//     //                           img_id: 0,
+//     //                           size: "M",
+//     //                           color: "",
+//     //                           price: variant.original_price,
+//     //                           sale_price: variant.flash_sale_price.toString(),
+//     //                           stock_quantity:
+//     //                             variant.flash_quantity - variant.flash_sold,
+//     //                           status: variant.status,
+//     //                         },
+//     //                       ],
+//     //                       category: {
+//     //                         id: variant.category_id,
+//     //                         name: sale.flash_sale_name,
+//     //                       },
+//     //                     }}
+//     //                   />
+//     //                   {/* Hiển thị số lượng còn lại */}
+//     //                   <div className="mt-2 text-sm text-orange-600 font-semibold">
+//     //                     Số lượng flash sale: {variant.flash_quantity}
+//     //                   </div>
+//     //                 </div>
+//     //               ))}
+//     //             </div>
+//     //           </div>
+//     //         </div>
+//     //       ))}
+//     //     </div>
+//     <div className="space-y-20 px-6 sm:px-10 md:px-20 lg:px-40 py-10">
 //       {flashSales.map((sale) => (
-//         <div key={sale.flash_sale_id}>
+//         <div key={sale.flash_sale_id} className="relative space-y-6">
 //           <div
 //             className="
-//     p-6 space-y-6
-//     bg-gradient-to-tr from-[#FF7043]/20 via-[#FF5722]/20 to-[#FF8A50]/10
-//     rounded-3xl
-//     shadow-2xl
-//     border border-orange-400/40
-//     animate-fade-in-up
-//     transition-transform duration-500
-//     hover:scale-[1.02]
-//   "
+//           relative z-10 space-y-6 p-6 sm:p-10
+//           bg-gradient-to-r from-[#FF7043]/20 via-[#FF5722]/10 to-[#FF8A50]/10
+//           rounded-3xl shadow-md
+//           animate-fade-in-up transition-transform duration-500
+//         "
 //           >
 //             <FlashSaleHeader
 //               name={sale.flash_sale_name}
 //               timeLeft={countdowns[sale.flash_sale_id] ?? ""}
 //             />
 
-//             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+//             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
 //               {sale.variants.map((variant) => (
-//                 <ProductCard
+//                 <div
 //                   key={variant.id}
-//                   product={{
-//                     id: variant.product_id,
-//                     name: variant.name,
-//                     description: variant.description,
-//                     status: variant.status,
-//                     img: variant.images.map((img, idx) => ({
-//                       id: idx,
-//                       product_id: variant.product_id,
-//                       name: img,
-//                     })),
-//                     variant: [
-//                       {
-//                         id: variant.variant_id,
+//                   className="fire-card group relative bg-white rounded-2xl p-4 shadow hover:shadow-lg transition duration-300"
+//                 >
+//                   <ProductCard
+//                     product={{
+//                       id: variant.product_id,
+//                       name: variant.name,
+//                       description: variant.description,
+//                       status: variant.status,
+//                       img: variant.images.map((img, idx) => ({
+//                         id: idx,
 //                         product_id: variant.product_id,
-//                         img_id: 0,
-//                         size: "M",
-//                         color: "",
-//                         price: variant.original_price,
-//                         sale_price: variant.flash_sale_price.toString(),
-//                         stock_quantity:
-//                           variant.flash_quantity - variant.flash_sold,
-//                         status: variant.status,
+//                         name: img,
+//                       })),
+//                       variant: [
+//                         {
+//                           id: variant.variant_id,
+//                           product_id: variant.product_id,
+//                           img_id: 0,
+//                           size: "M",
+//                           color: "",
+//                           price: variant.original_price,
+//                           sale_price: variant.flash_sale_price.toString(),
+//                           stock_quantity:
+//                             variant.flash_quantity - variant.flash_sold,
+//                           status: variant.status,
+//                         },
+//                       ],
+//                       category: {
+//                         id: variant.category_id,
+//                         name: sale.flash_sale_name,
 //                       },
-//                     ],
-//                     category: {
-//                       id: variant.category_id,
-//                       name: sale.flash_sale_name,
-//                     },
-//                   }}
-//                 />
+//                     }}
+//                   />
+
+//                   {/* Badge số lượng còn lại */}
+//                   <div className="mt-3 text-sm font-semibold text-orange-600 flex items-center space-x-1">
+//                     <span className="text-lg fire-flicker">🔥</span>
+
+//                     <span>Số lượng còn lại: {variant.flash_quantity}</span>
+//                   </div>
+
+//                   {/* Optional: Progress bar */}
+//                   <div className="mt-1 h-2 bg-orange-100 rounded-full overflow-hidden">
+//                     <div
+//                       className="h-full bg-gradient-to-r from-orange-500 to-orange-400 transition-all duration-500"
+//                       style={{
+//                         width: `${Math.min(
+//                           ((variant.flash_quantity - variant.flash_sold) /
+//                             variant.flash_quantity) *
+//                             100,
+//                           100
+//                         )}%`,
+//                       }}
+//                     />
+//                   </div>
+//                 </div>
 //               ))}
 //             </div>
 //           </div>
@@ -146,7 +233,6 @@
 //     </div>
 //   );
 // }
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -233,81 +319,16 @@ export default function FlashSaleProductList() {
   if (flashSales.length === 0) return <div>Loading flash sale products...</div>;
 
   return (
-    //     <div className="space-y-14  px-40">
-    //       {flashSales.map((sale) => (
-    //         <div key={sale.flash_sale_id} className="relative">
-    //           <div
-    //             className="
-    //               relative z-10
-    //  space-y-6
-    //               from-[#FF7043]/20 via-[#FF5722]/20 to-[#FF8A50]/10
-    //               rounded-3xl
-
-    //               animate-fade-in-up
-    //               transition-transform duration-500
-
-    //             "
-    //           >
-    //             <FlashSaleHeader
-    //               name={sale.flash_sale_name}
-    //               timeLeft={countdowns[sale.flash_sale_id] ?? ""}
-    //             />
-
-    //             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-    //               {sale.variants.map((variant) => (
-    //                 <div key={variant.id} className="fire-card">
-    //                   <ProductCard
-    //                     product={{
-    //                       id: variant.product_id,
-    //                       name: variant.name,
-    //                       description: variant.description,
-    //                       status: variant.status,
-    //                       img: variant.images.map((img, idx) => ({
-    //                         id: idx,
-    //                         product_id: variant.product_id,
-    //                         name: img,
-    //                       })),
-    //                       variant: [
-    //                         {
-    //                           id: variant.variant_id,
-    //                           product_id: variant.product_id,
-    //                           img_id: 0,
-    //                           size: "M",
-    //                           color: "",
-    //                           price: variant.original_price,
-    //                           sale_price: variant.flash_sale_price.toString(),
-    //                           stock_quantity:
-    //                             variant.flash_quantity - variant.flash_sold,
-    //                           status: variant.status,
-    //                         },
-    //                       ],
-    //                       category: {
-    //                         id: variant.category_id,
-    //                         name: sale.flash_sale_name,
-    //                       },
-    //                     }}
-    //                   />
-    //                   {/* Hiển thị số lượng còn lại */}
-    //                   <div className="mt-2 text-sm text-orange-600 font-semibold">
-    //                     Số lượng flash sale: {variant.flash_quantity}
-    //                   </div>
-    //                 </div>
-    //               ))}
-    //             </div>
-    //           </div>
-    //         </div>
-    //       ))}
-    //     </div>
     <div className="space-y-20 px-6 sm:px-10 md:px-20 lg:px-40 py-10">
       {flashSales.map((sale) => (
         <div key={sale.flash_sale_id} className="relative space-y-6">
           <div
             className="
-          relative z-10 space-y-6 p-6 sm:p-10
-          bg-gradient-to-r from-[#FF7043]/20 via-[#FF5722]/10 to-[#FF8A50]/10
-          rounded-3xl shadow-md
-          animate-fade-in-up transition-transform duration-500
-        "
+              relative z-10 space-y-6 p-6 sm:p-10
+              bg-gradient-to-r from-[#FF7043]/20 via-[#FF5722]/10 to-[#FF8A50]/10
+              rounded-3xl shadow-md
+              animate-fade-in-up transition-transform duration-500
+            "
           >
             <FlashSaleHeader
               name={sale.flash_sale_name}
@@ -315,66 +336,84 @@ export default function FlashSaleProductList() {
             />
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-              {sale.variants.map((variant) => (
-                <div
-                  key={variant.id}
-                  className="fire-card group relative bg-white rounded-2xl p-4 shadow hover:shadow-lg transition duration-300"
-                >
-                  <ProductCard
-                    product={{
-                      id: variant.product_id,
-                      name: variant.name,
-                      description: variant.description,
-                      status: variant.status,
-                      img: variant.images.map((img, idx) => ({
-                        id: idx,
-                        product_id: variant.product_id,
-                        name: img,
-                      })),
-                      variant: [
-                        {
-                          id: variant.variant_id,
+              {sale.variants.map((variant) => {
+                const percentSold =
+                  (variant.flash_sold / variant.flash_quantity) * 100;
+                const isSoldOut = variant.flash_sold >= variant.flash_quantity;
+
+                return (
+                  <div
+                    key={variant.id}
+                    className="fire-card group relative bg-white rounded-2xl p-4 shadow hover:shadow-lg transition duration-300"
+                  >
+                    <ProductCard
+                      product={{
+                        id: variant.product_id,
+                        name: variant.name,
+                        description: variant.description,
+                        status: variant.status,
+                        img: variant.images.map((img, idx) => ({
+                          id: idx,
                           product_id: variant.product_id,
-                          img_id: 0,
-                          size: "M",
-                          color: "",
-                          price: variant.original_price,
-                          sale_price: variant.flash_sale_price.toString(),
-                          stock_quantity:
-                            variant.flash_quantity - variant.flash_sold,
-                          status: variant.status,
+                          name: img,
+                        })),
+                        variant: [
+                          {
+                            id: variant.variant_id,
+                            product_id: variant.product_id,
+                            img_id: 0,
+                            size: "M",
+                            color: "",
+                            price: variant.original_price,
+                            sale_price: variant.flash_sale_price.toString(),
+                            stock_quantity:
+                              variant.flash_quantity - variant.flash_sold,
+                            status: variant.status,
+                          },
+                        ],
+                        category: {
+                          id: variant.category_id,
+                          name: sale.flash_sale_name,
                         },
-                      ],
-                      category: {
-                        id: variant.category_id,
-                        name: sale.flash_sale_name,
-                      },
-                    }}
-                  />
-
-                  {/* Badge số lượng còn lại */}
-                  <div className="mt-3 text-sm font-semibold text-orange-600 flex items-center space-x-1">
-                    <span className="text-lg fire-flicker">🔥</span>
-
-                    <span>Số lượng còn lại: {variant.flash_quantity}</span>
-                  </div>
-
-                  {/* Optional: Progress bar */}
-                  <div className="mt-1 h-2 bg-orange-100 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-orange-500 to-orange-400 transition-all duration-500"
-                      style={{
-                        width: `${Math.min(
-                          ((variant.flash_quantity - variant.flash_sold) /
-                            variant.flash_quantity) *
-                            100,
-                          100
-                        )}%`,
                       }}
                     />
+
+                    {/* Flash Sale Info */}
+                    <div className="mt-4 space-y-1 text-sm font-medium text-gray-700">
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg fire-flicker first-letter:text-orange-500 font-bold">
+                          🔥 Đã bán:
+                        </span>
+                        <span>{variant.flash_sold}</span>
+                        <span className="text-gray-400">
+                          / {variant.flash_quantity}
+                        </span>
+                      </div>
+
+                      <div className="relative h-3 bg-orange-100 rounded-full overflow-hidden">
+                        <div
+                          className={`absolute left-0 top-0 h-full transition-all duration-500 ${
+                            isSoldOut
+                              ? "bg-gray-400"
+                              : "bg-gradient-to-r from-orange-500 to-orange-400"
+                          }`}
+                          style={{ width: `${Math.min(percentSold, 100)}%` }}
+                        />
+                      </div>
+
+                      <div
+                        className={`text-xs text-right font-semibold ${
+                          isSoldOut ? "text-red-500" : "text-orange-600"
+                        }`}
+                      >
+                        {isSoldOut
+                          ? "Đã hết hàng"
+                          : `${Math.floor(percentSold)}% đã bán`}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>

@@ -66,3 +66,18 @@
   animation: fireFlicker 1s infinite ease-in-out;
   display: inline-block;
 }
+
+@keyframes bounce-updown {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.login-bounce {
+  animation: bounce-updown 1.2s ease-in-out infinite;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  color: #f97316; /* Tailwind orange-500 */
+}

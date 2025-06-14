@@ -349,9 +349,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCartShopping } from "@fortawesome/free-solid-svg-icons";
 import { faEye } from "@fortawesome/free-regular-svg-icons";
 import toast from "react-hot-toast";
-import { useAppDispatch } from "@/store/hooks";
+
 import { addToCart } from "@/store/cartSlice";
 import { faHeart } from "@fortawesome/free-regular-svg-icons";
+import { addToWishlistAPI, fetchWishlist } from "@/store/wishlistSlice";
+import { useAppDispatch } from "@/store/hooks";
+import { useRouter } from "next/navigation";
 interface ProductImage {
   id: number;
   product_id: number;
@@ -422,7 +425,36 @@ export default function ProductCard({ product }: { product: Product }) {
 
     toast.success("Đã thêm vào giỏ hàng");
   };
+  const handleAddToWishlist = async () => {
+    const token =
+      typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    if (!token) {
+      toast.error("Bạn cần đăng nhập để thêm vào wishlist!");
+      router.push("/login");
+      return;
+    }
+    if (!selectedVariant) return;
 
+    const wishlistItem = {
+      productId: product.id,
+      variantId: selectedVariant.id,
+      name: product.name,
+      img: `/img/${mainImage}`,
+      price:
+        selectedVariant.sale_price && Number(selectedVariant.sale_price) > 0
+          ? Number(selectedVariant.sale_price)
+          : selectedVariant.price,
+      size: selectedVariant.size,
+    };
+
+    const result = await dispatch(addToWishlistAPI(wishlistItem));
+    if (addToWishlistAPI.fulfilled.match(result)) {
+      toast.success("Đã thêm vào wishlist 💖");
+      await dispatch(fetchWishlist());
+    } else {
+      toast.error((result.payload as string) || "Có lỗi khi thêm vào wishlist");
+    }
+  };
   const discountPercent =
     selectedVariant?.sale_price &&
     Number(selectedVariant.sale_price) > 0 &&
@@ -480,7 +512,7 @@ export default function ProductCard({ product }: { product: Product }) {
             </button>
             <button
               className="bg-white p-2 rounded-full shadow hover:bg-gray-100"
-              onClick={() => toast.success("Đã thêm vào wishlist 💖")} // có thể thay bằng hàm thật
+              onClick={handleAddToWishlist}
               aria-label="Add to wishlist"
             >
               <FontAwesomeIcon icon={faHeart} />

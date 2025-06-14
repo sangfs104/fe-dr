@@ -1,144 +1,3 @@
-// "use client";
-// import { useCart } from "../../../context/CartContext";
-// import { Star } from "lucide-react"; // Nếu dùng lucide-react cho icon đẹp
-// import { useState, useEffect } from "react";
-// import Image from "next/image";
-// import { motion } from "framer-motion";
-// import ReactImageMagnify from "react-image-magnify";
-// import { toast } from "react-hot-toast";
-// import * as Dialog from "@radix-ui/react-dialog";
-// import { X } from "lucide-react";
-// import AddToCartModal from "../../components/AddToCartModal"; // Cập nhật đúng đường dẫn
-
-// interface Review {
-//   id: number;
-//   rating: number;
-//   comment: string;
-//   created_at: string;
-//   user: {
-//     id: number;
-//     name: string;
-//   };
-// }
-// interface ProductDetailClientProps {
-//   product: Product;
-//   reviews: Review[];
-// }
-// interface ProductImage {
-//   id: number;
-//   product_id: number;
-//   name: string;
-// }
-
-// interface ProductVariant {
-//   id: number;
-//   product_id: number;
-//   img_id: number;
-//   size: string;
-//   price: number;
-//   sale_price: string | null;
-//   stock_quantity: number;
-//   status: string;
-// }
-
-// interface Product {
-//   id: number;
-//   name: string;
-//   description: string;
-//   status: string;
-//   category: { id: number; name: string };
-//   img: ProductImage[];
-//   variant: ProductVariant[];
-// }
-// // Hàm sinh màu theo tên người dùng
-// function getColorByName(name: string): string {
-//   const colors = [
-//     "bg-red-500",
-//     "bg-blue-500",
-//     "bg-green-500",
-//     "bg-purple-500",
-//     "bg-pink-500",
-//     "bg-indigo-500",
-//     "bg-yellow-500",
-//     "bg-rose-500",
-//     "bg-teal-500",
-//     "bg-cyan-500",
-//   ];
-//   const index = name.charCodeAt(0) % colors.length;
-//   return colors[index];
-// }
-// // export default function ProductDetailClient({ product }: { product: Product }) {
-// export default function ProductDetailClient({
-//   product,
-//   reviews,
-// }: ProductDetailClientProps) {
-//   const [mainImg, setMainImg] = useState<string>("");
-//   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
-//     null
-//   );
-//   const [quantity, setQuantity] = useState<number>(1);
-//   const [showModal, setShowModal] = useState(false);
-
-//   useEffect(() => {
-//     if (product.variant.length > 0) {
-//       const firstVariant = product.variant[0];
-//       setSelectedVariant(firstVariant);
-//       const matchedImg = product.img.find(
-//         (img) => img.id === firstVariant.img_id
-//       );
-//       if (matchedImg) {
-//         setMainImg(matchedImg.name);
-//       } else {
-//         setMainImg(product.img[0]?.name || "");
-//       }
-//     } else {
-//       setMainImg(product.img[0]?.name || "");
-//     }
-//   }, [product]);
-
-//   const { addToCart } = useCart(); // <-- Thêm dòng này trong component
-
-//   // const handleAddToCart = () => {
-//   //   if (!selectedVariant) {
-//   //     toast.error("Vui lòng chọn kích thước");
-//   //     return;
-//   //   }
-
-//   //   addToCart({
-//   //     productId: product.id,
-//   //     variantId: selectedVariant.id,
-//   //     name: product.name,
-//   //     img: `/img/${mainImg}`,
-//   //     price: selectedVariant.price,
-//   //     sale_price: selectedVariant.sale_price,
-//   //     size: selectedVariant.size,
-//   //     quantity,
-//   //     variantList: product.variant,
-//   //   });
-
-//   //   toast.success(`Đã thêm ${quantity} sản phẩm vào giỏ hàng!`);
-//   // };
-//   const handleAddToCart = () => {
-//     if (!selectedVariant) {
-//       toast.error("Vui lòng chọn kích thước");
-//       return;
-//     }
-
-//     addToCart({
-//       productId: product.id,
-//       variantId: selectedVariant.id,
-//       name: product.name,
-//       img: `/img/${mainImg}`,
-//       price: selectedVariant.price,
-//       sale_price: selectedVariant.sale_price,
-//       size: selectedVariant.size,
-//       quantity,
-//       variantList: product.variant,
-//     });
-
-//     toast.success(`Đã thêm ${quantity} sản phẩm vào giỏ hàng!`);
-//     setShowModal(true);
-//   };
 "use client";
 import { useAppDispatch } from "@/store/hooks";
 import { addToCart } from "@/store/cartSlice";
@@ -150,7 +9,7 @@ import ReactImageMagnify from "react-image-magnify";
 import { toast } from "react-hot-toast";
 import * as Dialog from "@radix-ui/react-dialog";
 import AddToCartModal from "../../components/AddToCartModal";
-
+import { useRouter } from "next/navigation";
 interface Review {
   id: number;
   rating: number;
@@ -219,9 +78,13 @@ function getEffectivePrice(variant: ProductVariant & { final_price?: number }) {
 }
 export default function ProductDetailClient({
   product,
-  reviews,
+  reviews: initialReviews, // Đổi tên prop reviews thành initialReviews
 }: ProductDetailClientProps) {
   const dispatch = useAppDispatch();
+  const [comment, setComment] = useState("");
+  const [rating, setRating] = useState(5);
+  const router = useRouter();
+  const [reviews, setReviews] = useState(initialReviews);
   const [mainImg, setMainImg] = useState<string>("");
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
     null
@@ -308,6 +171,51 @@ export default function ProductDetailClient({
 
     toast.success(`Đã thêm ${quantity} sản phẩm vào giỏ hàng!`);
     setShowModal(true);
+  };
+  const handleSubmitReview = async () => {
+    const token =
+      typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    if (!token) {
+      toast.error("Bạn cần đăng nhập để bình luận!");
+      router.push("/login");
+      return;
+    }
+    if (!comment.trim()) {
+      toast.error("Vui lòng nhập nội dung bình luận!");
+      return;
+    }
+    try {
+      const res = await fetch("http://127.0.0.1:8000/api/review", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          product_id: product.id,
+          rating,
+          comment,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast.success("Đánh giá thành công!");
+        setComment("");
+        await fetchReviews(); // Cập nhật lại reviews mới nhất
+        // Gọi lại API lấy review mới nếu cần
+        // await fetchReviews();
+      } else {
+        toast.error(data.message || "Có lỗi khi gửi đánh giá");
+      }
+    } catch (err) {
+      toast.error("Có lỗi khi gửi đánh giá");
+    }
+  };
+  const fetchReviews = async () => {
+    const res = await fetch(`http://127.0.0.1:8000/api/review/${product.id}`);
+    const data = await res.json();
+    setReviews(data.data);
   };
   return (
     <>
@@ -605,21 +513,37 @@ export default function ProductDetailClient({
           )}
         </div>
       </div>
-      {/* <AddToCartModal
-        open={showModal}
-        onClose={() => setShowModal(false)}
-        productName={product.name}
-        quantity={quantity}
-      /> */}
-      {/* <AddToCartModal
-        open={showModal}
-        onClose={() => setShowModal(false)}
-        productName={product.name}
-        quantity={quantity}
-        price={selectedVariant?.price || 0}
-        salePrice={selectedVariant?.sale_price}
-        image={mainImg}
-      /> */}
+      <div className="mt-8">
+        <h3 className="font-semibold mb-2">Viết đánh giá của bạn</h3>
+        <div className="flex items-center gap-2 mb-2">
+          <span>Chọn sao:</span>
+          {[1, 2, 3, 4, 5].map((star) => (
+            <Star
+              key={star}
+              size={22}
+              className={`cursor-pointer ${
+                rating >= star
+                  ? "text-yellow-400 fill-yellow-400"
+                  : "text-gray-300"
+              }`}
+              onClick={() => setRating(star)}
+            />
+          ))}
+        </div>
+        <textarea
+          className="w-full border rounded p-2 mb-2"
+          rows={3}
+          placeholder="Nhập bình luận..."
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+        />
+        <button
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          onClick={handleSubmitReview}
+        >
+          Gửi đánh giá
+        </button>
+      </div>
       <AddToCartModal
         open={showModal}
         onClose={() => setShowModal(false)}

@@ -59,7 +59,19 @@ type Order = {
 export default function OrderList() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [addresses, setAddresses] = useState<Record<number, Address>>({});
+  const [statusFilter, setStatusFilter] = useState<string>("all");
 
+  const filteredOrders =
+    statusFilter === "all"
+      ? orders
+      : orders.filter((order) => order.status === statusFilter);
+  const statusTabs = [
+    { key: "all", label: "Tất cả" },
+    { key: "pending", label: "Chờ xác nhận" },
+    { key: "processing", label: "Đang giao" },
+    { key: "paid", label: "Đã hoàn thành" },
+    { key: "cancelled", label: "Đã hủy" },
+  ];
   useEffect(() => {
     const fetchOrders = async () => {
       const token = localStorage.getItem("token");
@@ -92,14 +104,73 @@ export default function OrderList() {
     fetchOrders();
   }, []);
 
+  // Đếm số lượng đơn hàng cho từng trạng thái
+  const statusCounts: Record<string, number> = {
+    all: orders.length,
+    pending: orders.filter((o) => o.status === "pending").length,
+    processing: orders.filter((o) => o.status === "processing").length,
+    paid: orders.filter((o) => o.status === "paid").length,
+    cancelled: orders.filter((o) => o.status === "cancelled").length,
+  };
   return (
     <section className="bg-white p-6 rounded-xl shadow hover:shadow-md transition">
       <h2 className="text-xl font-semibold mb-6 text-orange-600">
         Đơn hàng của bạn
       </h2>
-
+      {/* Menu filter trạng thái */}
+      {/* <div className="flex gap-4 mb-6">
+        {statusTabs.map((tab) => (
+          <button
+            key={tab.key}
+            className={`px-4 py-2 rounded-full border text-sm font-medium transition
+              ${
+                statusFilter === tab.key
+                  ? "bg-orange-500 text-white border-orange-500"
+                  : "bg-white text-gray-700 border-gray-300 hover:bg-orange-50"
+              }`}
+            onClick={() => setStatusFilter(tab.key)}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div> */}
+      <div className="flex gap-4 mb-6">
+        {statusTabs.map((tab) => (
+          <button
+            key={tab.key}
+            className={`relative px-4 py-2 rounded-full border text-sm font-medium transition
+            ${
+              statusFilter === tab.key
+                ? "bg-orange-500 text-white border-orange-500"
+                : "bg-white text-gray-700 border-gray-300 hover:bg-orange-50"
+            }`}
+            onClick={() => setStatusFilter(tab.key)}
+          >
+            {tab.label}
+            {/* Badge số lượng */}
+            {statusCounts[tab.key] > 0 && (
+              <span
+                className={`absolute -top-2 left-1/2 -translate-x-1/2 text-xs px-2 py-0.5 rounded-full
+                ${
+                  statusFilter === tab.key
+                    ? "bg-white text-orange-500 border border-orange-500"
+                    : "bg-orange-500 text-white"
+                }`}
+                style={{ minWidth: 20, display: "inline-block" }}
+              >
+                {statusCounts[tab.key]}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
       <div className="space-y-6">
-        {orders.map((order) => {
+        {filteredOrders.length === 0 && (
+          <div className="text-center text-gray-400 py-10">
+            Không có đơn hàng nào.
+          </div>
+        )}
+        {filteredOrders.map((order) => {
           const addr = addresses[order.address_id];
           return (
             <div
@@ -110,10 +181,31 @@ export default function OrderList() {
               <div className="flex justify-between items-center bg-orange-50 border-b p-4 rounded-t-xl">
                 <div className="text-sm text-gray-700 space-x-2">
                   <span>Mã đơn:</span>
-                  <span className="font-medium text-gray-900">#{order.id}</span>
+                  <span className="font-medium text-gray-900">
+                    #{order.vnp_TxnRef}
+                  </span>
                   <span className="text-gray-400">|</span>
-                  <span className="text-green-600 font-semibold">
-                    {order.status}
+                  <span
+                    className={
+                      order.status === "pending"
+                        ? "text-yellow-500 font-semibold"
+                        : order.status === "processing"
+                        ? "text-blue-500 font-semibold"
+                        : order.status === "paid"
+                        ? "text-green-600 font-semibold"
+                        : order.status === "cancelled"
+                        ? "text-red-500 font-semibold"
+                        : "font-semibold"
+                    }
+                  >
+                    {order.status === "pending" && "Chờ xác nhận"}
+                    {order.status === "processing" && "Đang giao"}
+                    {order.status === "paid" && "Đã thanh toán"}
+                    {order.status === "cancelled" && "Đã hủy"}
+                    {/* Nếu có trạng thái khác */}
+                    {!["pending", "processing", "paid", "cancelled"].includes(
+                      order.status
+                    ) && order.status}
                   </span>
                 </div>
                 <div className="text-sm text-gray-500">

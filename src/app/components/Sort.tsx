@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faChevronRight,
@@ -19,6 +19,12 @@ export default function BreadcrumbFilter({ onSortChange, onSizeChange, onPriceCh
   const [selectedColors, setSelectedColors] = useState([]);
   const [selectedSize, setSelectedSize] = useState(null);
   const [priceRange, setPriceRange] = useState(currentPrice ?? 0);
+
+  useEffect(() => {
+    if (activeTab === "price") {
+      onPriceChange?.(priceRange);
+    }
+  }, [priceRange]);
 
   function toggleFilter() {
     setFilterOpen(!filterOpen);
@@ -54,17 +60,12 @@ export default function BreadcrumbFilter({ onSortChange, onSizeChange, onPriceCh
   }
 
   function handleSort(sortOrder) {
-    if (onSortChange) {
-      onSortChange(sortOrder);
-    }
+    onSortChange?.(sortOrder);
   }
 
   function handleApplyFilters() {
     if (activeTab === "size" && selectedSize) {
       onSizeChange?.(selectedSize);
-    }
-    if (activeTab === "price" && priceRange > 0) {
-      onPriceChange?.(priceRange);
     }
     setFilterOpen(false);
   }

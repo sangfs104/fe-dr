@@ -18,7 +18,7 @@ import wishlistReducer from "../store/wishlistSlice"; // 👈 import thêm
 export const store = configureStore({
   reducer: {
     cart: cartReducer,
-    wishlist: wishlistReducer, // 👈 gộp vào đây
+        wishlist: wishlistReducer, // thêm dòng này
   },
 });
 

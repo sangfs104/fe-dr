@@ -88,14 +88,13 @@ export default function BreadcrumbFilter({
         <div className="flex items-center gap-4 text-lg text-gray-700 cursor-pointer">
           <FontAwesomeIcon icon={faFilter} onClick={toggleFilter} />
           <FontAwesomeIcon icon={faBars} onClick={toggleSort} />
-          <FontAwesomeIcon icon={faGrip} />
         </div>
 
         {/* Bộ lọc */}
         {filterOpen && (
           <div className="absolute top-16 right-[70px] w-72 bg-white border p-5 shadow-lg z-10">
             <h4 className="text-base mb-3 font-medium">Bộ lọc</h4>
-            <div className="flex gap-2 mb-4">
+            {/* <div className="flex gap-2 mb-4">
               {["color", "size", "price"].map((tab) => (
                 <button
                   key={tab}
@@ -109,8 +108,22 @@ export default function BreadcrumbFilter({
                   {tab === "color" ? "Màu" : tab === "size" ? "Kích Cỡ" : "Giá"}
                 </button>
               ))}
+            </div> */}
+            <div className="flex gap-2 mb-4">
+              {["size", "price"].map((tab) => (
+                <button
+                  key={tab}
+                  className={`px-3 py-2 border cursor-pointer ${
+                    activeTab === tab
+                      ? "border-black font-bold"
+                      : "border-gray-300"
+                  }`}
+                  onClick={() => setActiveTab(tab)}
+                >
+                  {tab === "size" ? "Kích Cỡ" : "Giá"}
+                </button>
+              ))}
             </div>
-
             {activeTab === "size" && (
               <div className="flex flex-wrap gap-3">
                 {sizes.map((size) => (

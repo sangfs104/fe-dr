@@ -1,5 +1,6 @@
 "use client";
-import React, { useState, useEffect } from "react";
+
+import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faChevronRight,
@@ -12,19 +13,18 @@ import {
 
 const sizes = ["S", "M", "L", "XL"];
 
-export default function BreadcrumbFilter({ onSortChange, onSizeChange, onPriceChange, currentPrice }) {
+export default function BreadcrumbFilter({
+  onSortChange,
+  onSizeChange,
+  onPriceChange,
+  currentPrice,
+}) {
   const [filterOpen, setFilterOpen] = useState(false);
   const [sortOpen, setSortOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("color");
   const [selectedColors, setSelectedColors] = useState([]);
   const [selectedSize, setSelectedSize] = useState(null);
   const [priceRange, setPriceRange] = useState(currentPrice ?? 0);
-
-  useEffect(() => {
-    if (activeTab === "price") {
-      onPriceChange?.(priceRange);
-    }
-  }, [priceRange]);
 
   function toggleFilter() {
     setFilterOpen(!filterOpen);
@@ -38,10 +38,13 @@ export default function BreadcrumbFilter({ onSortChange, onSizeChange, onPriceCh
 
   function selectSize(size) {
     setSelectedSize(size);
+    onSizeChange?.(size); // Gửi filter luôn
   }
 
   function handlePriceChange(e) {
-    setPriceRange(parseInt(e.target.value));
+    const value = parseInt(e.target.value);
+    setPriceRange(value);
+    onPriceChange?.(value); // Gửi giá trị luôn khi kéo
   }
 
   function createRipple(e) {
@@ -60,14 +63,9 @@ export default function BreadcrumbFilter({ onSortChange, onSizeChange, onPriceCh
   }
 
   function handleSort(sortOrder) {
-    onSortChange?.(sortOrder);
-  }
-
-  function handleApplyFilters() {
-    if (activeTab === "size" && selectedSize) {
-      onSizeChange?.(selectedSize);
+    if (onSortChange) {
+      onSortChange(sortOrder);
     }
-    setFilterOpen(false);
   }
 
   function handleClearFilters() {
@@ -164,9 +162,9 @@ export default function BreadcrumbFilter({ onSortChange, onSizeChange, onPriceCh
               </button>
               <button
                 className="w-[117px] h-[45px] text-sm bg-black text-white"
-                onClick={handleApplyFilters}
+                onClick={() => setFilterOpen(false)}
               >
-                Xem kết quả
+                Đóng
               </button>
             </div>
           </div>

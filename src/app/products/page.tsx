@@ -49,7 +49,6 @@ export default function ProductPage() {
         const url = `http://127.0.0.1:8000/api/products/filter-all?${params.toString()}`;
         const res = await fetch(url);
         const json = await res.json();
-        console.log("API response:", json);
 
         const productList = Array.isArray(json?.data)
           ? json.data
@@ -60,7 +59,7 @@ export default function ProductPage() {
         if (json.status === 200) {
           setProducts(productList);
         } else {
-          console.warn("Dữ liệu không hợp lệ:", json);
+          setError("Không lấy được sản phẩm từ máy chủ.");
           setProducts([]);
         }
       } catch (err) {

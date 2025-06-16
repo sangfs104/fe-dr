@@ -3,7 +3,7 @@ import BannerCarousel from "./components/BannerCarousel";
 import HeaderHome from "./components/Header";
 import ProductTabs from "./components/ProductTabs";
 import ServiceHighlights from "./components/ServiceHighlights";
-import PromotionList from "./components/PromotionList";
+// import PromotionList from "./components/PromotionList";
 import HeroSlider from "./components/HeroSlider";
 import Footer from "./components/Footer";
 // import CategoryList from "./components/CategoryList";
@@ -26,6 +26,7 @@ export default function ProductPage({
     <>
       <HeaderHome />
       <BannerCarousel />
+      <ServiceHighlights />
       <CategoryProduct></CategoryProduct>
       {/* <CategoryList /> */}
       {/* <Sanpham></Sanpham>   */}
@@ -34,9 +35,9 @@ export default function ProductPage({
       <ProductTabs type={type} />
       {/* <LuckyWheel /> */}
       {/* <ProductWithCategoryPage /> */}
-      <PromotionList />
+      {/* <PromotionList /> */}
       <HeroSlider />
-      <ServiceHighlights />
+
       <Footer />
     </>
   );

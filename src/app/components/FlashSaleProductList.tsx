@@ -81,7 +81,7 @@ export default function FlashSaleProductList() {
     return () => clearInterval(interval);
   }, [flashSales]);
 
-  if (flashSales.length === 0) return <div>Loading flash sale products...</div>;
+  if (flashSales.length === 0) return <div></div>;
 
   return (
     <div className="space-y-20 px-6 sm:px-10 md:px-20 lg:px-40 py-10">

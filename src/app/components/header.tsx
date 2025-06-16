@@ -629,24 +629,31 @@ export default function Header() {
             language={language}
             onLinkClick={handleLinkClick}
           />
-          <DropdownMenu
-            label={language === "vi" ? "Trang" : "Pages"}
+          {/* <DropdownMenu
+            label={language === "vi" ? "Vòng quay may mắn" : "Luckty Wheel"}
             items={pagesMenu}
             language={language}
             onLinkClick={handleLinkClick}
-          />
+          /> */}
           <button
-            onClick={() => handleLinkClick("/buy-now")}
+            onClick={() => handleLinkClick("/lucky")}
             className="hover:text-purple-600"
           >
-            {language === "vi" ? "Mua ngay" : "Buy now"}
+            {language === "vi" ? "Vòng quay may mắn" : "Lucky Wheel"}
           </button>
-          <DropdownMenu
+
+          <button
+            onClick={() => handleLinkClick("/blog")}
+            className="hover:text-purple-600"
+          >
+            {language === "vi" ? "Giới thiệu" : "Blog"}
+          </button>
+          {/* <DropdownMenu
             label="Blog"
             items={blogMenu}
             language={language}
             onLinkClick={handleLinkClick}
-          />
+          /> */}
         </nav>
       </div>
 

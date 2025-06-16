@@ -1,6 +1,10 @@
 "use client";
+<<<<<<< HEAD
 
 import React, { useState } from "react";
+=======
+import React, { useState, useEffect } from "react";
+>>>>>>> giabaoas
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faChevronRight,
@@ -25,6 +29,12 @@ export default function BreadcrumbFilter({
   const [selectedColors, setSelectedColors] = useState([]);
   const [selectedSize, setSelectedSize] = useState(null);
   const [priceRange, setPriceRange] = useState(currentPrice ?? 0);
+
+  useEffect(() => {
+    if (activeTab === "price") {
+      onPriceChange?.(priceRange);
+    }
+  }, [priceRange]);
 
   function toggleFilter() {
     setFilterOpen(!filterOpen);
@@ -63,11 +73,19 @@ export default function BreadcrumbFilter({
   }
 
   function handleSort(sortOrder) {
-    if (onSortChange) {
-      onSortChange(sortOrder);
-    }
+    onSortChange?.(sortOrder);
   }
 
+<<<<<<< HEAD
+=======
+  function handleApplyFilters() {
+    if (activeTab === "size" && selectedSize) {
+      onSizeChange?.(selectedSize);
+    }
+    setFilterOpen(false);
+  }
+
+>>>>>>> giabaoas
   function handleClearFilters() {
     setSelectedColors([]);
     setSelectedSize(null);

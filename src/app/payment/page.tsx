@@ -62,7 +62,7 @@ export default function PaymentPage() {
   };
 
   const handlePayment = async () => {
-    // Kiểm tra form trước
+    // 1. Kiểm tra form trước
     if (!validateForm()) {
       toast.error("Vui lòng điền đầy đủ thông tin bắt buộc.");
       return;
@@ -71,17 +71,19 @@ export default function PaymentPage() {
     try {
       const token = localStorage.getItem("token");
 
+      // 2. Chuẩn bị dữ liệu giỏ hàng
       const cartData = cartItems.map((item) => ({
         variant_id: item.variantId,
         price: item.price,
         quantity: item.quantity,
       }));
 
+      // 3. Body gửi đi
       const requestBody = {
         cart: cartData,
-        coupon_id: couponId, // Sử dụng couponId (ID), không phải code
+        coupon_id: couponId,
         shipping_id: 1,
-        address_id: 1,
+        address_id: 1, // tạm thời, có thể cập nhật sau khi lưu địa chỉ
         payment_id: paymentMethod === "cod" ? 2 : 1,
         order_desc:
           paymentMethod === "cod"
@@ -101,6 +103,7 @@ export default function PaymentPage() {
         },
       };
 
+      // 4. Gửi đơn hàng tới API phù hợp
       const apiUrl =
         paymentMethod === "cod"
           ? "http://localhost:8000/api/payment/cod"
@@ -112,11 +115,36 @@ export default function PaymentPage() {
         },
       });
 
+      // 5. Xử lý phản hồi
+      const order = response.data.order;
+
+      // ✅ Gộp thêm payment_method để lưu vào localStorage
+      const orderWithPaymentMethod = {
+        ...order,
+        payment_method: paymentMethod,
+        items: cartItems.map((item) => ({
+          quantity: item.quantity,
+          variant: {
+            name: item.name,
+            price: item.price,
+            image_url: item.img, // đảm bảo có image
+          },
+        })),
+      };
+
       if (paymentMethod === "bank" && response.data.payment_url) {
+        localStorage.setItem(
+          "latestOrder",
+          JSON.stringify(orderWithPaymentMethod)
+        );
         window.location.href = response.data.payment_url;
       } else if (paymentMethod === "cod") {
         toast.success("Đặt hàng thành công! Bạn sẽ thanh toán khi nhận hàng.");
-        // window.location.href = "/order-success";
+        localStorage.setItem(
+          "latestOrder",
+          JSON.stringify(orderWithPaymentMethod)
+        );
+        window.location.href = "/order-success";
       }
     } catch (err) {
       console.error("Payment error", err);

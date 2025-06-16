@@ -10,6 +10,7 @@ import { toast } from "react-hot-toast";
 import * as Dialog from "@radix-ui/react-dialog";
 import AddToCartModal from "../../components/AddToCartModal";
 import { useRouter } from "next/navigation";
+
 interface Review {
   id: number;
   rating: number;
@@ -177,7 +178,7 @@ export default function ProductDetailClient({
       typeof window !== "undefined" ? localStorage.getItem("token") : null;
     if (!token) {
       toast.error("Bạn cần đăng nhập để bình luận!");
-      router.push("/login");
+      // router.push("/login");
       return;
     }
     if (!comment.trim()) {
@@ -452,8 +453,45 @@ export default function ProductDetailClient({
             </Dialog.Portal>
           </Dialog.Root>
         </div>
-        <div className="mt-12">
-          <h2 className="text-2xl font-bold mb-6 text-gray-800">
+        <div className="mt-10">
+          <h2 className="text-lg font-semibold mb-6 text-gray-900">
+            Viết đánh giá của bạn
+          </h2>
+
+          <div className="flex items-center gap-3 mb-4">
+            <span className="text-gray-700">Chọn sao:</span>
+            {[1, 2, 3, 4, 5].map((star) => (
+              <Star
+                key={star}
+                size={24}
+                className={`cursor-pointer transition-colors ${
+                  rating >= star
+                    ? "text-yellow-400 fill-yellow-400"
+                    : "text-gray-300"
+                } hover:scale-110`}
+                onClick={() => setRating(star)}
+              />
+            ))}
+          </div>
+
+          <textarea
+            className="w-full border border-gray-300 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+            rows={3}
+            placeholder="Nhập bình luận của bạn..."
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+          />
+
+          <button
+            className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl text-sm font-medium transition"
+            onClick={handleSubmitReview}
+          >
+            Gửi đánh giá
+          </button>
+        </div>
+
+        <div className="mt-10">
+          <h2 className="text-lg font-semibold mb-6 text-gray-900">
             💬 Đánh giá từ khách hàng
           </h2>
 
@@ -462,44 +500,44 @@ export default function ProductDetailClient({
               Chưa có đánh giá nào...
             </p>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {reviews.map((review) => (
                 <div
                   key={review.id}
-                  className="border border-gray-200 rounded-xl p-4 shadow-sm bg-white flex flex-col justify-between"
+                  className="bg-white border border-gray-200 rounded-2xl p-5 shadow-md hover:shadow-lg transition"
                 >
-                  {/* Header: Avatar + Info */}
-                  <div className="flex items-center gap-3 mb-2">
+                  {/* Avatar + Info */}
+                  <div className="flex items-center gap-4 mb-4">
                     <div
-                      className={`w-9 h-9 rounded-full ${getColorByName(
+                      className={`w-10 h-10 rounded-full ${getColorByName(
                         review.user.name
-                      )} text-white flex items-center justify-center font-medium text-sm`}
+                      )} text-white flex items-center justify-center font-semibold text-sm`}
                     >
                       {review.user.name.charAt(0)}
                     </div>
-                    <div className="flex flex-col">
-                      <span className="text-sm font-semibold text-gray-800">
+                    <div>
+                      <p className="text-sm font-semibold text-gray-800">
                         {review.user.name}
-                      </span>
-                      <span className="text-xs text-gray-400">
+                      </p>
+                      <p className="text-xs text-gray-400">
                         {new Date(review.created_at).toLocaleDateString(
                           "vi-VN"
                         )}
-                      </span>
+                      </p>
                     </div>
                   </div>
 
                   {/* Star rating */}
-                  <div className="flex items-center gap-1 mb-2">
+                  <div className="flex items-center gap-1 mb-3">
                     {Array.from({ length: review.rating }).map((_, i) => (
                       <Star
                         key={i}
-                        size={16}
+                        size={18}
                         className="text-yellow-400 fill-yellow-400"
                       />
                     ))}
                     {Array.from({ length: 5 - review.rating }).map((_, i) => (
-                      <Star key={i} size={16} className="text-gray-300" />
+                      <Star key={i} size={18} className="text-gray-300" />
                     ))}
                   </div>
 
@@ -513,37 +551,7 @@ export default function ProductDetailClient({
           )}
         </div>
       </div>
-      <div className="mt-8">
-        <h3 className="font-semibold mb-2">Viết đánh giá của bạn</h3>
-        <div className="flex items-center gap-2 mb-2">
-          <span>Chọn sao:</span>
-          {[1, 2, 3, 4, 5].map((star) => (
-            <Star
-              key={star}
-              size={22}
-              className={`cursor-pointer ${
-                rating >= star
-                  ? "text-yellow-400 fill-yellow-400"
-                  : "text-gray-300"
-              }`}
-              onClick={() => setRating(star)}
-            />
-          ))}
-        </div>
-        <textarea
-          className="w-full border rounded p-2 mb-2"
-          rows={3}
-          placeholder="Nhập bình luận..."
-          value={comment}
-          onChange={(e) => setComment(e.target.value)}
-        />
-        <button
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          onClick={handleSubmitReview}
-        >
-          Gửi đánh giá
-        </button>
-      </div>
+
       <AddToCartModal
         open={showModal}
         onClose={() => setShowModal(false)}

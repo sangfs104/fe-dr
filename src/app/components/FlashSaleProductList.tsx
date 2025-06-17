@@ -84,7 +84,8 @@ export default function FlashSaleProductList() {
   if (flashSales.length === 0) return <div></div>;
 
   return (
-    <div className="space-y-20 px-6 sm:px-10 md:px-20 lg:px-40 py-10">
+    // <div className="space-y-20 px-6 sm:px-10 md:px-20 lg:px-40 py-10">
+    <div className="px-40 pt-16 bg-white">
       {flashSales.map((sale) => (
         <div key={sale.flash_sale_id} className="relative space-y-6">
           <div>

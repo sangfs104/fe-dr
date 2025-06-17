@@ -379,14 +379,15 @@ export default async function CategoryProduct() {
     : [];
 
   return (
-    <div className="px-6 md:px-20 lg:px-40 py-10 bg-white">
+    // <div className="px-6 md:px-20 lg:px-40 py-10 bg-white">
+    <div className="px-40 py-20 pb-0 bg-white">
       <div className="flex flex-col lg:flex-row gap-10">
         {/* Bên trái: danh mục */}
         <div className="w-full lg:w-1/4">
           {/* Tiêu đề danh mục */}
           <div className="mb-4 relative">
-            <h2 className="text-white bg-gradient-to-r from-[#FF8A50] via-[#FF7043] to-[#FF5722] px-4 py-2 text-sm font-bold uppercase inline-block">
-              DANH MỤC SẢN PHẨM
+            <h2 className="text-white bg-gradient-to-r from-[#FF8A50] via-[#FF7043] to-[#FF5722] px-4 py-2 text-lg font-bold uppercase inline-block">
+              DANH MỤC
             </h2>
             <div className="h-[2px] bg-gradient-to-r from-[#FF8A50] via-[#FF7043] to-[#FF5722] w-1/2 mt-1"></div>
           </div>
@@ -419,10 +420,21 @@ export default async function CategoryProduct() {
           </div>
 
           {/* Banner */}
-          <div className="mb-4 mt-6">
+          {/* <div className="mb-4 mt-6">
             <img
-              src="/img/loginae.png"
+              src="/img/dinh.jpg"
               alt="Danh mục"
+              className="w-full h-auto rounded-md object-cover"
+            />
+          </div> */}
+          {/* Banner Video */}
+          <div className="mb-4 mt-6">
+            <video
+              src="img/video1.mp4"
+              autoPlay
+              muted
+              loop
+              playsInline
               className="w-full h-auto rounded-md object-cover"
             />
           </div>
@@ -438,9 +450,10 @@ export default async function CategoryProduct() {
           </div> */}
           <div className="mb-4 flex items-center justify-between">
             <div>
-              <h2 className="text-white bg-gradient-to-r from-[#FF8A50] via-[#FF7043] to-[#FF5722] px-4 py-2 text-sm font-bold uppercase inline-block">
-                SẢN PHẨM QUẦN KAKI
+              <h2 className="text-white bg-gradient-to-r from-[#FF8A50] via-[#FF7043] to-[#FF5722] px-4 py-2 text-lg font-bold uppercase inline-block">
+                SẢN PHẨM
               </h2>
+
               <div className="h-[2px] bg-gradient-to-r from-[#FF8A50] via-[#FF7043] to-[#FF5722] w-1/2 mt-1"></div>
             </div>
 

@@ -27,7 +27,7 @@ const items = [
 
 const ServiceHighlights: FC = () => {
   return (
-    <div className="px-40 py-10 bg-white">
+    <div className="px-40 pt-16 bg-white">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {items.map((item, index) => (
           <div

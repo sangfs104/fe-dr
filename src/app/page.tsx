@@ -10,6 +10,8 @@ import Footer from "./components/Footer";
 // import Sanpham from "./components/Sanpham";
 import FlashSaleList from "./components/FlashSaleList";
 import CategoryProduct from "./components/CategoryProduct";
+import ShopArticle from "./components/ShopArticle";
+
 // import CategoryAndProduct from "./components/CategoryAndProduct";
 // import ProductWithCategoryPage from "./components/ProductWithCategoryPage";
 // ...existing code...
@@ -27,17 +29,19 @@ export default function ProductPage({
       <HeaderHome />
       <BannerCarousel />
       <ServiceHighlights />
+      <FlashSaleList />
       <CategoryProduct></CategoryProduct>
       {/* <CategoryList /> */}
       {/* <Sanpham></Sanpham>   */}
       {/* <CategoryAndProduct /> */}
-      <FlashSaleList />
+      {/* <FlashSaleList /> */}
+
       <ProductTabs type={type} />
       {/* <LuckyWheel /> */}
       {/* <ProductWithCategoryPage /> */}
       {/* <PromotionList /> */}
       <HeroSlider />
-
+      <ShopArticle />
       <Footer />
     </>
   );

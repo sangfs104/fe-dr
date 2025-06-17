@@ -222,24 +222,21 @@
 // }
 
 import Link from "next/link";
-
-export default function ShopArticle() {
+export default function ShopVideoSection() {
   return (
-    <section className="px-6 md:px-40 py-12 md:py-19 bg-white rounded-3xl my-12 shadow-md">
-      <div className="flex flex-col md:flex-row items-center gap-10">
-        {/* Video bên trái */}
+    <section className="px-40 py-20 bg-white rounded-3xl my-12">
+      <div className="flex flex-col md:flex-row items-center gap-12">
+        {/* Video */}
         <div className="flex-1">
           <video
             src="/img/vide3.mp4"
             controls
             autoPlay
             loop
-            muted={false}
-            className="rounded-2xl shadow-lg w-full h-[500px] object-cover"
+            muted
+            className="rounded-2xl shadow-lg w-full h-[550px] object-cover"
           />
         </div>
-
-        {/* Nội dung bên phải */}
         <div className="flex-1">
           <h2 className="text-3xl md:text-4xl font-extrabold text-black mb-4 leading-snug">
             Khám phá <span>Phong Cách 2025</span> tại{" "}

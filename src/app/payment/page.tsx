@@ -83,7 +83,7 @@ export default function PaymentPage() {
         cart: cartData,
         coupon_id: couponId,
         shipping_id: 1,
-        address_id: 1, // tạm thời, có thể cập nhật sau khi lưu địa chỉ
+        address_id: 1,
         payment_id: paymentMethod === "cod" ? 2 : 1,
         order_desc:
           paymentMethod === "cod"
@@ -101,6 +101,7 @@ export default function PaymentPage() {
           email: formData.email,
           note: formData.note,
         },
+        total_amount: total,
       };
 
       // 4. Gửi đơn hàng tới API phù hợp
@@ -121,6 +122,7 @@ export default function PaymentPage() {
       // ✅ Gộp thêm payment_method để lưu vào localStorage
       const orderWithPaymentMethod = {
         ...order,
+        total_price: total,
         payment_method: paymentMethod,
         items: cartItems.map((item) => ({
           quantity: item.quantity,
@@ -151,6 +153,91 @@ export default function PaymentPage() {
       toast.error("Có lỗi xảy ra khi xử lý đơn hàng. Vui lòng thử lại.");
     }
   };
+
+  //Lấy địa chỉ mặc định
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    const fetchDefaultAddress = async () => {
+      try {
+        const res = await fetch("http://localhost:8000/api/addresses", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const result = await res.json();
+        const addresses = result.data || [];
+
+        const defaultAddress = addresses.find(
+          (addr: any) => addr.is_default === 1
+        );
+
+        if (defaultAddress) {
+          setFormData((prev) => ({
+            ...prev,
+            address: defaultAddress.adress,
+          }));
+        }
+      } catch (error) {
+        console.error("Lỗi khi lấy địa chỉ mặc định:", error);
+      }
+    };
+
+    fetchDefaultAddress();
+  }, []);
+
+  //Lấy profile cá nhân
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    const fetchUserInfo = async () => {
+      try {
+        const res = await fetch("http://localhost:8000/api/user/profile", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const result = await res.json();
+        const userData = result.data;
+
+        if (userData) {
+          setFormData((prev) => ({
+            ...prev,
+            name: userData.name,
+            email: userData.email,
+            phone: userData.phone,
+          }));
+        }
+      } catch (error) {
+        console.error("Lỗi khi lấy thông tin người dùng:", error);
+      }
+    };
+
+    fetchUserInfo();
+  }, []);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("user");
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      const fullName = parsed.name || "";
+      const nameParts = fullName.trim().split(" ");
+      const firstName = nameParts.slice(1).join(" ") || ""; // Tên
+      const lastName = nameParts[0] || ""; // Họ
+
+      setFormData((prev) => ({
+        ...prev,
+        firstName,
+        lastName,
+        email: parsed.email || "",
+        phone: parsed.phone || "",
+      }));
+    }
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -185,79 +272,6 @@ export default function PaymentPage() {
       <HeaderHome />
       <ToastContainer />
       <CheckoutProgress currentStep="checkout" />
-
-      <div className="top-notice">
-        <p>
-          Có mã giảm giá?{" "}
-          <a
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              setShowCoupon(!showCoupon);
-            }}
-          >
-            Nhấn vào đây để nhập mã giảm giá{" "}
-            <FontAwesomeIcon icon={faChevronDown} />
-          </a>
-        </p>
-
-        {showCoupon && (
-          <div id="coupon-box">
-            <p>Nếu bạn có mã giảm giá, vui lòng áp dụng nó bên dưới.</p>
-            <div className="coupon-container">
-              <input
-                type="text"
-                className="coupon-input"
-                placeholder="Mã giảm giá"
-                value={couponCode}
-                onChange={(e) => setCouponCode(e.target.value)}
-              />
-              <button
-                className="apply-btn"
-                onClick={async (e) => {
-                  e.preventDefault();
-                  if (!couponCode.trim()) {
-                    toast.error("Vui lòng nhập mã giảm giá.");
-                    return;
-                  }
-
-                  try {
-                    // Gọi API lấy danh sách coupon
-                    const response = await axios.get(
-                      "http://127.0.0.1:8000/api/coupons"
-                    );
-                    const coupons = response.data;
-
-                    // Tìm mã hợp lệ và còn hạn
-                    const now = new Date();
-                    const found = coupons.find(
-                      (c: any) =>
-                        c.code === couponCode.trim() &&
-                        new Date(c.expiry_date) >= now
-                    );
-
-                    if (found) {
-                      setDiscount(Number(found.discount_value));
-                      setCouponId(found.id); // Lưu lại ID của coupon
-                      toast.success("Áp dụng mã giảm giá thành công!");
-                    } else {
-                      setDiscount(0);
-                      setCouponId(null);
-                      toast.error("Mã giảm giá không hợp lệ hoặc đã hết hạn.");
-                    }
-                  } catch (error) {
-                    setDiscount(0);
-                    setCouponId(null);
-                    toast.error("Đã xảy ra lỗi khi kiểm tra mã.");
-                  }
-                }}
-              >
-                ÁP DỤNG
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
 
       <div className="wrapper">
         {/* Thông tin thanh toán */}
@@ -410,6 +424,78 @@ export default function PaymentPage() {
                 <span>TỔNG</span>
                 <span>{total.toLocaleString("vi-VN")}đ</span>
               </div>
+            </div>
+
+            <div className="coupon-section">
+              <p>
+                Có mã giảm giá?{" "}
+                <a
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setShowCoupon(!showCoupon);
+                  }}
+                >
+                  Nhấn vào đây để nhập mã giảm giá{" "}
+                  <FontAwesomeIcon icon={faChevronDown} />
+                </a>
+              </p>
+
+              {showCoupon && (
+                <div id="coupon-box">
+                  <p>Nếu bạn có mã giảm giá, vui lòng áp dụng nó bên dưới.</p>
+                  <div className="coupon-container">
+                    <input
+                      type="text"
+                      className="coupon-input"
+                      placeholder="Mã giảm giá"
+                      value={couponCode}
+                      onChange={(e) => setCouponCode(e.target.value)}
+                    />
+                    <button
+                      className="apply-btn"
+                      onClick={async (e) => {
+                        e.preventDefault();
+                        if (!couponCode.trim()) {
+                          toast.error("Vui lòng nhập mã giảm giá.");
+                          return;
+                        }
+
+                        try {
+                          const response = await axios.get(
+                            "http://127.0.0.1:8000/api/coupons"
+                          );
+                          const coupons = response.data;
+                          const now = new Date();
+                          const found = coupons.find(
+                            (c: any) =>
+                              c.code === couponCode.trim() &&
+                              new Date(c.expiry_date) >= now
+                          );
+
+                          if (found) {
+                            setDiscount(Number(found.discount_value));
+                            setCouponId(found.id);
+                            toast.success("Áp dụng mã giảm giá thành công!");
+                          } else {
+                            setDiscount(0);
+                            setCouponId(null);
+                            toast.error(
+                              "Mã giảm giá không hợp lệ hoặc đã hết hạn."
+                            );
+                          }
+                        } catch (error) {
+                          setDiscount(0);
+                          setCouponId(null);
+                          toast.error("Đã xảy ra lỗi khi kiểm tra mã.");
+                        }
+                      }}
+                    >
+                      ÁP DỤNG
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

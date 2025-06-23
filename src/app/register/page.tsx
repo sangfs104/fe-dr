@@ -94,7 +94,7 @@ const RegisterPage = () => {
   return (
     <div>
       <HeaderHome />
-      <main className="min-h-[calc(100vh-200px)] flex justify-center items-center bg-gray-100 px-4">
+      <main className="h-screen flex justify-center items-center bg-gray-100 px-4">
         <div className="bg-white shadow-lg rounded-xl w-full max-w-4xl p-8 animate-fade-in-up">
           <h2 className="login-bounce text-3xl font-bold text-orange-500 mb-4">
             Đăng ký

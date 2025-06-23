@@ -40,6 +40,7 @@ export default function ProductPage({
       {/* <LuckyWheel /> */}
       {/* <ProductWithCategoryPage /> */}
       {/* <PromotionList /> */}
+
       <HeroSlider />
       <ShopArticle />
       <Footer />

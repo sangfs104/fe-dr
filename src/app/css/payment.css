@@ -148,7 +148,7 @@
 }
 
 .apply-btn {
-  background-color: #ff6b6b;
+  background-color: #ff5722;
   color: white;
   border: none;
   padding: 10px 20px;
@@ -158,7 +158,7 @@
 }
 
 .apply-btn:hover {
-  background-color: #e55b5b;
+  background-color: #ff5722;
 }
 
 .coupon-container {
@@ -190,6 +190,7 @@
   margin-bottom: 15px;
   text-transform: uppercase;
   font-size: 20px;
+  text-align: center;
 }
 
 .container hr {
@@ -400,7 +401,7 @@
 .order-btn {
   width: 100%;
   padding: 16px;
-  background-color: #ff5757;
+  background-color: #ff5722;
   color: white;
   font-size: 18px;
   font-weight: bold;
@@ -412,7 +413,7 @@
 }
 
 .order-btn:hover {
-  background-color: #e04e4e;
+  background-color: #ff5722;
 }
 
 /* Form */
@@ -545,4 +546,39 @@ textarea {
   color: red;
   font-size: 13px;
   margin: -10px 0 10px 0;
+}
+
+.coupon-section {
+  margin-top: 20px;
+  border-top: 1px dashed #ddd;
+  padding-top: 20px;
+}
+
+.coupon-container {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.coupon-input {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.coupon-section a {
+  color: #000; /* Màu đen */
+  font-weight: 600; /* Đậm hơn */
+
+  cursor: pointer;
+}
+
+.apply-btn {
+  background-color: #ff5722;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  font-weight: bold;
 }

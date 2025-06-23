@@ -28,6 +28,10 @@ import { Toaster } from "react-hot-toast";
 import { Provider } from "react-redux";
 import { store } from "../store/store";
 import { DreamToast } from "./components/DreamToast"; // nhớ chỉnh path đúng nhé
+import AbandonCartHelper from "./components/AbandonCartHelper";
+import SimpleChatBot from "./components/SimpleChatBot";
+// ...
+
 export default function RootLayout({
   children,
 }: {
@@ -38,6 +42,9 @@ export default function RootLayout({
       <body>
         <Provider store={store}>
           {children}
+          <AbandonCartHelper />
+          <SimpleChatBot />
+          {/* Bỏ Toaster gốc đi, dùng DreamToast thay thế */}
           {/* <Toaster position="top-right" reverseOrder={false} /> */}
           <DreamToast />
         </Provider>

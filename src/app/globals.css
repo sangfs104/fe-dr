@@ -82,7 +82,4 @@
   color: #f97316; /* Tailwind orange-500 */
 }
 /* Thêm vào cuối src/app/globals.css */
-body {
-  overflow-x: visible !important;
-  overflow-y: visible !important;
-}
+

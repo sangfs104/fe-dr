@@ -461,32 +461,37 @@ export default function PaymentPage() {
                         }
 
                         try {
-                          const response = await axios.get(
-                            "http://127.0.0.1:8000/api/coupons"
+                          const token = localStorage.getItem("token");
+                          const response = await axios.post(
+                            "http://localhost:8000/api/apply-coupon",
+                            { code: couponCode.trim() },
+                            {
+                              headers: {
+                                Authorization: `Bearer ${token}`,
+                              },
+                            }
                           );
-                          const coupons = response.data;
-                          const now = new Date();
-                          const found = coupons.find(
-                            (c: any) =>
-                              c.code === couponCode.trim() &&
-                              new Date(c.expiry_date) >= now
-                          );
-
-                          if (found) {
-                            setDiscount(Number(found.discount_value));
-                            setCouponId(found.id);
-                            toast.success("Áp dụng mã giảm giá thành công!");
+                          const data = response.data;
+                          if (data.status === 200) {
+                            setDiscount(Number(data.coupon.discount_value));
+                            setCouponId(data.coupon.id);
+                            toast.success(
+                              data.message || "Áp dụng mã giảm giá thành công!"
+                            );
                           } else {
                             setDiscount(0);
                             setCouponId(null);
                             toast.error(
-                              "Mã giảm giá không hợp lệ hoặc đã hết hạn."
+                              data.message || "Mã giảm giá không hợp lệ."
                             );
                           }
                         } catch (error) {
                           setDiscount(0);
                           setCouponId(null);
-                          toast.error("Đã xảy ra lỗi khi kiểm tra mã.");
+                          toast.error(
+                            error.response?.data?.message ||
+                              "Đã xảy ra lỗi khi kiểm tra mã giảm giá."
+                          );
                         }
                       }}
                     >

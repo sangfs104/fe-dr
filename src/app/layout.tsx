@@ -27,7 +27,8 @@ import { Provider } from "react-redux";
 import { store } from "../store/store";
 import { DreamToast } from "./components/DreamToast";
 import { GoogleOAuthProvider } from "@react-oauth/google";
-
+import AbandonCartHelper from "./components/AbandonCartHelper";
+import SimpleChatBot from "./components/SimpleChatBot";
 export default function RootLayout({
   children,
 }: {
@@ -35,7 +36,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
+ 
         <GoogleOAuthProvider
           clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}
         >
@@ -44,6 +45,7 @@ export default function RootLayout({
             <DreamToast />
           </Provider>
         </GoogleOAuthProvider>
+
       </body>
     </html>
   );

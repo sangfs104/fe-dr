@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
     "@fortawesome/fontawesome-free": "^6.7.2",
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
     "@fortawesome/free-brands-svg-icons": "^6.7.2",
@@ -16,6 +18,8 @@
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
     "@fortawesome/react-fontawesome": "^0.2.2",
     "@headlessui/react": "^2.2.4",
+    "@mui/icons-material": "^7.1.2",
+    "@mui/material": "^7.1.2",
     "@radix-ui/react-dialog": "^1.1.14",
     "@react-oauth/google": "^0.12.2",
     "@reduxjs/toolkit": "^2.8.2",
@@ -24,7 +28,7 @@
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
-    "framer-motion": "^12.16.0",
+    "framer-motion": "^12.18.1",
     "keen-slider": "^6.8.6",
     "lucide-react": "^0.511.0",
     "next": "15.3.2",
@@ -37,8 +41,10 @@
     "react-icons": "^5.5.0",
     "react-image-magnify": "^2.7.4",
     "react-redux": "^9.2.0",
+    "react-simple-chatbot": "^0.6.1",
     "react-toastify": "^11.0.5",
     "sonner": "^2.0.5",
+    "styled-components": "^6.1.19",
     "swiper": "^11.2.8",
     "tailwind-merge": "^3.3.0",
     "tailwind-variants": "^1.0.0"

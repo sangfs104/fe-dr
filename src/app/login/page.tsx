@@ -529,6 +529,7 @@ import Footer from "../components/Footer";
 import { toast } from "react-hot-toast";
 import { DreamToast } from "../components/DreamToast";
 import { motion, AnimatePresence } from "framer-motion";
+import GoogleLoginButton from "../components/GoogleLoginButton";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -713,17 +714,7 @@ export default function LoginPage() {
               <div className="absolute right-0 top-1/2 w-2/5 h-px bg-gray-300"></div>
             </div>
 
-            <button className="flex items-center justify-center w-full h-11 bg-blue-500 text-white font-medium rounded-md hover:bg-blue-600 transition">
-              <div className="bg-white p-2 rounded mr-3">
-                <Image
-                  src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-                  alt="Google"
-                  width={20}
-                  height={20}
-                />
-              </div>
-              <span>Đăng nhập bằng Google</span>
-            </button>
+            <GoogleLoginButton />
           </div>
         </motion.div>
       </main>

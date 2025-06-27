@@ -20,14 +20,14 @@
 //     </html>
 //   );
 // }
-
 "use client";
 
 import "./globals.css";
-import { Toaster } from "react-hot-toast";
 import { Provider } from "react-redux";
 import { store } from "../store/store";
-import { DreamToast } from "./components/DreamToast"; // nhớ chỉnh path đúng nhé
+import { DreamToast } from "./components/DreamToast";
+import { GoogleOAuthProvider } from "@react-oauth/google";
+
 export default function RootLayout({
   children,
 }: {
@@ -36,11 +36,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Provider store={store}>
-          {children}
-          {/* <Toaster position="top-right" reverseOrder={false} /> */}
-          <DreamToast />
-        </Provider>
+        <GoogleOAuthProvider
+          clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}
+        >
+          <Provider store={store}>
+            {children}
+            <DreamToast />
+          </Provider>
+        </GoogleOAuthProvider>
       </body>
     </html>
   );

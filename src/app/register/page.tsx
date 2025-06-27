@@ -7,6 +7,7 @@ import Footer from "../components/Footer";
 import { useRouter } from "next/navigation";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import GoogleLoginButton from "../components/GoogleLoginButton";
 
 const RegisterPage = () => {
   const router = useRouter();
@@ -238,17 +239,7 @@ const RegisterPage = () => {
                 </a>
               </p>
               <div className="my-4 text-center text-gray-400 text-sm">Hoặc</div>
-              <button
-                type="button"
-                className="flex items-center justify-center gap-3 bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition w-full"
-              >
-                <img
-                  src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-                  alt="Google"
-                  className="w-5 h-5"
-                />
-                Đăng nhập bằng Google
-              </button>
+              <GoogleLoginButton />
             </div>
           </form>
         </div>

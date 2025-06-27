@@ -101,7 +101,6 @@ export default function PaymentPage() {
           email: formData.email,
           note: formData.note,
         },
-        total_amount: total,
       };
 
       // 4. Gửi đơn hàng tới API phù hợp
@@ -122,7 +121,7 @@ export default function PaymentPage() {
       // ✅ Gộp thêm payment_method để lưu vào localStorage
       const orderWithPaymentMethod = {
         ...order,
-        total_price: total,
+        total_price: response.data.total_price,
         payment_method: paymentMethod,
         items: cartItems.map((item) => ({
           quantity: item.quantity,

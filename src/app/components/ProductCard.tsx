@@ -72,7 +72,8 @@ export default function ProductCard({ product }: { product: Product }) {
       addToCart({
         productId: product.id,
         variantId: selectedVariant.id,
-        name: product.name,
+        // name: product.name,
+        name: `${product.name} - Size ${selectedVariant.size}`,
         img: `/img/${mainImage}`,
         price: priceToUse,
         size: selectedVariant.size,

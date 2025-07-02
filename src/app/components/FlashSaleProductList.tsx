@@ -9,6 +9,7 @@ interface FlashSaleVariant {
   product_id: number;
   id: number;
   name: string;
+  product_name: string;
   category_id: number;
   description: string;
   status: string;
@@ -110,7 +111,7 @@ export default function FlashSaleProductList() {
                     <ProductCard
                       product={{
                         id: variant.product_id,
-                        name: variant.name,
+                        name: variant.product_name,
                         description: variant.description,
                         status: variant.status,
                         img: variant.images.map((img, idx) => ({

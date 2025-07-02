@@ -2,7 +2,8 @@
 import { useEffect, useState } from "react";
 import confetti from "canvas-confetti"; // ✅ Import đúng thư viện
 import "../css/order-success.css";
-
+import { useDispatch } from "react-redux";
+import { clearCart } from "@/store/cartSlice";
 const renderPaymentMethod = (method: any) => {
   if (!method) return "Chưa xác định";
 
@@ -22,9 +23,10 @@ const renderPaymentMethod = (method: any) => {
 
 const OrderSuccess = () => {
   const [order, setOrder] = useState<any>(null);
-
+  const dispatch = useDispatch();
   useEffect(() => {
     const latestOrder = localStorage.getItem("latestOrder");
+    dispatch(clearCart());
     if (latestOrder) {
       const parsed = JSON.parse(latestOrder);
       console.log("🔥 order.payment_method:", parsed.payment_method);

@@ -104,6 +104,9 @@ export default function FlashSaleProductList() {
                     key={variant.id}
                     className="fire-card group relative bg-white rounded-2xl p-4 shadow hover:shadow-lg transition duration-300"
                   >
+                    <div className="font-semibold text-base mb-2 text-center text-orange-600">
+                      {variant.name}
+                    </div>
                     <ProductCard
                       product={{
                         id: variant.product_id,

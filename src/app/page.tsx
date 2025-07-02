@@ -11,6 +11,7 @@ import Footer from "./components/Footer";
 import FlashSaleList from "./components/FlashSaleList";
 import CategoryProduct from "./components/CategoryProduct";
 import ShopArticle from "./components/ShopArticle";
+import VoiceQuickOrderTest from "./components/VoiceQuickOrderTest";
 
 // import CategoryAndProduct from "./components/CategoryAndProduct";
 // import ProductWithCategoryPage from "./components/ProductWithCategoryPage";
@@ -40,7 +41,7 @@ export default function ProductPage({
       {/* <LuckyWheel /> */}
       {/* <ProductWithCategoryPage /> */}
       {/* <PromotionList /> */}
-
+      <VoiceQuickOrderTest />
       <HeroSlider />
       <ShopArticle />
       <Footer />

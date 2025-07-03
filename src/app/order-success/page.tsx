@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import confetti from "canvas-confetti"; // ✅ Import đúng thư viện
+import confetti from "canvas-confetti";
 import "../css/order-success.css";
 import { useDispatch } from "react-redux";
 import { clearCart } from "@/store/cartSlice";
@@ -29,6 +29,7 @@ const OrderSuccess = () => {
     dispatch(clearCart());
     if (latestOrder) {
       const parsed = JSON.parse(latestOrder);
+      console.log("🔥 parsed order:", parsed);
       console.log("🔥 order.payment_method:", parsed.payment_method);
       setOrder(parsed);
 
@@ -78,6 +79,10 @@ const OrderSuccess = () => {
 
   if (!order) return <p>Đang xử lý...</p>;
 
+  const total = order.items?.reduce((sum: number, item: any) => {
+    return sum + item.variant.price * item.quantity;
+  }, 0);
+
   return (
     <div className="success-wrapper">
       <div className="confetti-bg" />
@@ -121,8 +126,11 @@ const OrderSuccess = () => {
           </p>
           <p>
             <strong>Tổng cộng:</strong>{" "}
-            {Number(order.total_price).toLocaleString("vi-VN")}₫
+            {order.total_price
+              ? Number(order.total_price).toLocaleString("vi-VN") + "₫"
+              : "Chưa xác định"}
           </p>
+
           <p>
             <strong>Phương thức thanh toán:</strong>{" "}
             {renderPaymentMethod(order.payment_method)}

@@ -21,6 +21,7 @@ export default function PaymentPage() {
   const [couponCode, setCouponCode] = useState("");
   const [discount, setDiscount] = useState(0); // giá trị giảm (VND)
   const [couponId, setCouponId] = useState<number | null>(null); // Lưu ID coupon
+  const [shippingFee, setShippingFee] = useState<number>(0); //tính tiền ship
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -42,7 +43,25 @@ export default function PaymentPage() {
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+
+    // Nếu user đổi Tỉnh/Thành phố thì cập nhật phí ship
+    if (name === "city") {
+      if (value === "HCM") {
+        setShippingFee(0); // miễn phí
+      } else if (value) {
+        setShippingFee(30000); // tỉnh khác
+      } else {
+        setShippingFee(0); // nếu bỏ chọn thì reset
+      }
+    }
   };
+
+  const totalCart = cartItems.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
+
+  const finalTotal = totalCart + shippingFee;
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
@@ -90,6 +109,7 @@ export default function PaymentPage() {
             ? "Thanh toán khi nhận hàng"
             : "Thanh toán đơn hàng VNPAY",
         bank_code: "",
+        shipping_fee: shippingFee, //thêm giá tiền ship
         customer_info: {
           first_name: formData.firstName,
           last_name: formData.lastName,
@@ -121,7 +141,9 @@ export default function PaymentPage() {
       // ✅ Gộp thêm payment_method để lưu vào localStorage
       const orderWithPaymentMethod = {
         ...order,
-        total_price: response.data.total_price,
+        // total_price: response.data.total_price,
+        total_price:
+          response.data.total_price ?? response.data.order?.total_price ?? 0,
         payment_method: paymentMethod,
         items: cartItems.map((item) => ({
           quantity: item.quantity,
@@ -305,14 +327,6 @@ export default function PaymentPage() {
               </div>
             </div>
 
-            <input
-              type="text"
-              name="company"
-              placeholder="Tên công ty"
-              value={formData.company}
-              onChange={handleChange}
-            />
-
             <select
               name="country"
               value={formData.country}
@@ -417,11 +431,17 @@ export default function PaymentPage() {
                 </p>
               )}
               <p>
-                Giao hàng: <span>Miễn phí</span>
+                Giao hàng:{" "}
+                <span>
+                  {shippingFee === 0
+                    ? "Miễn phí"
+                    : shippingFee.toLocaleString("vi-VN") + " đ"}
+                </span>
               </p>
+
               <div className="total-line">
                 <span>TỔNG</span>
-                <span>{total.toLocaleString("vi-VN")}đ</span>
+                <span>{finalTotal.toLocaleString("vi-VN")} đ</span>
               </div>
             </div>
 

@@ -2,14 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {
-  ChevronDown,
-  Search,
-  User,
-  Heart,
-  ShoppingCart,
-  UserRound,
-} from "lucide-react";
+import { ChevronDown, Search, User, Heart, ShoppingCart } from "lucide-react";
 import { useEffect, useState, startTransition } from "react";
 import DropdownMenu from "./DropdownMenu";
 import CartModal from "./CartModal";
@@ -22,6 +15,7 @@ type UserInfo = {
   email: string;
   phone: string;
   role: string;
+  avatar: string | null;
 };
 
 export default function Header() {
@@ -69,8 +63,14 @@ export default function Header() {
 
   const blogMenu = [
     { label: { vi: "Lưới bài viết", en: "Grid layout" }, link: "/blog/grid" },
-    { label: { vi: "Sidebar trái", en: "Left sidebar" }, link: "/blog/left-sidebar" },
-    { label: { vi: "Sidebar phải", en: "Right sidebar" }, link: "/blog/right-sidebar" },
+    {
+      label: { vi: "Sidebar trái", en: "Left sidebar" },
+      link: "/blog/left-sidebar",
+    },
+    {
+      label: { vi: "Sidebar phải", en: "Right sidebar" },
+      link: "/blog/right-sidebar",
+    },
     { label: { vi: "Danh sách blog", en: "Blog list" }, link: "/blog/list" },
     { label: { vi: "Bài viết đơn", en: "Single Post" }, link: "/blog/single" },
   ];
@@ -123,7 +123,9 @@ export default function Header() {
                 onChange={(e) => setKeyword(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && keyword.trim()) {
-                    router.push(`/search?keyword=${encodeURIComponent(keyword.trim())}`);
+                    router.push(
+                      `/search?keyword=${encodeURIComponent(keyword.trim())}`
+                    );
                     setKeyword("");
                   }
                 }}
@@ -137,13 +139,35 @@ export default function Header() {
             />
 
             {/* 👤 User */}
-            {user ? (
+            {/* {user ? (
               <button
                 className="text-sm font-semibold hover:text-purple-600 flex items-center gap-1"
                 onClick={() => router.push("/account")}
               >
                 <UserRound className="size-5" />
                 {user.name}
+              </button>
+            ) : (
+              <Link href="/login">
+                <User className="cursor-pointer size-5" />
+              </Link>
+            )} */}
+            {user ? (
+              <button
+                className="text-sm font-semibold hover:text-purple-600 flex items-center gap-2"
+                onClick={() => router.push("/account")}
+              >
+                {user.avatar ? (
+                  <img
+                    src={`http://localhost:8000/storage/${user.avatar}`}
+                    alt="Avatar"
+                    className="w-6 h-6 rounded-full object-cover border"
+                  />
+                ) : (
+                  <div className="w-6 h-6 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-xs font-bold uppercase">
+                    {user.name.charAt(0)}
+                  </div>
+                )}
               </button>
             ) : (
               <Link href="/login">
@@ -175,36 +199,35 @@ export default function Header() {
         </header>
 
         {/* Navigation */}
-      <nav className="flex justify-center gap-10 py-4 font-semibold text-sm border-b bg-white">
-  <button
-    onClick={() => handleLinkClick("/")}
-    className="hover:text-purple-600"
-  >
-    {language === "vi" ? "Trang chủ" : "Home"}
-  </button>
+        <nav className="flex justify-center gap-10 py-4 font-semibold text-sm border-b bg-white">
+          <button
+            onClick={() => handleLinkClick("/")}
+            className="hover:text-purple-600"
+          >
+            {language === "vi" ? "Trang chủ" : "Home"}
+          </button>
 
-  <button
-    onClick={() => handleLinkClick("/products")}
-    className="hover:text-purple-600"
-  >
-    {language === "vi" ? "Cửa hàng" : "Shop"}
-  </button>
+          <button
+            onClick={() => handleLinkClick("/products")}
+            className="hover:text-purple-600"
+          >
+            {language === "vi" ? "Cửa hàng" : "Shop"}
+          </button>
 
-  <button
-    onClick={() => handleLinkClick("/lucky")}
-    className="hover:text-purple-600"
-  >
-    {language === "vi" ? "Vòng quay may mắn" : "Lucky Wheel"}
-  </button>
+          <button
+            onClick={() => handleLinkClick("/lucky")}
+            className="hover:text-purple-600"
+          >
+            {language === "vi" ? "Vòng quay may mắn" : "Lucky Wheel"}
+          </button>
 
-  <button
-    onClick={() => handleLinkClick("/blog")}
-    className="hover:text-purple-600"
-  >
-    {language === "vi" ? "Giới thiệu" : "About"}
-  </button>
-</nav>
-
+          <button
+            onClick={() => handleLinkClick("/blog")}
+            className="hover:text-purple-600"
+          >
+            {language === "vi" ? "Giới thiệu" : "About"}
+          </button>
+        </nav>
       </div>
 
       {/* Loading */}

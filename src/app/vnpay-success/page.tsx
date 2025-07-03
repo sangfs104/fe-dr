@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import axios from "axios";
+import confetti from "canvas-confetti";
 import {
   CheckCircle,
   PackageCheck,
@@ -32,8 +33,34 @@ export default function VnpaySuccessPage() {
         );
 
         if (res.data.status === 200) {
-          setOrder(res.data.order);
-          localStorage.setItem("latestOrder", JSON.stringify(res.data.order));
+          // bắn pháo hoa
+          confetti({
+            particleCount: 200,
+            spread: 150,
+            origin: { y: 0.6 },
+          });
+
+          let order = res.data.order;
+
+          // fallback nếu thiếu order_items
+          if (!order.order_items || order.order_items.length === 0) {
+            const latestOrderStr = localStorage.getItem("latestOrder");
+            if (latestOrderStr) {
+              const latestOrder = JSON.parse(latestOrderStr);
+              order.order_items = latestOrder.items.map((item: any) => ({
+                quantity: item.quantity,
+                variant: {
+                  name: item.variant.name,
+                  price: item.variant.price,
+                  image: item.variant.image_url,
+                },
+                price: item.variant.price,
+              }));
+            }
+          }
+
+          setOrder(order);
+          localStorage.setItem("latestOrder", JSON.stringify(order));
         } else {
           alert("Thanh toán thất bại");
           router.push("/cart");
@@ -89,16 +116,23 @@ export default function VnpaySuccessPage() {
             {order.order_items && order.order_items.length > 0 ? (
               <ul className="divide-y divide-gray-200 mt-2">
                 {order.order_items.map((item: any, idx: number) => (
-                  <li
-                    key={idx}
-                    className="py-2 flex justify-between items-center"
-                  >
-                    <span className="text-gray-800">
-                      {item.variant?.name || "Sản phẩm"} x {item.quantity}
-                    </span>
-                    <span className="text-gray-600">
+                  <li key={idx} className="py-3 flex items-center gap-3">
+                    <img
+                      src={item.variant?.image || "/placeholder.png"}
+                      alt={item.variant?.name}
+                      className="w-14 h-14 rounded border"
+                    />
+                    <div className="flex-1">
+                      <p className="text-gray-800 font-semibold">
+                        {item.variant?.name || "Sản phẩm"}
+                      </p>
+                      <p className="text-gray-500 text-sm">
+                        Số lượng: {item.quantity}
+                      </p>
+                    </div>
+                    <div className="text-gray-700 font-semibold">
                       {item.price?.toLocaleString("vi-VN")}₫
-                    </span>
+                    </div>
                   </li>
                 ))}
               </ul>
@@ -109,7 +143,6 @@ export default function VnpaySuccessPage() {
             )}
           </div>
 
-          {/* ✅ Nút quay về trang đơn hàng */}
           <div className="mt-8 text-center">
             <button
               onClick={() => router.push("/account")}

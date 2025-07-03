@@ -1,47 +1,77 @@
 "use client";
 
-import { useGoogleLogin } from "@react-oauth/google";
-import axios from "axios";
+import { useEffect } from "react";
 import { toast } from "react-hot-toast";
+import "../css/login.css"; // đường dẫn theo dự án
 
 export default function GoogleLoginButton() {
-  const login = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      try {
-        const { access_token } = tokenResponse;
-        console.log("Google access_token", access_token);
+  useEffect(() => {
+    // Load Google Identity Services SDK
+    const script = document.createElement("script");
+    script.src = "https://accounts.google.com/gsi/client";
+    script.async = true;
+    script.defer = true;
+    document.body.appendChild(script);
 
-        const res = await axios.post("http://localhost:8000/api/auth/google", {
-          access_token, // gửi access_token thay vì code
-        });
+    script.onload = () => {
+      // @ts-ignore
+      window.google.accounts.id.initialize({
+        client_id:
+          "618672128676-6dopq4dgv5p5qgl83mphuppi9vkrmd2k.apps.googleusercontent.com",
+        callback: async (response: any) => {
+          const idToken = response.credential;
+          console.log("ID Token:", idToken);
 
-        toast.success("Đăng nhập thành công!");
-        localStorage.setItem("access_token", res.data.access_token);
-        localStorage.setItem("user", JSON.stringify(res.data.user));
-        window.location.href = "/account";
-      } catch (error: any) {
-        toast.error("Đăng nhập thất bại");
-        console.error("Lỗi login:", error?.response?.data || error.message);
-      }
-    },
-    onError: (errorResponse) => {
-      console.error("Google Login error:", errorResponse);
-      toast.error("Google Login thất bại");
-    },
-  });
+          // Lưu ID token vào localStorage
+          localStorage.setItem("id_token", idToken);
+
+          try {
+            const res = await fetch("http://localhost:8000/api/auth/google", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                id_token: idToken,
+              }),
+            });
+
+            if (!res.ok) throw new Error("Đăng nhập thất bại");
+
+            const data = await res.json();
+
+            toast.success("Đăng nhập thành công!");
+            localStorage.setItem("access_token", data.access_token);
+            localStorage.setItem("user", JSON.stringify(data.user));
+            window.location.href = "/account";
+          } catch (err: any) {
+            console.error("Lỗi login:", err);
+            toast.error("Đăng nhập thất bại");
+          }
+        },
+      });
+
+      // @ts-ignore
+      window.google.accounts.id.renderButton(
+        document.getElementById("googleButton"),
+        {
+          theme: "filled_blue",
+          size: "large",
+          width: "100%",
+        }
+      );
+    };
+  }, []);
 
   return (
-    <button
-      type="button"
-      onClick={() => login()}
-      className="flex items-center justify-center gap-3 bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition w-full"
-    >
-      <img
-        src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-        alt="Google"
-        className="w-5 h-5"
+    <div className="flex justify-center">
+      <div
+        id="googleButton"
+        style={{
+          maxWidth: "400px",
+          width: "100%",
+          display: "flex",
+          justifyContent: "center",
+        }}
       />
-      <span>Đăng nhập bằng Google</span>
-    </button>
+    </div>
   );
 }

@@ -220,7 +220,8 @@ export default function ProductDetailClient({
   };
   return (
     <>
-      <div className="w-full px-40 py-8 max-w-7xl ">
+      {/* <div className="w-full px-40 py-8 max-w-7xl "> */}
+      <div className="w-full px-4 sm:px-6 md:px-10 lg:px-20 xl:px-40 py-8 max-w-7xl mx-auto">
         <div className="grid md:grid-cols-2 gap-12">
           {/* Ảnh sản phẩm */}
           <div className="flex flex-col md:flex-row gap-12">

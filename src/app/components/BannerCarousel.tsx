@@ -293,7 +293,9 @@
 //     </div>
 //   );
 // }
+
 "use client";
+import Image from "next/image";
 
 import "keen-slider/keen-slider.min.css";
 import { motion } from "framer-motion";
@@ -396,10 +398,12 @@ export default function BannerCarousel({ language = "vi" }) {
           aria-hidden={currentSlide !== idx}
           style={{ pointerEvents: currentSlide === idx ? "auto" : "none" }}
         >
-          <img
+          <Image
             src={banner.image}
             alt={banner.title}
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
+            priority={idx === 0}
           />
 
           <div

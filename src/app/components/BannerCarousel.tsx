@@ -1,11 +1,332 @@
+// // // // "use client";
+
+// // // // import "keen-slider/keen-slider.min.css";
+// // // // import { motion } from "framer-motion";
+// // // // import { useState, useEffect, useRef } from "react";
+// // // // import { useKeenSlider } from "keen-slider/react";
+
+// // // // const banners = [
+// // // //   {
+// // // //     title: "Style that Speaks",
+// // // //     subtitle: "Elevate your everyday with our signature collection.",
+// // // //     image: "/img/banner1.webp",
+// // // //     cta: "Explore Now",
+// // // //     layout: "left",
+// // // //   },
+// // // //   {
+// // // //     title: "Bold & Timeless",
+// // // //     subtitle: "Crafted to define your fashion identity.",
+// // // //     image: "/img/banner2.webp",
+// // // //     cta: "Discover More",
+// // // //     layout: "center",
+// // // //   },
+// // // //   {
+// // // //     title: "Fashion Redefined",
+// // // //     subtitle: "Where trends meet authenticity.",
+// // // //     image: "/img/banner3.webp",
+// // // //     cta: "Shop Collection",
+// // // //     layout: "right",
+// // // //   },
+// // // // ];
+
+// // // // export default function BannerCarousel() {
+// // // //   const [currentSlide, setCurrentSlide] = useState(0);
+
+// // // //   // Ref để lưu instance slider, dùng để gọi .next()
+// // // //   const sliderInstance = useRef(null);
+
+// // // //   const [sliderRef] = useKeenSlider({
+// // // //     loop: true,
+// // // //     slides: { perView: 1 },
+// // // //     duration: 1000,
+// // // //     slideChanged(s) {
+// // // //       setCurrentSlide(s.track.details.rel);
+// // // //     },
+// // // //     created(s) {
+// // // //       // Khi slider được tạo, lưu instance vào ref
+// // // //       sliderInstance.current = s;
+// // // //     },
+// // // //   });
+
+// // // //   // Autoplay bằng setInterval gọi sliderInstance.current.next()
+// // // //   useEffect(() => {
+// // // //     if (!sliderInstance.current) return;
+
+// // // //     const interval = setInterval(() => {
+// // // //       sliderInstance.current.next();
+// // // //     }, 5000);
+
+// // // //     return () => clearInterval(interval);
+// // // //   }, [sliderInstance.current]); // dependency để chắc chắn có sliderInstance
+
+// // // //   const contentAlignment = {
+// // // //     left: "items-start text-left",
+// // // //     center: "items-center text-center",
+// // // //     right: "items-end text-right",
+// // // //   };
+
+// // // //   const variants = {
+// // // //     hidden: { opacity: 0, x: -50 },
+// // // //     visible: { opacity: 1, x: 0, transition: { duration: 0.8 } },
+// // // //   };
+
+// // // //   return (
+// // // //     <div
+// // // //       ref={sliderRef}
+// // // //       className="keen-slider h-[80vh] relative overflow-hidden"
+// // // //     >
+// // // //       {banners.map((banner, idx) => (
+// // // //         <div
+// // // //           key={idx}
+// // // //           className="keen-slider__slide relative"
+// // // //           aria-hidden={currentSlide !== idx}
+// // // //           style={{ pointerEvents: currentSlide === idx ? "auto" : "none" }}
+// // // //         >
+// // // //           <img
+// // // //             src={banner.image}
+// // // //             alt={banner.title}
+// // // //             className="w-full h-full object-cover"
+// // // //           />
+
+// // // //           <div
+// // // //             className={`absolute inset-0 bg-black/40 flex flex-col justify-center ${
+// // // //               contentAlignment[banner.layout]
+// // // //             } px-6 gap-4`}
+// // // //           >
+// // // //             <motion.h2
+// // // //               className="text-4xl md:text-6xl font-bold text-white"
+// // // //               key={`title-${idx}-${currentSlide}`}
+// // // //               initial="hidden"
+// // // //               animate={currentSlide === idx ? "visible" : "hidden"}
+// // // //               variants={variants}
+// // // //             >
+// // // //               {banner.title}
+// // // //             </motion.h2>
+// // // //             <motion.p
+// // // //               className="text-lg md:text-xl text-white max-w-xl"
+// // // //               key={`subtitle-${idx}-${currentSlide}`}
+// // // //               initial={{ opacity: 0, y: 20 }}
+// // // //               animate={
+// // // //                 currentSlide === idx
+// // // //                   ? { opacity: 1, y: 0 }
+// // // //                   : { opacity: 0, y: 20 }
+// // // //               }
+// // // //               transition={{ duration: 0.8, delay: 0.3 }}
+// // // //             >
+// // // //               {banner.subtitle}
+// // // //             </motion.p>
+// // // //             <motion.button
+// // // //               className="bg-white text-black px-6 py-3 rounded-md font-medium hover:bg-purple-600 hover:text-white transition"
+// // // //               key={`button-${idx}-${currentSlide}`}
+// // // //               initial={{ opacity: 0, scale: 0.9 }}
+// // // //               animate={
+// // // //                 currentSlide === idx
+// // // //                   ? { opacity: 1, scale: 1 }
+// // // //                   : { opacity: 0, scale: 0.9 }
+// // // //               }
+// // // //               transition={{ duration: 0.5, delay: 0.5 }}
+// // // //             >
+// // // //               {banner.cta}
+// // // //             </motion.button>
+// // // //           </div>
+// // // //         </div>
+// // // //       ))}
+// // // //     </div>
+// // // //   );
+// // // // }
+
+// // // "use client";
+
+// // // import "keen-slider/keen-slider.min.css";
+// // // import { motion } from "framer-motion";
+// // // import { useState, useEffect, useRef } from "react";
+// // // import { useKeenSlider } from "keen-slider/react";
+
+// // // const bannersVi = [
+// // //   {
+// // //     title: "Phong cách lên tiếng",
+// // //     subtitle: "Nâng tầm mỗi ngày với bộ sưu tập đặc trưng của chúng tôi.",
+// // //     image: "/img/banner1.webp",
+// // //     cta: "Khám phá ngay",
+// // //     layout: "left",
+// // //   },
+// // //   {
+// // //     title: "Đậm cá tính & Vượt thời gian",
+// // //     subtitle: "Được chế tác để định nghĩa phong cách thời trang của bạn.",
+// // //     image: "/img/banner2.webp",
+// // //     cta: "Tìm hiểu thêm",
+// // //     layout: "center",
+// // //   },
+// // //   {
+// // //     title: "Thời trang được tái định nghĩa",
+// // //     subtitle: "Nơi xu hướng gặp gỡ sự chân thực.",
+// // //     image: "/img/banner3.webp",
+// // //     cta: "Mua bộ sưu tập",
+// // //     layout: "right",
+// // //   },
+// // // ];
+
+// // // const bannersEn = [
+// // //   {
+// // //     title: "Style that Speaks",
+// // //     subtitle: "Elevate your everyday with our signature collection.",
+// // //     image: "/img/banner1.webp",
+// // //     cta: "Explore Now",
+// // //     layout: "left",
+// // //   },
+// // //   {
+// // //     title: "Bold & Timeless",
+// // //     subtitle: "Crafted to define your fashion identity.",
+// // //     image: "/img/banner2.webp",
+// // //     cta: "Discover More",
+// // //     layout: "center",
+// // //   },
+// // //   {
+// // //     title: "Fashion Redefined",
+// // //     subtitle: "Where trends meet authenticity.",
+// // //     image: "/img/banner3.webp",
+// // //     cta: "Shop Collection",
+// // //     layout: "right",
+// // //   },
+// // // ];
+
+// // // export default function BannerCarousel({ language = "vi" }) {
+// // //   const [currentSlide, setCurrentSlide] = useState(0);
+// // //   const sliderInstance = useRef(null);
+
+// // //   const banners = language === "vi" ? bannersVi : bannersEn;
+
+// // //   const [sliderRef] = useKeenSlider({
+// // //     loop: true,
+// // //     slides: { perView: 1 },
+// // //     duration: 1000,
+// // //     slideChanged(s) {
+// // //       setCurrentSlide(s.track.details.rel);
+// // //     },
+// // //     created(s) {
+// // //       sliderInstance.current = s;
+// // //     },
+// // //   });
+
+// // //   useEffect(() => {
+// // //     if (!sliderInstance.current) return;
+
+// // //     const interval = setInterval(() => {
+// // //       sliderInstance.current.next();
+// // //     }, 5000);
+
+// // //     return () => clearInterval(interval);
+// // //   }, [sliderInstance.current]);
+
+// // //   const contentAlignment = {
+// // //     left: "items-start text-left",
+// // //     center: "items-center text-center",
+// // //     right: "items-end text-right",
+// // //   };
+
+// // //   const variants = {
+// // //     hidden: { opacity: 0, x: -50 },
+// // //     visible: { opacity: 1, x: 0, transition: { duration: 0.8 } },
+// // //   };
+
+// // //   return (
+// // //     <div
+// // //       ref={sliderRef}
+// // //       className="keen-slider h-[80vh] relative overflow-hidden"
+// // //     >
+// // //       {banners.map((banner, idx) => (
+// // //         <div
+// // //           key={idx}
+// // //           className="keen-slider__slide relative"
+// // //           aria-hidden={currentSlide !== idx}
+// // //           style={{ pointerEvents: currentSlide === idx ? "auto" : "none" }}
+// // //         >
+// // //           <img
+// // //             src={banner.image}
+// // //             alt={banner.title}
+// // //             className="w-full h-full object-cover"
+// // //           />
+
+// // //           <div
+// // //             className={`absolute inset-0 bg-black/40 flex flex-col justify-center ${
+// // //               contentAlignment[banner.layout]
+// // //             } px-40 gap-4`}
+// // //           >
+// // //             <motion.h2
+// // //               className="text-4xl md:text-6xl font-bold text-white"
+// // //               key={`title-${idx}-${currentSlide}`}
+// // //               initial="hidden"
+// // //               animate={currentSlide === idx ? "visible" : "hidden"}
+// // //               variants={variants}
+// // //             >
+// // //               {banner.title}
+// // //             </motion.h2>
+// // //             <motion.p
+// // //               className="text-lg md:text-xl text-white max-w-xl"
+// // //               key={`subtitle-${idx}-${currentSlide}`}
+// // //               initial={{ opacity: 0, y: 20 }}
+// // //               animate={
+// // //                 currentSlide === idx
+// // //                   ? { opacity: 1, y: 0 }
+// // //                   : { opacity: 0, y: 20 }
+// // //               }
+// // //               transition={{ duration: 0.8, delay: 0.3 }}
+// // //             >
+// // //               {banner.subtitle}
+// // //             </motion.p>
+// // //             <motion.button
+// // //               className="bg-white text-black px-24 py-3 rounded-md font-medium hover:bg-purple-600 hover:text-white transition"
+// // //               key={`button-${idx}-${currentSlide}`}
+// // //               initial={{ opacity: 0, scale: 0.9 }}
+// // //               animate={
+// // //                 currentSlide === idx
+// // //                   ? { opacity: 1, scale: 1 }
+// // //                   : { opacity: 0, scale: 0.9 }
+// // //               }
+// // //               transition={{ duration: 0.5, delay: 0.5 }}
+// // //             >
+// // //               {banner.cta}
+// // //             </motion.button>
+// // //           </div>
+// // //         </div>
+// // //       ))}
+// // //     </div>
+// // //   );
+// // // }
+
 // // "use client";
+// // import Image from "next/image";
 
 // // import "keen-slider/keen-slider.min.css";
 // // import { motion } from "framer-motion";
 // // import { useState, useEffect, useRef } from "react";
 // // import { useKeenSlider } from "keen-slider/react";
 
-// // const banners = [
+// // const bannersVi = [
+// //   {
+// //     title: "Phong cách lên tiếng",
+// //     subtitle: "Nâng tầm mỗi ngày với bộ sưu tập đặc trưng của chúng tôi.",
+// //     image: "/img/banner1.webp",
+// //     cta: "Khám phá ngay",
+// //     layout: "left",
+// //   },
+// //   {
+// //     title: "Đậm cá tính & Vượt thời gian",
+// //     subtitle: "Được chế tác để định nghĩa phong cách thời trang của bạn.",
+// //     image: "/img/banner2.webp",
+// //     cta: "Tìm hiểu thêm",
+// //     layout: "center",
+// //   },
+// //   {
+// //     title: "Thời trang được tái định nghĩa",
+// //     subtitle: "Nơi xu hướng gặp gỡ sự chân thực.",
+// //     image: "/img/banner3.webp",
+// //     cta: "Mua bộ sưu tập",
+// //     layout: "right",
+// //   },
+// // ];
+
+// // const bannersEn = [
 // //   {
 // //     title: "Style that Speaks",
 // //     subtitle: "Elevate your everyday with our signature collection.",
@@ -29,11 +350,10 @@
 // //   },
 // // ];
 
-// // export default function BannerCarousel() {
+// // export default function BannerCarousel({ language = "vi" }) {
 // //   const [currentSlide, setCurrentSlide] = useState(0);
-
-// //   // Ref để lưu instance slider, dùng để gọi .next()
 // //   const sliderInstance = useRef(null);
+// //   const banners = language === "vi" ? bannersVi : bannersEn;
 
 // //   const [sliderRef] = useKeenSlider({
 // //     loop: true,
@@ -43,21 +363,17 @@
 // //       setCurrentSlide(s.track.details.rel);
 // //     },
 // //     created(s) {
-// //       // Khi slider được tạo, lưu instance vào ref
 // //       sliderInstance.current = s;
 // //     },
 // //   });
 
-// //   // Autoplay bằng setInterval gọi sliderInstance.current.next()
 // //   useEffect(() => {
 // //     if (!sliderInstance.current) return;
-
 // //     const interval = setInterval(() => {
 // //       sliderInstance.current.next();
 // //     }, 5000);
-
 // //     return () => clearInterval(interval);
-// //   }, [sliderInstance.current]); // dependency để chắc chắn có sliderInstance
+// //   }, []);
 
 // //   const contentAlignment = {
 // //     left: "items-start text-left",
@@ -73,7 +389,7 @@
 // //   return (
 // //     <div
 // //       ref={sliderRef}
-// //       className="keen-slider h-[80vh] relative overflow-hidden"
+// //       className="keen-slider h-[70vh] sm:h-[80vh] relative overflow-hidden"
 // //     >
 // //       {banners.map((banner, idx) => (
 // //         <div
@@ -82,19 +398,21 @@
 // //           aria-hidden={currentSlide !== idx}
 // //           style={{ pointerEvents: currentSlide === idx ? "auto" : "none" }}
 // //         >
-// //           <img
+// //           <Image
 // //             src={banner.image}
 // //             alt={banner.title}
-// //             className="w-full h-full object-cover"
+// //             fill
+// //             className="object-cover"
+// //             priority={idx === 0}
 // //           />
 
 // //           <div
 // //             className={`absolute inset-0 bg-black/40 flex flex-col justify-center ${
 // //               contentAlignment[banner.layout]
-// //             } px-6 gap-4`}
+// //             } px-4 sm:px-10 md:px-20 lg:px-32 xl:px-40 gap-3 sm:gap-4`}
 // //           >
 // //             <motion.h2
-// //               className="text-4xl md:text-6xl font-bold text-white"
+// //               className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight"
 // //               key={`title-${idx}-${currentSlide}`}
 // //               initial="hidden"
 // //               animate={currentSlide === idx ? "visible" : "hidden"}
@@ -102,8 +420,9 @@
 // //             >
 // //               {banner.title}
 // //             </motion.h2>
+
 // //             <motion.p
-// //               className="text-lg md:text-xl text-white max-w-xl"
+// //               className="text-sm sm:text-base md:text-lg lg:text-xl text-white max-w-xl"
 // //               key={`subtitle-${idx}-${currentSlide}`}
 // //               initial={{ opacity: 0, y: 20 }}
 // //               animate={
@@ -115,8 +434,9 @@
 // //             >
 // //               {banner.subtitle}
 // //             </motion.p>
+
 // //             <motion.button
-// //               className="bg-white text-black px-6 py-3 rounded-md font-medium hover:bg-purple-600 hover:text-white transition"
+// //               className="bg-white text-black px-6 sm:px-12 md:px-16 py-2 sm:py-3 rounded-md font-medium text-sm sm:text-base hover:bg-purple-600 hover:text-white transition"
 // //               key={`button-${idx}-${currentSlide}`}
 // //               initial={{ opacity: 0, scale: 0.9 }}
 // //               animate={
@@ -136,13 +456,22 @@
 // // }
 
 // "use client";
+// import Image from "next/image";
 
 // import "keen-slider/keen-slider.min.css";
 // import { motion } from "framer-motion";
 // import { useState, useEffect, useRef } from "react";
-// import { useKeenSlider } from "keen-slider/react";
+// import { useKeenSlider, KeenSliderInstance } from "keen-slider/react";
 
-// const bannersVi = [
+// type Banner = {
+//   title: string;
+//   subtitle: string;
+//   image: string;
+//   cta: string;
+//   layout: "left" | "center" | "right";
+// };
+
+// const bannersVi: Banner[] = [
 //   {
 //     title: "Phong cách lên tiếng",
 //     subtitle: "Nâng tầm mỗi ngày với bộ sưu tập đặc trưng của chúng tôi.",
@@ -166,7 +495,7 @@
 //   },
 // ];
 
-// const bannersEn = [
+// const bannersEn: Banner[] = [
 //   {
 //     title: "Style that Speaks",
 //     subtitle: "Elevate your everyday with our signature collection.",
@@ -190,13 +519,18 @@
 //   },
 // ];
 
-// export default function BannerCarousel({ language = "vi" }) {
-//   const [currentSlide, setCurrentSlide] = useState(0);
-//   const sliderInstance = useRef(null);
+// interface BannerCarouselProps {
+//   language?: "vi" | "en";
+// }
 
+// export default function BannerCarousel({
+//   language = "vi",
+// }: BannerCarouselProps) {
+//   const [currentSlide, setCurrentSlide] = useState(0);
+//   const sliderInstance = useRef<KeenSliderInstance | null>(null);
 //   const banners = language === "vi" ? bannersVi : bannersEn;
 
-//   const [sliderRef] = useKeenSlider({
+//   const [sliderRef] = useKeenSlider<HTMLDivElement>({
 //     loop: true,
 //     slides: { perView: 1 },
 //     duration: 1000,
@@ -210,15 +544,13 @@
 
 //   useEffect(() => {
 //     if (!sliderInstance.current) return;
-
 //     const interval = setInterval(() => {
-//       sliderInstance.current.next();
+//       sliderInstance.current?.next();
 //     }, 5000);
-
 //     return () => clearInterval(interval);
-//   }, [sliderInstance.current]);
+//   }, []);
 
-//   const contentAlignment = {
+//   const contentAlignment: Record<Banner["layout"], string> = {
 //     left: "items-start text-left",
 //     center: "items-center text-center",
 //     right: "items-end text-right",
@@ -232,7 +564,7 @@
 //   return (
 //     <div
 //       ref={sliderRef}
-//       className="keen-slider h-[80vh] relative overflow-hidden"
+//       className="keen-slider h-[70vh] sm:h-[80vh] relative overflow-hidden"
 //     >
 //       {banners.map((banner, idx) => (
 //         <div
@@ -241,19 +573,24 @@
 //           aria-hidden={currentSlide !== idx}
 //           style={{ pointerEvents: currentSlide === idx ? "auto" : "none" }}
 //         >
-//           <img
-//             src={banner.image}
-//             alt={banner.title}
-//             className="w-full h-full object-cover"
-//           />
+//           {/* Đảm bảo cha của Image có position: relative nếu dùng fill */}
+//           <div className="absolute inset-0">
+//             <Image
+//               src={banner.image}
+//               alt={banner.title}
+//               fill
+//               className="object-cover"
+//               priority={idx === 0}
+//             />
+//           </div>
 
 //           <div
 //             className={`absolute inset-0 bg-black/40 flex flex-col justify-center ${
 //               contentAlignment[banner.layout]
-//             } px-40 gap-4`}
+//             } px-4 sm:px-10 md:px-20 lg:px-32 xl:px-40 gap-3 sm:gap-4`}
 //           >
 //             <motion.h2
-//               className="text-4xl md:text-6xl font-bold text-white"
+//               className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight"
 //               key={`title-${idx}-${currentSlide}`}
 //               initial="hidden"
 //               animate={currentSlide === idx ? "visible" : "hidden"}
@@ -261,8 +598,9 @@
 //             >
 //               {banner.title}
 //             </motion.h2>
+
 //             <motion.p
-//               className="text-lg md:text-xl text-white max-w-xl"
+//               className="text-sm sm:text-base md:text-lg lg:text-xl text-white max-w-xl"
 //               key={`subtitle-${idx}-${currentSlide}`}
 //               initial={{ opacity: 0, y: 20 }}
 //               animate={
@@ -274,8 +612,9 @@
 //             >
 //               {banner.subtitle}
 //             </motion.p>
+
 //             <motion.button
-//               className="bg-white text-black px-24 py-3 rounded-md font-medium hover:bg-purple-600 hover:text-white transition"
+//               className="bg-white text-black px-6 sm:px-12 md:px-16 py-2 sm:py-3 rounded-md font-medium text-sm sm:text-base hover:bg-purple-600 hover:text-white transition"
 //               key={`button-${idx}-${currentSlide}`}
 //               initial={{ opacity: 0, scale: 0.9 }}
 //               animate={
@@ -293,16 +632,26 @@
 //     </div>
 //   );
 // }
-
 "use client";
 import Image from "next/image";
-
 import "keen-slider/keen-slider.min.css";
 import { motion } from "framer-motion";
-import { useState, useEffect, useRef } from "react";
-import { useKeenSlider } from "keen-slider/react";
+import { useState, useRef } from "react";
+import {
+  useKeenSlider,
+  KeenSliderInstance,
+  KeenSliderPlugin,
+} from "keen-slider/react";
 
-const bannersVi = [
+type Banner = {
+  title: string;
+  subtitle: string;
+  image: string;
+  cta: string;
+  layout: "left" | "center" | "right";
+};
+
+const bannersVi: Banner[] = [
   {
     title: "Phong cách lên tiếng",
     subtitle: "Nâng tầm mỗi ngày với bộ sưu tập đặc trưng của chúng tôi.",
@@ -326,7 +675,7 @@ const bannersVi = [
   },
 ];
 
-const bannersEn = [
+const bannersEn: Banner[] = [
   {
     title: "Style that Speaks",
     subtitle: "Elevate your everyday with our signature collection.",
@@ -350,32 +699,66 @@ const bannersEn = [
   },
 ];
 
-export default function BannerCarousel({ language = "vi" }) {
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const sliderInstance = useRef(null);
-  const banners = language === "vi" ? bannersVi : bannersEn;
+// ✅ Plugin animation cho KeenSlider v6
+const Autoplay = (delay: number): KeenSliderPlugin => (slider) => {
+  let timeout: ReturnType<typeof setTimeout>;
+  let mouseOver = false;
 
-  const [sliderRef] = useKeenSlider({
-    loop: true,
-    slides: { perView: 1 },
-    duration: 1000,
-    slideChanged(s) {
-      setCurrentSlide(s.track.details.rel);
-    },
-    created(s) {
-      sliderInstance.current = s;
-    },
+  function clearNextTimeout() {
+    clearTimeout(timeout);
+  }
+
+  function nextTimeout() {
+    clearTimeout(timeout);
+    if (mouseOver) return;
+    timeout = setTimeout(() => {
+      slider.next();
+    }, delay);
+  }
+
+  slider.on("created", () => {
+    slider.container.addEventListener("mouseover", () => {
+      mouseOver = true;
+      clearNextTimeout();
+    });
+    slider.container.addEventListener("mouseout", () => {
+      mouseOver = false;
+      nextTimeout();
+    });
+    nextTimeout();
   });
 
-  useEffect(() => {
-    if (!sliderInstance.current) return;
-    const interval = setInterval(() => {
-      sliderInstance.current.next();
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
+  slider.on("dragStarted", clearNextTimeout);
+  slider.on("animationEnded", nextTimeout);
+  slider.on("updated", nextTimeout);
+};
 
-  const contentAlignment = {
+interface BannerCarouselProps {
+  language?: "vi" | "en";
+}
+
+export default function BannerCarousel({
+  language = "vi",
+}: BannerCarouselProps) {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const sliderInstance = useRef<KeenSliderInstance | null>(null);
+  const banners = language === "vi" ? bannersVi : bannersEn;
+
+  const [sliderRef] = useKeenSlider<HTMLDivElement>(
+    {
+      loop: true,
+      slides: { perView: 1 },
+      slideChanged(s) {
+        setCurrentSlide(s.track.details.rel);
+      },
+      created(s) {
+        sliderInstance.current = s;
+      },
+    },
+    [Autoplay(5000)] // ⏱ tự động chuyển sau 5s
+  );
+
+  const contentAlignment: Record<Banner["layout"], string> = {
     left: "items-start text-left",
     center: "items-center text-center",
     right: "items-end text-right",
@@ -398,13 +781,15 @@ export default function BannerCarousel({ language = "vi" }) {
           aria-hidden={currentSlide !== idx}
           style={{ pointerEvents: currentSlide === idx ? "auto" : "none" }}
         >
-          <Image
-            src={banner.image}
-            alt={banner.title}
-            fill
-            className="object-cover"
-            priority={idx === 0}
-          />
+          <div className="absolute inset-0">
+            <Image
+              src={banner.image}
+              alt={banner.title}
+              fill
+              className="object-cover"
+              priority={idx === 0}
+            />
+          </div>
 
           <div
             className={`absolute inset-0 bg-black/40 flex flex-col justify-center ${

@@ -259,21 +259,13 @@
 //     </div>
 //   );
 // }
-"use client";
 
+"use client";
+import NextImage from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {
-  ChevronDown,
-  Search,
-  User,
-  Heart,
-  ShoppingCart,
-  Menu,
-  X,
-} from "lucide-react";
+import { Search, User, Heart, ShoppingCart, Menu, X } from "lucide-react";
 import { useEffect, useState, startTransition } from "react";
-import DropdownMenu from "./DropdownMenu";
 import CartModal from "./CartModal";
 import ImageSearch from "./AISearchCart";
 import { useAppSelector } from "@/store/hooks";
@@ -333,12 +325,19 @@ export default function Header() {
   return (
     <div className="w-full bg-white">
       {/* Top Bar */}
-      <div className="bg-[tomato] text-white text-sm text-center py-1 font-semibold">
+      {/* <div className="bg-[tomato] text-white text-sm text-center py-1 font-semibold">
         <marquee behavior="scroll" direction="left" scrollamount="5">
           {language === "vi"
             ? "MÙA MỚI, PHONG CÁCH MỚI: ƯU ĐÃI THỜI TRANG KHÔNG THỂ BỎ LỠ — MIỄN PHÍ VẬN CHUYỂN VÀ TRẢ HÀNG"
             : "NEW SEASON, NEW STYLES: FASHION SALE YOU CAN’T MISS — FREE SHIPPING AND RETURNS"}
         </marquee>
+      </div> */}
+      <div className="bg-[tomato] text-white text-sm font-semibold overflow-hidden whitespace-nowrap py-1">
+        <div className="inline-block animate-marquee">
+          {language === "vi"
+            ? "MÙA MỚI, PHONG CÁCH MỚI: ƯU ĐÃI THỜI TRANG KHÔNG THỂ BỎ LỠ — MIỄN PHÍ VẬN CHUYỂN VÀ TRẢ HÀNG"
+            : "NEW SEASON, NEW STYLES: FASHION SALE YOU CAN’T MISS — FREE SHIPPING AND RETURNS"}
+        </div>
       </div>
 
       {/* Header */}
@@ -403,9 +402,16 @@ export default function Header() {
                 onClick={() => router.push("/account")}
               >
                 {user.avatar ? (
-                  <img
+                  // <img
+                  //   src={`http://localhost:8000/storage/${user.avatar}`}
+                  //   alt="Avatar"
+                  //   className="w-6 h-6 rounded-full object-cover border"
+                  // />
+                  <NextImage
                     src={`http://localhost:8000/storage/${user.avatar}`}
                     alt="Avatar"
+                    width={24}
+                    height={24}
                     className="w-6 h-6 rounded-full object-cover border"
                   />
                 ) : (

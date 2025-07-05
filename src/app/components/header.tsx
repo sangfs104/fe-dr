@@ -261,7 +261,7 @@
 // }
 
 "use client";
-import NextImage from "next/image";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Search, User, Heart, ShoppingCart, Menu, X } from "lucide-react";
@@ -402,18 +402,18 @@ export default function Header() {
                 onClick={() => router.push("/account")}
               >
                 {user.avatar ? (
-                  // <img
-                  //   src={`http://localhost:8000/storage/${user.avatar}`}
-                  //   alt="Avatar"
-                  //   className="w-6 h-6 rounded-full object-cover border"
-                  // />
-                  <NextImage
+                  <img
                     src={`http://localhost:8000/storage/${user.avatar}`}
                     alt="Avatar"
-                    width={24}
-                    height={24}
                     className="w-6 h-6 rounded-full object-cover border"
                   />
+                  // <Image
+                  //   src={`http://localhost:8000/storage/${user.avatar}`}
+                  //   alt="Avatar"
+                  //   width={24}
+                  //   height={24}
+                  //   className="w-6 h-6 rounded-full object-cover border"
+                  // />
                 ) : (
                   <div className="w-6 h-6 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-xs font-bold uppercase">
                     {user.name.charAt(0)}

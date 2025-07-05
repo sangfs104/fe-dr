@@ -42,7 +42,7 @@ export default function GoogleLoginButton() {
             localStorage.setItem("access_token", data.access_token);
             localStorage.setItem("user", JSON.stringify(data.user));
             window.location.href = "/account";
-          } catch (err: any) {
+          } catch (err) {
             console.error("Lỗi login:", err);
             toast.error("Đăng nhập thất bại");
           }

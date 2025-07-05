@@ -609,12 +609,12 @@ export default function LoginPage() {
   return (
     <div className="flex flex-col min-h-screen bg-[#f9f9fb]">
       <HeaderHome />
-      <main className="flex-grow flex justify-center items-center px-4 py-16">
+      <main className="flex-grow flex justify-center items-center px-2 py-2 overflow-y-auto">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="flex flex-col md:flex-row bg-white shadow-md rounded-xl overflow-hidden max-w-5xl w-full"
+          className="flex flex-col md:flex-row bg-white shadow-md rounded-xl overflow-hidden max-w-5xl w-full max-h-[90vh] overflow-y-auto"
         >
           {/* Left image */}
           <div className="w-full max-w-sm aspect-square flex items-center justify-center">

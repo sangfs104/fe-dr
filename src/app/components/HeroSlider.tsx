@@ -227,7 +227,8 @@ export default function HeroSlider() {
   }, []);
 
   return (
-    <div className="px-4 sm:px-10 md:px-20 lg:px-40 w-full">
+    // <div className="px-4 sm:px-10 md:px-20 lg:px-40 w-full">
+    <div className="px-4 sm:px-10 md:px-20 lg:px-40 w-full py-12">
       <div className="relative w-full overflow-hidden rounded-xl">
         <div
           className="flex transition-transform duration-700 ease-[cubic-bezier(0.4,0,0.2,1)]"

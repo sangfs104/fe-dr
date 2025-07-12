@@ -12,7 +12,9 @@ import FlashSaleList from "./components/FlashSaleList";
 import CategoryProduct from "./components/CategoryProduct";
 import ShopArticle from "./components/ShopArticle";
 import VoiceQuickOrderTest from "./components/VoiceQuickOrderTest";
-
+import AIRecommendedProducts from "./components/AIRecommendedProducts";
+// import BannerGrid from "./components/BannerGrid";
+// import FeatureShowcase from "./components/FeatureShowcase";
 // import CategoryAndProduct from "./components/CategoryAndProduct";
 // import ProductWithCategoryPage from "./components/ProductWithCategoryPage";
 // ...existing code...
@@ -32,11 +34,19 @@ export default function ProductPage({
       <ServiceHighlights />
       <FlashSaleList />
       <CategoryProduct></CategoryProduct>
+      <AIRecommendedProducts />
       {/* <CategoryList /> */}
       {/* <Sanpham></Sanpham>   */}
       {/* <CategoryAndProduct /> */}
       {/* <FlashSaleList /> */}
-
+      {/* <FeatureShowcase /> */}
+      {/* <LuckyWheel /> */}
+      {/* <PromotionList /> */}
+      {/* <HeroSlider /> */}
+      {/* <Footer /> */}
+      {/* <VoiceQuickOrderTest /> */}
+      {/* <BannerGrid /> */}
+      {/* <BannerGrid /> */}
       <ProductTabs type={type} />
       {/* <LuckyWheel /> */}
       {/* <ProductWithCategoryPage /> */}

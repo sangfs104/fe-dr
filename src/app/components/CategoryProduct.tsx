@@ -499,6 +499,7 @@
 //     </div>
 //   );
 // }
+
 import { Shirt, ShoppingBag, Tags, Package, MoveDiagonal } from "lucide-react";
 import ProductCard from "./ProductList";
 
@@ -537,7 +538,9 @@ export default async function CategoryProduct() {
     : [];
 
   return (
-    <div className="px-4 sm:px-10 md:px-20 lg:px-40 py-10 bg-white">
+    // <div className="px-4 sm:px-10 md:px-20 lg:px-40 py-10 bg-white">
+    // <div className="px-4 sm:px-10 md:px-20 lg:px-40 py-12 bg-white mt-4">
+    <div className="px-4 sm:px-10 md:px-20 lg:px-40 py-12 bg-white mt-4">
       <div className="flex flex-col lg:flex-row gap-10">
         {/* Bên trái: danh mục */}
         <div className="w-full lg:w-1/4">

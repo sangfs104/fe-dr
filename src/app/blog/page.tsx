@@ -1,17 +1,44 @@
-import HeaderHome from "../components/Header";
-import Footer from "../components/Footer";
-import MainContent from "../components/Blog";
-export default async function ProductPage({
-  searchParams,
-}: {
-  searchParams: { type?: string };
-}) {
-  const type = (searchParams?.type as "hot" | "new") || "hot";
+// 'use client";';
+// import PostList from "../components/post/PostList";
+// import Header from "../components/Header";
+// import Footer from "../components/Footer";
+// export default function PostsPage({ userToken }) {
+//   return <PostList userToken={userToken} />;
+// }
+
+// // "use client";
+// // import PostList from "../components/post/PostList";
+// // import Header from "../components/Header";
+// // import Footer from "../components/Footer";
+
+// // export default function PostsPage() {
+// //   return (
+
+// //       <Header />
+
+// //       <main>
+// //         <PostList />
+// //       </main>
+
+// //       <Footer />
+
+// //   );
+// // }
+"use client";
+import PostList from "../components/post/PostList";
+import Header from "../components/Header";
+import Footer from "../components/ui/Footer";
+
+export default function PostsPage({ userToken }) {
   return (
     <>
-      <HeaderHome />
-      <MainContent />
-      <Footer></Footer>
+      <Header />
+
+      <main>
+        <PostList userToken={userToken} />
+      </main>
+
+      <Footer />
     </>
   );
 }

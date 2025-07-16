@@ -380,9 +380,11 @@ export default async function ProductTabs({
     type === "new" ? await getNewProducts() : await getHotProducts();
 
   return (
-    <div className="px-4 sm:px-10 md:px-20 lg:px-40 py-20 bg-white">
+    // <div className="px-4 sm:px-10 md:px-20 lg:px-40 py-20 bg-white">
+    // <div className="px-4 sm:px-10 md:px-20 lg:px-40 py-6 bg-white">
+    <div className="px-4 sm:px-10 md:px-20 lg:px-40 py-12 bg-white">
       {/* Tabs style Shopee với gradient */}
-      <div className="flex flex-wrap justify-center gap-4 sm:gap-6 mb-12">
+      <div className="flex flex-wrap justify-center gap-4 sm:gap-6 mb-2">
         {[
           { label: "SẢN PHẨM NỔI BẬT", value: "hot" },
           { label: "MỚI RA MẮT", value: "new" },

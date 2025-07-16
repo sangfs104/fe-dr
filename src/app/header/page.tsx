@@ -140,8 +140,8 @@
 
 "use client";
 import { useState } from "react";
-import DropdownMenu from "../components/DropdownMenu";
-import BannerCarousel from "../components/BannerCarousel";
+import DropdownMenu from "../components/ui/DropdownMenu";
+import BannerCarousel from "../components/ui/BannerCarousel";
 import { Search, User, Heart, ShoppingCart } from "lucide-react";
 
 export default function HomePage() {

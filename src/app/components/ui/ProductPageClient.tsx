@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import ProductCard from "../components/ProductList";
-import BreadcrumbFilter from "../components/Sort";
+import BreadcrumbFilter from "./Sort";
 import HeaderHome from "./Header";
-import Footer from "../components/Footer";
+import Footer from "./Footer";
 
 export default function ProductPageClient() {
   const [products, setProducts] = useState([]);

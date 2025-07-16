@@ -1,84 +1,155 @@
+"use client";
+
+import { useEffect, useState, useRef } from "react";
+import HeaderHome from "../../components/ui/Header";
+import Footer from "../../components/ui/Footer";
+import CheckoutProgress from "../../components/ui/CheckoutProgress";
 import ProductDetailClient from "./ProductDetailPage";
-import HeaderHome from "../../components/Header";
-import Footer from "../../components/Footer";
-import CheckoutProgress from "../../components/CheckoutProgress";
-import ProductList1 from "../../components/ProductList1";
+import ProductList1 from "../../components/ui/ProductList1";
 
-async function getProduct(id: string) {
-  try {
-    const res = await fetch(`http://127.0.0.1:8000/product/${id}`, {
-      cache: "no-store",
-    });
-    const data = await res.json();
-    return data.data;
-  } catch (err) {
-    return null;
-  }
-}
+export default function ProductPage({ params }: { params: { id: string } }) {
+  const productId = params.id;
 
-async function getProductReviews(productId: number) {
-  try {
-    const res = await fetch(`http://127.0.0.1:8000/api/review/${productId}`, {
-      cache: "no-store",
-    });
-    const data = await res.json();
-    return data.data;
-  } catch (err) {
-    return [];
-  }
-}
+  const [product, setProduct] = useState<any>(null);
+  const [reviews, setReviews] = useState([]);
+  const [sameCategoryProducts, setSameCategoryProducts] = useState([]);
+  const didFetch = useRef(false);
 
-async function getProductsByCategory(categoryId: number) {
-  try {
-    const res = await fetch(
-      `http://127.0.0.1:8000/api/products-by-category?category_id=${categoryId}`,
-      { cache: "no-store" }
-    );
-    const data = await res.json();
-    // Đảm bảo trả về mảng sản phẩm
-    return Array.isArray(data.data) ? data.data : [];
-  } catch (err) {
-    return [];
-  }
-}
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (didFetch.current) return;
+    didFetch.current = true;
 
-export default async function ProductDetailPage({
-  params,
-}: {
-  params: { id: string };
-}) {
-  const productRaw = await getProduct(params.id);
+    const fetchData = async () => {
+      const token = localStorage.getItem("token");
+      const headers = { Authorization: token ? `Bearer ${token}` : "" };
 
-  if (!productRaw) {
-    return <div className="p-6 text-red-500">Sản phẩm không tồn tại.</div>;
-  }
+      try {
+        const productRes = await fetch(
+          `http://localhost:8000/api/product/${productId}`,
+          { headers }
+        );
+        const productData = await productRes.json();
+        const rawProduct = productData.data;
 
-  // Lấy category_id từ productRaw
-  const categoryId = productRaw.category_id ?? productRaw.category?.id;
+        const categoryId =
+          rawProduct.category_id ?? rawProduct.category?.id ?? null;
 
-  const product = {
-    ...productRaw,
-    img: Array.isArray(productRaw.img) ? productRaw.img : [],
-    variant: Array.isArray(productRaw.variant) ? productRaw.variant : [],
-  };
+        const [reviewsRes, productsByCatRes] = await Promise.all([
+          fetch(`http://localhost:8000/api/review/${rawProduct.id}`, {
+            headers,
+          }),
+          fetch(
+            `http://localhost:8000/api/products-by-category?category_id=${categoryId}`,
+            { headers }
+          ),
+        ]);
 
-  const reviews = (await getProductReviews(product.id)) || [];
+        const reviewsData = await reviewsRes.json();
+        const productsData = await productsByCatRes.json();
 
-  // Lấy tất cả sản phẩm cùng category_id (trừ sản phẩm hiện tại)
-  const sameCategoryProducts = (await getProductsByCategory(categoryId)).filter(
-    (p: any) => p.id !== product.id
-  );
+        const finalProduct = {
+          ...rawProduct,
+          img: Array.isArray(rawProduct.img) ? rawProduct.img : [],
+          variant: Array.isArray(rawProduct.variant) ? rawProduct.variant : [],
+        };
+
+        setProduct(finalProduct);
+        setReviews(reviewsData.data || []);
+        setSameCategoryProducts(
+          (Array.isArray(productsData.data) ? productsData.data : []).filter(
+            (p: any) => p.id !== finalProduct.id
+          )
+        );
+      } catch (error) {
+        console.error("Lỗi khi tải sản phẩm:", error);
+      }
+    };
+
+    fetchData();
+  }, [productId]);
 
   return (
     <>
       <HeaderHome />
       <CheckoutProgress currentStep="detail" />
-      <ProductDetailClient product={product} reviews={reviews} />
-      <div className="max-w-7xl mx-auto px-4 py-10">
-        <h2 className="text-2xl font-bold mb-6">Sản phẩm cùng danh mục</h2>
-        <ProductList1 products={sameCategoryProducts} />
-      </div>
+
+      {!product ? (
+        <div className="p-6 text-center text-gray-500">
+          <span className="animate-pulse">Đang tải sản phẩm...</span>
+        </div>
+      ) : (
+        <>
+          <ProductDetailClient product={product} reviews={reviews} />
+          <div className="max-w-7xl mx-auto px-4 py-10">
+            <h2 className="text-2xl font-bold mb-6">Sản phẩm cùng danh mục</h2>
+            <ProductList1 products={sameCategoryProducts} />
+          </div>
+        </>
+      )}
       <Footer />
     </>
   );
 }
+// app/product/[id]/page.
+
+// import HeaderHome from "../../components/Header";
+// import Footer from "../../components/Footer";
+// import CheckoutProgress from "../../components/CheckoutProgress";
+// import ProductSection from "../[id]/ProductSection";
+// import ProductList1 from "../../components/ProductList1";
+
+// async function getProductPageData(productId: string) {
+//   const res = await fetch(`http://127.0.0.1:8000/api/product/${productId}`, {
+//     cache: "no-store",
+//   });
+//   const productRes = await res.json();
+//   const product = productRes.data;
+
+//   const categoryId = product.category_id ?? product.category?.id ?? null;
+
+//   const [reviewsRes, relatedRes] = await Promise.all([
+//     fetch(`http://127.0.0.1:8000/api/review/${product.id}`),
+//     fetch(
+//       `http://127.0.0.1:8000/api/products-by-category?category_id=${categoryId}`
+//     ),
+//   ]);
+
+//   const reviewsData = await reviewsRes.json();
+//   const relatedData = await relatedRes.json();
+
+//   return {
+//     product: {
+//       ...product,
+//       img: Array.isArray(product.img) ? product.img : [],
+//       variant: Array.isArray(product.variant) ? product.variant : [],
+//     },
+//     reviews: reviewsData.data || [],
+//     relatedProducts: (relatedData.data || []).filter(
+//       (p: any) => p.id !== product.id
+//     ),
+//   };
+// }
+
+// export default async function ProductPage({
+//   params,
+// }: {
+//   params: { id: string };
+// }) {
+//   const { product, reviews, relatedProducts } = await getProductPageData(
+//     params.id
+//   );
+
+//   return (
+//     <>
+//       <HeaderHome />
+//       <CheckoutProgress currentStep="detail" />
+//       <ProductSection product={product} reviews={reviews} />
+//       <div className="max-w-7xl mx-auto px-4 py-10">
+//         <h2 className="text-2xl font-bold mb-6">Sản phẩm cùng danh mục</h2>
+//         <ProductList1 products={relatedProducts} />
+//       </div>
+//       <Footer />
+//     </>
+//   );
+// }

@@ -922,7 +922,7 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
           {/* TABLE */}
           <div className="mt-6">
             <strong className="text-base font-semibold">
-              Tất cả biến thể:
+              Tất cả bảng size:
             </strong>
             <table className="w-full mt-2 text-sm border-collapse">
               <thead>

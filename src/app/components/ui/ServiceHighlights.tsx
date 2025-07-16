@@ -74,7 +74,9 @@ const items = [
 
 const ServiceHighlights: FC = () => {
   return (
-    <div className="bg-white px-4 sm:px-6 md:px-10 lg:px-20 xl:px-40 pt-12 pb-16">
+    // <div className="bg-white px-4 sm:px-6 md:px-10 lg:px-20 xl:px-40 pt-12 pb-16">
+    // <div className="bg-white px-4 sm:px-10 md:px-20 lg:px-40 py-12 mt-6">
+    <div className="bg-white px-4 sm:px-10 md:px-20 lg:px-40 py-12 mt-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
         {items.map((item, index) => (
           <div

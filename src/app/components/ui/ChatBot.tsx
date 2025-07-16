@@ -2,11 +2,10 @@
 
 import { useState, useRef, useEffect } from "react";
 import axios from "axios";
-import { useDarkMode } from "./useDarkMode"; // bạn có thể thay path phù hợp
+import { useDarkMode } from "./useDarkMode";
 
 const aiAvatar = "/img/ai-avatar.webp";
 const userAvatar = "/img/user-avatar.webp";
-
 
 // ... đoạn đầu giữ nguyên
 
@@ -68,7 +67,8 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
         message: input,
       });
 
-      const reply = res.data.reply || "🤖 Xin lỗi, mình chưa hiểu rõ. Bạn hỏi lại nhé?";
+      const reply =
+        res.data.reply || "🤖 Xin lỗi, mình chưa hiểu rõ. Bạn hỏi lại nhé?";
       const products = res.data.products || [];
 
       setMessages((prev) => [...prev, { type: "bot", text: reply, products }]);
@@ -98,46 +98,72 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
       <div className="bg-gradient-to-r from-blue-600 to-indigo-500 dark:from-gray-800 dark:to-gray-700 text-white px-4 py-3 font-semibold text-base flex justify-between items-center">
         🧠 Trợ lý Thời Trang AI
         <div className="flex items-center gap-2">
-          <button onClick={() => setDarkMode(!darkMode)} title="Bật/Tắt chế độ tối" className="text-white text-lg">
+          <button
+            onClick={() => setDarkMode(!darkMode)}
+            title="Bật/Tắt chế độ tối"
+            className="text-white text-lg"
+          >
             {darkMode ? "☀️" : "🌙"}
           </button>
-          <button onClick={onClose} className="text-white text-xl">×</button>
+          <button onClick={onClose} className="text-white text-xl">
+            ×
+          </button>
         </div>
       </div>
 
       {/* Messages */}
       <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-gray-50 dark:bg-gray-800 text-sm text-gray-800 dark:text-gray-100">
         {messages.map((m, i) => (
-          <div key={i} className={`flex flex-col ${m.type === "bot" ? "items-start" : "items-end"}`}>
+          <div
+            key={i}
+            className={`flex flex-col ${
+              m.type === "bot" ? "items-start" : "items-end"
+            }`}
+          >
             <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
               {m.type === "bot" ? "🤖 AI" : "🙋 Bạn"}
             </div>
-            <div className={`flex items-start gap-2 ${m.type === "bot" ? "" : "flex-row-reverse"}`}>
+            <div
+              className={`flex items-start gap-2 ${
+                m.type === "bot" ? "" : "flex-row-reverse"
+              }`}
+            >
               <img
                 src={m.type === "bot" ? aiAvatar : userAvatar}
                 alt="avatar"
                 className="w-8 h-8 rounded-full mt-1 shadow-md"
               />
-              <div className={`px-4 py-2 rounded-2xl max-w-[75%] shadow-sm whitespace-pre-line ${
-                m.type === "bot"
-                  ? "bg-blue-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                  : "bg-gray-200 dark:bg-gray-600 text-right"
-              }`}>
+              <div
+                className={`px-4 py-2 rounded-2xl max-w-[75%] shadow-sm whitespace-pre-line ${
+                  m.type === "bot"
+                    ? "bg-blue-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                    : "bg-gray-200 dark:bg-gray-600 text-right"
+                }`}
+              >
                 {m.text}
 
                 {/* Hiển thị sản phẩm nếu có */}
                 {m.products && m.products.length > 0 && (
                   <div className="mt-2 space-y-2">
                     {m.products.map((p) => (
-                      <div key={p.id} className="border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
+                      <div
+                        key={p.id}
+                        className="border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden"
+                      >
                         <img
-                          src={p.img?.[0]?.name ? `/img/${p.img[0].name}` : "/img/no-image.jpg"}
+                          src={
+                            p.img?.[0]?.name
+                              ? `/img/${p.img[0].name}`
+                              : "/img/no-image.jpg"
+                          }
                           alt={p.name}
                           className="w-full h-32 object-cover"
                         />
                         <div className="p-2 text-xs">
                           <div className="font-semibold">{p.name}</div>
-                          <div className="text-gray-600 dark:text-gray-300">{p.description}</div>
+                          <div className="text-gray-600 dark:text-gray-300">
+                            {p.description}
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -150,7 +176,10 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
 
         {loading && (
           <div className="flex items-center gap-2 animate-pulse">
-            <img src={aiAvatar} className="w-8 h-8 rounded-full mt-1 shadow-md" />
+            <img
+              src={aiAvatar}
+              className="w-8 h-8 rounded-full mt-1 shadow-md"
+            />
             <div className="bg-blue-100 dark:bg-gray-700 px-4 py-2 rounded-xl text-gray-600 dark:text-gray-300">
               ✍️ Đang soạn phản hồi...
             </div>
@@ -210,4 +239,3 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
     </div>
   );
 }
-

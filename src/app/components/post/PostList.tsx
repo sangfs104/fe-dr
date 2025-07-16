@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import ProductCard from "../ProductList";
+import ProductCard from "../ui/ProductList";
 import { ThumbsUp, Heart, Laugh, Smile, Frown, Angry } from "lucide-react";
 import { Newspaper } from "lucide-react";
 import { MessageSquareText, MessageCircleOff } from "lucide-react";

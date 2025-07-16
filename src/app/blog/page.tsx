@@ -26,7 +26,7 @@
 // // }
 "use client";
 import PostList from "../components/post/PostList";
-import Header from "../components/Header";
+import Header from "../components/ui/Header";
 import Footer from "../components/ui/Footer";
 
 export default function PostsPage({ userToken }) {

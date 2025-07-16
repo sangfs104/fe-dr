@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import ProductCard from "../components/ProductList";
-import BreadcrumbFilter from "../components/Sort";
-import HeaderHome from "../components/Header";
-import Footer from "../components/Footer";
+import ProductCard from "../components/ui/ProductList";
+import BreadcrumbFilter from "../components/ui/Sort";
+import HeaderHome from "../components/ui/Header";
+import Footer from "../components/ui/Footer";
 
 // Custom hook để debounce
 function useDebounce<T>(value: T, delay: number): T {

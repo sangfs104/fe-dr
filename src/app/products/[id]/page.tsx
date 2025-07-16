@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import HeaderHome from "../../components/Header";
-import Footer from "../../components/Footer";
-import CheckoutProgress from "../../components/CheckoutProgress";
+import HeaderHome from "../../components/ui/Header";
+import Footer from "../../components/ui/Footer";
+import CheckoutProgress from "../../components/ui/CheckoutProgress";
 import ProductDetailClient from "./ProductDetailPage";
-import ProductList1 from "../../components/ProductList1";
+import ProductList1 from "../../components/ui/ProductList1";
 
 export default function ProductPage({ params }: { params: { id: string } }) {
   const productId = params.id;

@@ -2,12 +2,12 @@
 
 import React, { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import HeaderHome from "../components/Header";
-import Footer from "../components/Footer";
+import HeaderHome from "../components/ui/Header";
+import Footer from "../components/ui/Footer";
 import { useRouter } from "next/navigation";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import GoogleLoginButton from "../components/GoogleLoginButton";
+import GoogleLoginButton from "../components/ui/GoogleLoginButton";
 import { motion } from "framer-motion";
 
 const RegisterPage = () => {

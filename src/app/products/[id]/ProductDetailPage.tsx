@@ -8,7 +8,7 @@ import { motion } from "framer-motion";
 import ReactImageMagnify from "react-image-magnify";
 import { toast } from "react-hot-toast";
 import * as Dialog from "@radix-ui/react-dialog";
-import AddToCartModal from "../../components/AddToCartModal";
+import AddToCartModal from "../../components/ui/AddToCartModal";
 import { useRouter } from "next/navigation";
 
 interface Review {

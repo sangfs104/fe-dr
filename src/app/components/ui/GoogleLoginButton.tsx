@@ -2,7 +2,6 @@
 
 import { useEffect } from "react";
 import { toast } from "react-hot-toast";
-import "../css/login.css"; // đường dẫn theo dự án
 
 export default function GoogleLoginButton() {
   useEffect(() => {
@@ -14,7 +13,6 @@ export default function GoogleLoginButton() {
     document.body.appendChild(script);
 
     script.onload = () => {
-      // @ts-ignore
       window.google.accounts.id.initialize({
         client_id:
           "618672128676-6dopq4dgv5p5qgl83mphuppi9vkrmd2k.apps.googleusercontent.com",

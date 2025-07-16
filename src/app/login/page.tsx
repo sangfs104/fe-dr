@@ -1,12 +1,12 @@
 "use client";
 import { useState } from "react";
 import Image from "next/image";
-import HeaderHome from "../components/Header";
-import Footer from "../components/Footer";
+import HeaderHome from "../components/ui/Header";
+import Footer from "../components/ui/Footer";
 import { toast } from "react-hot-toast";
-import { DreamToast } from "../components/DreamToast";
+import { DreamToast } from "../components/ui/DreamToast";
 import { motion, AnimatePresence } from "framer-motion";
-import GoogleLoginButton from "../components/GoogleLoginButton";
+import GoogleLoginButton from "../components/ui/GoogleLoginButton";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");

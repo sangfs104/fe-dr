@@ -1,17 +1,14 @@
-
 "use client";
 
 import "./globals.css";
 import { Provider } from "react-redux";
 import { store } from "../store/store";
-import { DreamToast } from "./components/DreamToast";
+import { DreamToast } from "./components/ui/DreamToast";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 // import SimpleChatBot from "./components/SimpleChatBot";
 
-import AbandonCartHelper from "./components/AbandonCartHelper";
-import ChatToggle from "./components/ChatToggle";
-
-
+import AbandonCartHelper from "./components/ui/AbandonCartHelper";
+import ChatToggle from "./components/ui/ChatToggle";
 
 export default function RootLayout({
   children,
@@ -30,8 +27,7 @@ export default function RootLayout({
             {/* <AbandonCartHelper /> */}
             {/* <SimpleChatBot /> */}
             <AbandonCartHelper />
-        <ChatToggle />
-
+            <ChatToggle />
           </Provider>
         </GoogleOAuthProvider>
       </body>

@@ -1,7 +1,7 @@
 "use client";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
-import ProfileLayout from "../components/ui/ProfileLayout";
+import Header from "../components/ui/Header";
+import Footer from "../components/ui/Footer";
+import ProfileLayout from "../components/profile/ProfileLayout";
 
 export default function ProfilePage() {
   return (

@@ -1,5 +1,5 @@
 "use client";
-import FlashSaleProductList from "../components/FlashSaleProductList";
+import FlashSaleProductList from "../ui/FlashSaleProductList";
 
 export default function Page() {
   return (

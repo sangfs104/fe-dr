@@ -4,11 +4,12 @@ export interface WishlistItem {
   productId: number;
   variantId: number;
   name: string;
-  img: string | string[]; 
+  img: string | string[];
   price: number;
   size: string;
-  userId?: number; 
+  userId?: number;
 }
+
 interface WishlistState {
   items: WishlistItem[];
   loading: boolean;
@@ -20,6 +21,17 @@ const initialState: WishlistState = {
   loading: false,
   error: null,
 };
+interface RawWishlistItem {
+  id: number;
+  name: string;
+  price: string | number;
+  img: string | { name: string }[];
+  size?: string;
+  pivot?: {
+    variant_id?: number;
+    user_id?: number;
+  };
+}
 
 export const fetchWishlist = createAsyncThunk<WishlistItem[]>(
   "wishlist/fetchWishlist",
@@ -30,21 +42,23 @@ export const fetchWishlist = createAsyncThunk<WishlistItem[]>(
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error("Lỗi lấy wishlist");
-      const data = await res.json();
-      return data.map((item: any) => ({
+      const data: RawWishlistItem[] = await res.json();
+      return data.map((item) => ({
         productId: item.id,
-        variantId: item.pivot?.variant_id ?? 0, 
+        variantId: item.pivot?.variant_id ?? 0,
         name: item.name,
-        img: Array.isArray(item.img) ? item.img[0]?.name ?? "" : item.img, 
+        img: Array.isArray(item.img) ? item.img[0]?.name ?? "" : item.img,
         price: Number(item.price) ?? 0,
         size: item.size ?? "",
-        userId: item.pivot?.user_id, 
+        userId: item.pivot?.user_id,
       }));
-    } catch (err: any) {
-      return rejectWithValue(err.message);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Lỗi không xác định";
+      return rejectWithValue(message);
     }
   }
 );
+
 export const addToWishlistAPI = createAsyncThunk<
   WishlistItem,
   WishlistItem
@@ -64,8 +78,9 @@ export const addToWishlistAPI = createAsyncThunk<
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.message || "Lỗi thêm vào wishlist");
     return item;
-  } catch (err: any) {
-    return rejectWithValue(err.message);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Lỗi không xác định";
+    return rejectWithValue(message);
   }
 });
 
@@ -84,8 +99,9 @@ export const removeFromWishlistAPI = createAsyncThunk<
     );
     if (!res.ok) throw new Error("Lỗi xóa khỏi wishlist");
     return productId;
-  } catch (err: any) {
-    return rejectWithValue(err.message);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Lỗi không xác định";
+    return rejectWithValue(message);
   }
 });
 

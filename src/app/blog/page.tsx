@@ -3,7 +3,7 @@ import PostList from "../components/post/PostList";
 import Header from "../components/ui/Header";
 import Footer from "../components/ui/Footer";
 
-export default function PostsPage({ userToken }) {
+export default function PostsPage({ userToken }: { userToken: string }) {
   return (
     <>
       <Header />

@@ -101,11 +101,6 @@ const PromotionCard = ({ promo }: { promo: Promo }) => {
             ĐÃ HẾT HẠN
           </span>
         )}
-
-        {/* Hiệu ứng nổi bật nếu chưa hết hạn */}
-        {/* {!promo.expired && (
-          <span className="absolute top-2 right-2 text-[10px] bg-green-100 text-green-600 border border-green-400 px-2 py-[1px] rounded-md shadow-sm"></span>
-        )} */}
       </div>
     </div>
   );

@@ -3,17 +3,16 @@
 import { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import { useDarkMode } from "./useDarkMode";
+import Link from "next/link"; // ✅ THÊM DÒNG NÀY
 
 const aiAvatar = "/img/ai-avatar.webp";
 const userAvatar = "/img/user-avatar.webp";
-
-// ... đoạn đầu giữ nguyên
 
 type Product = {
   id: number;
   name: string;
   description: string;
-  img: { name: string }[]; // tùy theo backend trả về
+  img: { name: string }[];
 };
 
 type Message = {
@@ -146,9 +145,10 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
                 {m.products && m.products.length > 0 && (
                   <div className="mt-2 space-y-2">
                     {m.products.map((p) => (
-                      <div
+                      <Link
                         key={p.id}
-                        className="border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden"
+                        href={`/products/${p.id}`} // ✅ THÊM LINK NÀY
+                        className="block border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden hover:shadow-md hover:scale-[1.01] transition-transform duration-200"
                       >
                         <img
                           src={
@@ -165,7 +165,7 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
                             {p.description}
                           </div>
                         </div>
-                      </div>
+                      </Link>
                     ))}
                   </div>
                 )}

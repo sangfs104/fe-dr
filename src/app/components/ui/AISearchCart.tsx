@@ -48,6 +48,7 @@ export default function AISearchCard() {
         product_name: item.product_name,
         images: [],
         score: item.score,
+        price: item.price || Math.floor(Math.random() * 500000 + 100000), // nếu chưa có price thì giả lập
       };
     }
     acc[pid].images.push(item.image_path);
@@ -102,19 +103,19 @@ export default function AISearchCard() {
 
       {Object.values(groupedResults).length > 0 && (
         <div className="space-y-6">
-          <h3 className="text-lg font-semibold text-gray-700">
-             Kết quả tương đồng
+          <h3 className="text-lg font-semibold text-gray-700 mb-2">
+            🛒 Kết quả tương đồng
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {Object.values(groupedResults).map((item: any, idx: number) => (
               <div
                 key={idx}
-                className="border rounded-lg shadow-sm p-3 hover:shadow-md transition"
+                className="border rounded-xl shadow hover:shadow-lg transition p-3 bg-white relative"
               >
                 <img
                   src={`${IMAGE_BASE_URL}${item.images[0]}`}
                   alt={item.product_name}
-                  className="w-full h-40 object-cover rounded mb-2"
+                  className="w-full h-48 object-cover rounded-lg mb-2"
                 />
 
                 <div className="flex gap-2 overflow-x-auto pb-1">
@@ -123,15 +124,19 @@ export default function AISearchCard() {
                       key={i}
                       src={`${IMAGE_BASE_URL}${img}`}
                       alt={`thumb-${i}`}
-                      className="w-12 h-12 object-cover rounded border hover:border-blue-500"
+                      className="w-10 h-10 object-cover rounded-md border hover:border-blue-500"
                     />
                   ))}
                 </div>
 
-                <div className="mt-2 text-sm">
-                  <p className="text-gray-500">Sản phẩm:</p>
-                  <p className="font-semibold">{item.product_name}</p>
-                  <p className="text-gray-600">
+                <div className="mt-2 space-y-1">
+                  <p className="text-sm text-gray-500 line-clamp-1">
+                    {item.product_name}
+                  </p>
+                  <p className="text-red-500 font-bold text-base">
+                    {item.price.toLocaleString()} ₫
+                  </p>
+                  <p className="text-xs text-gray-500">
                     Độ tương đồng: {item.score?.toFixed(3)}
                   </p>
                 </div>

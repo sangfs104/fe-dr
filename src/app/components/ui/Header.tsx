@@ -101,24 +101,23 @@ export default function Header() {
 
           {/* Right: Icons */}
           <div className="flex-1 flex justify-end gap-3 items-center text-lg">
-            {/* Tìm kiếm */}
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Tìm sản phẩm..."
-                className="border px-2 py-1 rounded-md text-sm h-8"
-                value={keyword}
-                onChange={(e) => setKeyword(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && keyword.trim()) {
-                    router.push(
-                      `/search?keyword=${encodeURIComponent(keyword.trim())}`
-                    );
-                    setKeyword("");
-                  }
-                }}
-              />
-            </div>
+    {/* Tìm kiếm */}
+<div className="relative">
+ <input
+  type="text"
+  placeholder="Tìm sản phẩm..."
+  value={keyword}
+  onChange={(e) => setKeyword(e.target.value)}
+  onKeyDown={(e) => {
+    if (e.key === "Enter" && keyword.trim()) {
+      router.push(`/search?query=${encodeURIComponent(keyword.trim())}`);
+      setKeyword("");
+    }
+  }}
+/>
+
+</div>
+
 
             {/* Icon tìm ảnh */}
             <Search
@@ -227,19 +226,40 @@ export default function Header() {
       {showCartModal && <CartModal onClose={() => setShowCartModal(false)} />}
 
       {/* Modal Tìm kiếm hình ảnh */}
-      {showImageSearch && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex justify-end">
-          <div className="relative bg-white p-6 shadow-xl w-[50vw] max-w-[600px] h-full overflow-y-auto rounded-l-xl">
-            <button
-              className="absolute top-4 right-4 text-gray-500 hover:text-red-500 text-xl"
-              onClick={() => setShowImageSearch(false)}
-            >
-              ✖
-            </button>
-            <ImageSearch />
-          </div>
-        </div>
-      )}
+    {showImageSearch && (
+  <div className="fixed inset-0 z-50 flex justify-end items-center bg-black/60 backdrop-blur-sm animate-fade-in">
+    <div className="relative h-full md:h-[90vh] w-full sm:w-[90vw] md:max-w-[600px] overflow-y-auto bg-white/80 dark:bg-[#1e1e1e]/90 shadow-2xl rounded-l-3xl p-8 animate-slide-in transition-all duration-300 ease-in-out">
+
+      {/* Nút đóng */}
+      <button
+        onClick={() => setShowImageSearch(false)}
+        className="absolute top-5 right-5 rounded-full bg-white dark:bg-[#2c2c2c] p-2 shadow-md hover:shadow-lg hover:text-red-500 text-gray-600 dark:text-gray-300 hover:scale-110 transition-all duration-200"
+        aria-label="Đóng modal"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
+      {/* Tiêu đề modal */}
+      <div className="mb-6">
+        <h2 className="text-2xl font-semibold text-gray-800 dark:text-white tracking-tight">
+           Tìm kiếm hình ảnh thông minh
+        </h2>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          Tải ảnh lên để tìm các sản phẩm tương tự qua trí tuệ nhân tạo.
+        </p>
+      </div>
+
+      {/* Nội dung chính */}
+      <div className="space-y-4">
+        <ImageSearch />
+      </div>
+    </div>
+  </div>
+)}
+
+
     </div>
   );
 }

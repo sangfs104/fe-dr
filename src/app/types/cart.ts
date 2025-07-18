@@ -1,10 +1,9 @@
-// src/types/cart.ts
 export interface CartItem {
-  productId: string;
-  variantId: string;
+  productId: number | string;
+  variantId: number | string;
   name: string;
   size: string;
   price: number;
   quantity: number;
-  img: string;
+  img: string; 
 }

@@ -9,16 +9,15 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { removeFromCart, updateQuantity } from "@/store/cartSlice";
 import { CartItem } from "../types/cart";
 import { useRouter } from "next/navigation";
+import { RootState } from "@/store/store";
 
 export default function CartPage() {
-  const cartItems = useAppSelector(
-    (state: any) => state.cart.items as CartItem[]
-  );
+  const cartItems = useAppSelector((state: RootState) => state.cart.items);
   const dispatch = useAppDispatch();
   const router = useRouter();
 
   const totalPrice = cartItems.reduce(
-    (sum: number, item: CartItem) => sum + item.price * item.quantity,
+    (sum, item) => sum + item.price * item.quantity,
     0
   );
 

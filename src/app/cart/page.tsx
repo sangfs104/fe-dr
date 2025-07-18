@@ -9,11 +9,13 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { removeFromCart, updateQuantity } from "@/store/cartSlice";
 import { CartItem } from "../types/cart";
 import { useRouter } from "next/navigation";
+import { RootState } from "@/store/store";
 
 export default function CartPage() {
   const cartItems = useAppSelector(
-    (state: any) => state.cart.items as CartItem[]
+    (state: RootState) => state.cart.items as CartItem[]
   );
+
   const dispatch = useAppDispatch();
   const router = useRouter();
 

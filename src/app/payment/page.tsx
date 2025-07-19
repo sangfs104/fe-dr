@@ -38,22 +38,23 @@ export default function PaymentPage() {
 
   const handleChange = (
     e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
     >
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
 
-    // Nếu user đổi Tỉnh/Thành phố thì cập nhật phí ship
-    if (name === "city") {
-      if (value === "HCM") {
-        setShippingFee(0); // miễn phí
-      } else if (value) {
-        setShippingFee(30000); // tỉnh khác
-      } else {
-        setShippingFee(0); // nếu bỏ chọn thì reset
+    setFormData((prev) => {
+      const updated = { ...prev, [name]: value };
+
+      // Tính phí ship nếu address hoặc city thay đổi
+      if (name === "address" || name === "city") {
+        const fullAddress = `${updated.address || ""}, ${updated.city || ""}`;
+        const fee = calculateShippingFee(fullAddress);
+        setShippingFee(fee);
       }
-    }
+
+      return updated;
+    });
   };
 
   const totalCart = cartItems.reduce(
@@ -288,6 +289,25 @@ export default function PaymentPage() {
   );
   const total = subtotal - discount;
 
+  // tính phí ship
+  const calculateShippingFee = (address: string) => {
+    const addr = address.toLowerCase();
+
+    if (
+      addr.includes("quận 1") ||
+      addr.includes("quận 3") ||
+      addr.includes("quận 7") ||
+      addr.includes("quận 9") ||
+      addr.includes("quận 12") ||
+      addr.includes("tp.hcm") ||
+      addr.includes("thành phố hồ chí minh")
+    ) {
+      return 10000;
+    } else {
+      return 50000;
+    }
+  };
+
   return (
     <>
       <HeaderHome />
@@ -344,6 +364,7 @@ export default function PaymentPage() {
               placeholder="Địa chỉ *"
               value={formData.address}
               onChange={handleChange}
+              required
             />
             {errors.address && <p className="error-text">{errors.address}</p>}
 
@@ -358,6 +379,7 @@ export default function PaymentPage() {
               <option value="HN">Hà Nội</option>
               <option value="DN">Đà Nẵng</option>
             </select>
+
             {errors.city && <p className="error-text">{errors.city}</p>}
 
             <div className="row">

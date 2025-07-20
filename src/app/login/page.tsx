@@ -86,7 +86,7 @@ export default function LoginPage() {
   return (
     <div className="flex flex-col min-h-screen bg-[#f9f9fb]">
       <HeaderHome />
-      <main className="flex-grow flex justify-center items-center px-2 py-2 overflow-y-auto">
+      <main className="flex-grow flex justify-center items-center px-2 pt-2 pb-4 overflow-y-auto">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
@@ -185,7 +185,7 @@ export default function LoginPage() {
               </a>
             </p>
 
-            <div className="relative my-6 text-center text-gray-400 text-sm">
+            <div className="relative mt-4 mb-5 text-center text-gray-400 text-sm">
               <div className="absolute left-0 top-1/2 w-2/5 h-px bg-gray-300"></div>
               <span className="px-2 bg-white z-10">Hoặc</span>
               <div className="absolute right-0 top-1/2 w-2/5 h-px bg-gray-300"></div>

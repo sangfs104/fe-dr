@@ -131,6 +131,7 @@
 
 // export const { clearWishlist } = wishlistSlice.actions;
 // export default wishlistSlice.reducer;
+
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 export interface WishlistItem {
@@ -155,7 +156,7 @@ const initialState: WishlistState = {
   error: null,
 };
 
-// Fetch danh sách wishlist
+// GET Wishlist
 export const fetchWishlist = createAsyncThunk<WishlistItem[]>(
   "wishlist/fetchWishlist",
   async (_, { rejectWithValue }) => {
@@ -183,7 +184,7 @@ export const fetchWishlist = createAsyncThunk<WishlistItem[]>(
   }
 );
 
-// Thêm vào wishlist
+// ADD Wishlist
 export const addToWishlistAPI = createAsyncThunk<
   WishlistItem,
   WishlistItem
@@ -207,11 +208,11 @@ export const addToWishlistAPI = createAsyncThunk<
   }
 });
 
-// Xoá khỏi wishlist
+// REMOVE Wishlist (theo productId + variantId)
 export const removeFromWishlistAPI = createAsyncThunk<
-  number, // Trả về productId
-  number  // Nhận vào productId
->("wishlist/removeFromWishlistAPI", async (productId, { rejectWithValue }) => {
+  { productId: number; variantId: number },
+  { productId: number; variantId: number }
+>("wishlist/removeFromWishlistAPI", async ({ productId, variantId }, { rejectWithValue }) => {
   try {
     const token = localStorage.getItem("token");
     const res = await fetch(`http://127.0.0.1:8000/api/wishlist/${productId}`, {
@@ -224,7 +225,7 @@ export const removeFromWishlistAPI = createAsyncThunk<
       throw new Error(data.message || "Lỗi xóa khỏi wishlist");
     }
 
-    return productId;
+    return { productId, variantId };
   } catch (err: any) {
     return rejectWithValue(err.message);
   }
@@ -240,7 +241,6 @@ const wishlistSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // FETCH
       .addCase(fetchWishlist.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -253,8 +253,6 @@ const wishlistSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
-
-      // ADD
       .addCase(addToWishlistAPI.fulfilled, (state, action) => {
         const exists = state.items.find(
           (item) =>
@@ -265,11 +263,10 @@ const wishlistSlice = createSlice({
           state.items.push(action.payload);
         }
       })
-
-      // REMOVE
       .addCase(removeFromWishlistAPI.fulfilled, (state, action) => {
+        const { productId, variantId } = action.payload;
         state.items = state.items.filter(
-          (item) => item.productId !== action.payload
+          (item) => !(item.productId === productId && item.variantId === variantId)
         );
       })
       .addCase(removeFromWishlistAPI.rejected, (state, action) => {

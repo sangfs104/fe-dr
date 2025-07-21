@@ -1,6 +1,11 @@
 "use client";
+
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
-import { removeFromWishlistAPI, clearWishlist } from "@/store/wishlistSlice";
+import {
+  removeFromWishlistAPI,
+  clearWishlist,
+  fetchWishlist,
+} from "@/store/wishlistSlice";
 import Image from "next/image";
 import toast from "react-hot-toast";
 import { X, Trash2, Loader2 } from "lucide-react";
@@ -9,26 +14,27 @@ import { useState } from "react";
 export default function WishlistModal({ onClose }: { onClose: () => void }) {
   const wishlist = useAppSelector((state) => state.wishlist.items);
   const dispatch = useAppDispatch();
-  const [removingId, setRemovingId] = useState<string | null>(null); // Unique key to track removing
+  const [removingKey, setRemovingKey] = useState<string | null>(null);
 
   const handleRemove = async (productId: number, variantId: number) => {
-    const itemKey = `${productId}-${variantId}`;
-    setRemovingId(itemKey);
+    const key = `${productId}-${variantId}`;
+    setRemovingKey(key);
 
     const result = await dispatch(
       removeFromWishlistAPI({ productId, variantId })
     );
     if (removeFromWishlistAPI.fulfilled.match(result)) {
+      await dispatch(fetchWishlist());
       toast.success("Đã xóa khỏi wishlist", { duration: 2000 });
     } else {
       toast.error("Có lỗi khi xóa khỏi wishlist", { duration: 2000 });
     }
 
-    setRemovingId(null);
+    setRemovingKey(null);
   };
 
   const handleClear = async () => {
-    setRemovingId("all");
+    setRemovingKey("all");
     for (const item of wishlist) {
       await dispatch(
         removeFromWishlistAPI({
@@ -39,12 +45,13 @@ export default function WishlistModal({ onClose }: { onClose: () => void }) {
     }
     dispatch(clearWishlist());
     toast.success("Đã xóa tất cả sản phẩm yêu thích", { duration: 2000 });
-    setRemovingId(null);
+    await dispatch(fetchWishlist());
+    setRemovingKey(null);
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-gradient-to-b from-black/60 to-black/40 flex items-center justify-center p-4 font-sans">
-      <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-xl w-full max-w-md p-6 border border-white/20 max-h-[90vh] overflow-y-auto transition-all duration-300 hover:shadow-2xl">
+    <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 font-sans">
+      <div className="relative bg-white/10 backdrop-blur-xl rounded-2xl shadow-xl w-full max-w-md p-6 border border-white/20 max-h-[90vh] overflow-y-auto">
         <button
           className="absolute top-4 right-4 text-white/80 hover:text-red-400 transition-colors transform hover:scale-110"
           onClick={onClose}
@@ -66,11 +73,13 @@ export default function WishlistModal({ onClose }: { onClose: () => void }) {
           <>
             <ul className="space-y-4">
               {wishlist.map((item) => {
-                const itemKey = `${item.productId}-${item.variantId}`;
+                const key = `${item.productId}-${item.variantId}`;
+                const isRemoving = removingKey === key;
+
                 return (
                   <li
-                    key={itemKey}
-                    className="grid grid-cols-[80px_1fr_auto] items-center gap-4 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-all duration-200"
+                    key={key}
+                    className="grid grid-cols-[80px_1fr_auto] items-center gap-4 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition"
                   >
                     <Image
                       src={
@@ -83,31 +92,42 @@ export default function WishlistModal({ onClose }: { onClose: () => void }) {
                       alt={item.name}
                       width={80}
                       height={80}
-                      className="rounded-lg border border-white/20 object-cover transform hover:scale-105 transition-transform duration-200"
+                      className="rounded-lg border border-white/20 object-cover"
                     />
                     <div>
-                      <div className="font-semibold text-white text-lg">
+                      <div className="text-white font-semibold text-base">
                         {item.name}
                       </div>
                       <div className="text-sm text-white/60 mt-1">
                         Size: {item.size}
                       </div>
-                      <div className="text-white/60 font-bold text-lg mt-1">
-                        {typeof item.price === "number"
-                          ? item.price.toLocaleString("vi-VN")
-                          : "—"}
-                        ₫
+
+                      {/* Giá hiển thị với salePrice nếu có */}
+                      <div className="mt-1 text-white/80 font-bold text-base">
+                        {item.salePrice && item.salePrice < item.price ? (
+                          <>
+                            <span className="line-through text-sm text-white/40 mr-2">
+                              {item.price.toLocaleString("vi-VN")} ₫
+                            </span>
+                            <span className="text-orange-400">
+                              {item.salePrice.toLocaleString("vi-VN")} ₫
+                            </span>
+                          </>
+                        ) : (
+                          <>{item.price.toLocaleString("vi-VN")} ₫</>
+                        )}
                       </div>
                     </div>
+
                     <button
-                      className="text-red-400 hover:text-red-300 transition-colors p-2 rounded-full hover:bg-red-500/20 disabled:opacity-50"
+                      className="text-red-400 hover:text-red-300 p-2 rounded-full hover:bg-red-500/20 disabled:opacity-50"
                       onClick={() =>
                         handleRemove(item.productId, item.variantId)
                       }
-                      disabled={removingId === itemKey}
-                      aria-label="Xóa sản phẩm"
+                      disabled={isRemoving}
+                      aria-label="Xóa"
                     >
-                      {removingId === itemKey ? (
+                      {isRemoving ? (
                         <Loader2 size={20} className="animate-spin" />
                       ) : (
                         <Trash2 size={20} />
@@ -117,12 +137,13 @@ export default function WishlistModal({ onClose }: { onClose: () => void }) {
                 );
               })}
             </ul>
+
             <button
-              className="mt-6 w-full px-4 py-3 bg-gradient-to-r from-[#FF8A50] via-[#FF7043] to-[#FF5722] text-white rounded-lg hover:from-[#FF7043] hover:via-[#FF5722] hover:to-[#FF8A50] transition-all duration-300 font-semibold text-sm flex items-center justify-center gap-2 disabled:opacity-50"
+              className="mt-6 w-full px-4 py-3 bg-gradient-to-r from-[#FF8A50] via-[#FF7043] to-[#FF5722] text-white rounded-lg hover:brightness-110 transition-all font-semibold flex items-center justify-center gap-2 disabled:opacity-50"
               onClick={handleClear}
-              disabled={removingId !== null}
+              disabled={removingKey !== null}
             >
-              {removingId === "all" ? (
+              {removingKey === "all" ? (
                 <Loader2 size={20} className="animate-spin" />
               ) : (
                 <Trash2 size={20} />

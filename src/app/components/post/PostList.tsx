@@ -1,4 +1,5 @@
 "use client";
+import { useRef } from "react";
 import { useEffect, useState } from "react";
 import ProductCard from "../ui/ProductList";
 import Image from "next/image";
@@ -42,6 +43,13 @@ function PostItem({ post, token }) {
   const [showComments, setShowComments] = useState(false);
   const [showProduct, setShowProduct] = useState(false);
 
+  const [showFullImage, setShowFullImage] = useState(false);
+  const [showFullContent, setShowFullContent] = useState(false);
+  const [isImageOverflow, setIsImageOverflow] = useState(false);
+  const [isContentOverflow, setIsContentOverflow] = useState(false);
+
+  const imageRef = useRef(null);
+  const contentRef = useRef(null);
   useEffect(() => {
     fetch(`http://localhost:8000/api/posts/${post.id}/comments`)
       .then((res) => res.json())
@@ -51,6 +59,14 @@ function PostItem({ post, token }) {
       .then((res) => res.json())
       .then(setReactions);
   }, [post.id]);
+  useEffect(() => {
+    if (imageRef.current) {
+      setIsImageOverflow(imageRef.current.scrollHeight > 300);
+    }
+    if (contentRef.current) {
+      setIsContentOverflow(contentRef.current.scrollHeight > 300);
+    }
+  }, [post.image, post.content]);
 
   const handleComment = async (e) => {
     e.preventDefault();
@@ -112,56 +128,49 @@ function PostItem({ post, token }) {
 
       {/* Hình ảnh bài viết */}
       {post.image && (
-        <Image
-          src={`http://127.0.0.1:8000/storage/${post.image}`}
-          alt={post.title}
-          width={800}
-          height={300}
-          className="w-full h-[300px] object-cover"
-        />
+        <div className="relative">
+          <div
+            ref={imageRef}
+            className={`overflow-hidden transition-all duration-300 ${
+              showFullImage ? "max-h-[1000px]" : "max-h-[300px]"
+            }`}
+          >
+            <Image
+              src={`http://127.0.0.1:8000/storage/${post.image}`}
+              alt={post.title}
+              width={800}
+              height={300}
+              className="w-full object-cover"
+            />
+          </div>
+
+          {isImageOverflow && (
+            <button
+              onClick={() => setShowFullImage(!showFullImage)}
+              className="absolute bottom-2 right-4 text-sm bg-white px-3 py-1 rounded-full shadow text-indigo-600 hover:underline"
+            >
+              {showFullImage ? "Thu gọn" : "Xem thêm ảnh"}
+            </button>
+          )}
+        </div>
       )}
 
-      {/* Nội dung bài viết */}
-      <div className="px-6 py-5">
-        <h2 className="text-1xl font-bold mb-2 text-gray-800">{post.title}</h2>
-        <p className="text-gray-500 italic text-sm mb-4">
-          {post.excerpt || post.meta_description}
-        </p>
-
+      <div className="relative">
         <div
-          className="prose prose-sm prose-indigo max-w-none text-gray-800 mb-5"
+          ref={contentRef}
+          className={`prose prose-sm prose-indigo max-w-none text-gray-800 mb-5 overflow-hidden transition-all duration-300 ${
+            showFullContent ? "max-h-[1000px]" : "max-h-[100px]"
+          }`}
           dangerouslySetInnerHTML={{ __html: post.content }}
         />
-
-        {/* Tags */}
-        <div className="flex flex-wrap gap-2 text-xs text-gray-600 mb-4">
-          {post.tags?.split(",").map((tag) => (
-            <span
-              key={tag}
-              className="bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-full transition"
-            >
-              #{tag}
-            </span>
-          ))}
-        </div>
-        <div className="flex gap-1 justify-start items-center flex-wrap border-t pt-4">
-          {Object.keys(reactionIcons).map((r) => (
-            <button
-              key={r}
-              title={r}
-              onClick={() => handleReact(r)}
-              className={`flex items-center gap-1 text-[12px] px-2.5 py-1 rounded-full transition border ${
-                myReaction === r
-                  ? "bg-indigo-100 text-indigo-600 border-indigo-400"
-                  : "bg-white text-gray-600 hover:bg-gray-100 border-gray-200"
-              }`}
-              style={{ minWidth: "48px" }}
-            >
-              {reactionIcons[r]}
-              <span>{reactions.find((x) => x.reaction === r)?.total || 0}</span>
-            </button>
-          ))}
-        </div>
+        {isContentOverflow && (
+          <button
+            onClick={() => setShowFullContent(!showFullContent)}
+            className="absolute bottom-0 right-0 text-sm bg-white px-3 py-1 rounded-full shadow text-indigo-600 hover:underline"
+          >
+            {showFullContent ? "Thu gọn" : "Xem thêm nội dung"}
+          </button>
+        )}
       </div>
 
       <div className="px-6 pb-5 pt-2">

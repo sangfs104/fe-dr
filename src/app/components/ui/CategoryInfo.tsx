@@ -31,7 +31,7 @@ export default function CategoryInfo() {
           key={cat.id}
           style={{ display: "flex", alignItems: "center", marginBottom: 16 }}
         >
-          <img
+          <Image
             src={`/img/${cat.image_url}`}
             alt={cat.name}
             style={{

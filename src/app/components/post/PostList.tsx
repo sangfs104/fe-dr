@@ -42,7 +42,6 @@ function PostItem({ post, token }) {
   const [myReaction, setMyReaction] = useState(null);
   const [showComments, setShowComments] = useState(false);
   const [showProduct, setShowProduct] = useState(false);
-
   const [showFullImage, setShowFullImage] = useState(false);
   const [showFullContent, setShowFullContent] = useState(false);
   const [isImageOverflow, setIsImageOverflow] = useState(false);
@@ -155,22 +154,64 @@ function PostItem({ post, token }) {
         </div>
       )}
 
-      <div className="relative">
-        <div
-          ref={contentRef}
-          className={`prose prose-sm prose-indigo max-w-none text-gray-800 mb-5 overflow-hidden transition-all duration-300 ${
-            showFullContent ? "max-h-[1000px]" : "max-h-[100px]"
-          }`}
+      {/* Nội dung bài viết */}
+      <div className="px-6 py-5">
+        <h2 className="text-1xl font-bold mb-2 text-gray-800">{post.title}</h2>
+        <p className="text-gray-500 italic text-sm mb-4">
+          {post.excerpt || post.meta_description}
+        </p>
+
+        {/* <div
+          className="prose prose-sm prose-indigo max-w-none text-gray-800 mb-5"
           dangerouslySetInnerHTML={{ __html: post.content }}
-        />
-        {isContentOverflow && (
-          <button
-            onClick={() => setShowFullContent(!showFullContent)}
-            className="absolute bottom-0 right-0 text-sm bg-white px-3 py-1 rounded-full shadow text-indigo-600 hover:underline"
-          >
-            {showFullContent ? "Thu gọn" : "Xem thêm nội dung"}
-          </button>
-        )}
+        /> */}
+        <div className="relative">
+          <div
+            ref={contentRef}
+            className={`prose prose-sm prose-indigo max-w-none text-gray-800 mb-5 overflow-hidden transition-all duration-300 ${
+              showFullContent ? "max-h-[1000px]" : "max-h-[100px]"
+            }`}
+            dangerouslySetInnerHTML={{ __html: post.content }}
+          />
+          {isContentOverflow && (
+            <button
+              onClick={() => setShowFullContent(!showFullContent)}
+              className="absolute bottom-0 right-0 text-sm bg-white px-3 py-1 rounded-full shadow text-indigo-600 hover:underline"
+            >
+              {showFullContent ? "Thu gọn" : "Xem thêm nội dung"}
+            </button>
+          )}
+        </div>
+
+        {/* Tags */}
+        <div className="flex flex-wrap gap-2 text-xs text-gray-600 mb-4">
+          {post.tags?.split(",").map((tag) => (
+            <span
+              key={tag}
+              className="bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-full transition"
+            >
+              #{tag}
+            </span>
+          ))}
+        </div>
+        <div className="flex gap-1 justify-start items-center flex-wrap border-t pt-4">
+          {Object.keys(reactionIcons).map((r) => (
+            <button
+              key={r}
+              title={r}
+              onClick={() => handleReact(r)}
+              className={`flex items-center gap-1 text-[12px] px-2.5 py-1 rounded-full transition border ${
+                myReaction === r
+                  ? "bg-indigo-100 text-indigo-600 border-indigo-400"
+                  : "bg-white text-gray-600 hover:bg-gray-100 border-gray-200"
+              }`}
+              style={{ minWidth: "48px" }}
+            >
+              {reactionIcons[r]}
+              <span>{reactions.find((x) => x.reaction === r)?.total || 0}</span>
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="px-6 pb-5 pt-2">

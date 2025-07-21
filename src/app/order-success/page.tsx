@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
 import confetti from "canvas-confetti";
-import "../css/order-success.css";
 import { useDispatch } from "react-redux";
 import { clearCart } from "@/store/cartSlice";
 const renderPaymentMethod = (method: any) => {

@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { Shirt, ShoppingBag, Tags, Package, MoveDiagonal } from "lucide-react";
-import ProductCard from "../components/ProductList";
+import ProductCard from "../ui/ProductList";
+import Image from "next/image";
 
 // Hàm icon theo tên danh mục
 const getCategoryIcon = (name: string) => {
@@ -70,7 +71,7 @@ export default function CategoryAndProduct() {
             key={category.id}
             className="bg-gray-50 rounded-xl p-5 hover:shadow-lg transition-all duration-200 flex items-center"
           >
-            <img
+            <Image
               src={`/img/${category.image_url}`}
               alt={category.name}
               className="w-16 h-16 object-cover rounded mr-4"

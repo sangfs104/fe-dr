@@ -38,7 +38,7 @@ export default function AiAssistantTest() {
       const data = await res.json();
       setReply(data.reply);
       speak(data.reply);
-    } catch (err) {
+    } catch {
       setReply("Có lỗi xảy ra!");
     }
     setLoading(false);

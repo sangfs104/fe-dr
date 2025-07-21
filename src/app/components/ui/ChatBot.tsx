@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import axios from "axios";
-import { useDarkMode } from "./useDarkMode";
+import { useDarkMode } from "../../types/useDarkMode";
 import Link from "next/link"; // ✅ THÊM DÒNG NÀY
 
 const aiAvatar = "/img/ai-avatar.webp";

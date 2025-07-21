@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import ProductCard from "../ui/ProductList";
+import Image from "next/image";
 import { ThumbsUp, Heart, Laugh, Smile, Frown, Angry } from "lucide-react";
 import { Newspaper } from "lucide-react";
 import { MessageSquareText, MessageCircleOff } from "lucide-react";
@@ -111,7 +112,7 @@ function PostItem({ post, token }) {
 
       {/* Hình ảnh bài viết */}
       {post.image && (
-        <img
+        <Image
           src={`http://localhost:8000/storage/${post.image}`}
           alt={post.title}
           className="w-full h-[300px] object-cover"

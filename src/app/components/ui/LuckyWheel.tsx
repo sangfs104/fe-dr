@@ -88,6 +88,8 @@ export default function LuckyWheel() {
         <Image
           src="/img/2025.png"
           alt="Lucky Wheel Background"
+          width={1920}
+          height={1080}
           className="w-full h-full object-cover"
         />
       </div>

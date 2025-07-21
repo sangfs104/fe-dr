@@ -15,7 +15,14 @@ export default function Footer() {
         {/* Cột 1: Logo và mô tả */}
         <div>
           <div className="flex items-center gap-2 mb-4">
-            <Image src="/img/favicon.jpg" alt="EGA Bike" className="h-10" />
+            <Image
+              src="/img/favicon.jpg"
+              alt="EGA Bike"
+              width={40}
+              height={40}
+              className="h-10 w-10 object-cover"
+            />
+
             <span className="font-bold text-lg">
               Cửa hàng thời trang Dreams
             </span>

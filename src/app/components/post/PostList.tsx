@@ -113,8 +113,10 @@ function PostItem({ post, token }) {
       {/* Hình ảnh bài viết */}
       {post.image && (
         <Image
-          src={`http://localhost:8000/storage/${post.image}`}
+          src={`http://127.0.0.1:8000/storage/${post.image}`}
           alt={post.title}
+          width={800}
+          height={300}
           className="w-full h-[300px] object-cover"
         />
       )}

@@ -160,14 +160,18 @@ export default function UserInfo() {
       <div className="flex flex-col sm:flex-row items-center gap-4 mb-6 text-center sm:text-left">
         {avatarPreview ? (
           <Image
+            width={96} // 👈 Thêm
+            height={96} // 👈 Thêm
             src={avatarPreview}
             alt="Avatar Preview"
             className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border"
           />
         ) : user.avatar ? (
           <Image
-            src={`http://localhost:8000/storage/${user.avatar}`}
+            src={`http://127.0.0.1:8000/storage/${user.avatar}`}
             alt="Avatar"
+            width={80} // 👈 Thêm
+            height={80} // 👈 Thêm
             className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border"
           />
         ) : (
@@ -236,6 +240,8 @@ export default function UserInfo() {
                 <Image
                   src={avatarPreview}
                   alt="Preview"
+                  width={80}
+                  height={80}
                   className="w-20 h-20 rounded-full mt-2 object-cover border"
                 />
               )}

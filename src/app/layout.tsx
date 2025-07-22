@@ -7,7 +7,7 @@ import { DreamToast } from "./components/ui/DreamToast";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 // import SimpleChatBot from "./components/SimpleChatBot";
 
-import AbandonCartHelper from "./components/ui/AbandonCartHelper";
+// import AbandonCartHelper from "./components/ui/AbandonCartHelper";
 import ChatToggle from "./components/ui/ChatToggle";
 
 export default function RootLayout({
@@ -26,7 +26,7 @@ export default function RootLayout({
             <DreamToast />
             {/* <AbandonCartHelper /> */}
             {/* <SimpleChatBot /> */}
-            <AbandonCartHelper />
+            {/* <AbandonCartHelper /> */}
             <ChatToggle />
           </Provider>
         </GoogleOAuthProvider>

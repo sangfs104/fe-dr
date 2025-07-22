@@ -11,10 +11,12 @@ export default function ChatToggle() {
     <>
       <div
         onClick={() => setOpen(!open)}
-        className="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white w-12 h-12 rounded-full shadow-md flex items-center justify-center cursor-pointer z-50"
+        className="fixed bottom-6 right-6 bg-orange-500 hover:bg-orange-600 text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center cursor-pointer z-50 transition-all duration-300"
+        title="Trò chuyện với AI"
       >
-        <MessageCircle size={24} />
+        <MessageCircle size={26} />
       </div>
+
       {open && <ChatBox onClose={() => setOpen(false)} />}
     </>
   );

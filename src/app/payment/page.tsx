@@ -306,7 +306,6 @@ export default function PaymentPage() {
 
   return (
     <>
-      <HeaderHome />
       <ToastContainer />
       <CheckoutProgress currentStep="checkout" />
 
@@ -581,8 +580,6 @@ export default function PaymentPage() {
           </button>
         </div>
       </div>
-
-      <Footer />
     </>
   );
 }

@@ -1,4 +1,6 @@
+
 "use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -7,12 +9,10 @@ import { useEffect, useState, startTransition } from "react";
 
 import CartModal from "./CartModal";
 import ImageSearch from "./AISearchCart";
-import { useAppSelector } from "@/store/hooks";
 import WishlistModal from "./WishlistModal";
-import { useAppDispatch } from "@/store/hooks";
+
+import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { fetchWishlist } from "@/store/wishlistSlice";
-import { toast } from "react-hot-toast";
-import { DreamToast } from "./DreamToast";
 
 type UserInfo = {
   id: number;
@@ -25,33 +25,42 @@ type UserInfo = {
 
 export default function Header() {
   const router = useRouter();
+  const dispatch = useAppDispatch();
+
   const [language, setLanguage] = useState<"vi" | "en">("vi");
   const [showCartModal, setShowCartModal] = useState(false);
   const [showImageSearch, setShowImageSearch] = useState(false);
   const [loading, setLoading] = useState(false);
   const [keyword, setKeyword] = useState("");
   const [user, setUser] = useState<UserInfo | null>(null);
-  const wishlistItems = useAppSelector((state) => state.wishlist.items);
-  const wishlistCount = wishlistItems.length;
   const [showWishlistModal, setShowWishlistModal] = useState(false);
+  const [hasMounted, setHasMounted] = useState(false); // ✅ Tránh hydration lỗi
+
+  const wishlistItems = useAppSelector((state) => state.wishlist.items);
   const cartItems = useAppSelector((state) => state.cart.items);
-  const totalQty = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-  const dispatch = useAppDispatch();
+
+  const wishlistCount = hasMounted ? wishlistItems.length : 0;
+  const totalQty = hasMounted
+    ? cartItems.reduce((sum, item) => sum + item.quantity, 0)
+    : 0;
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (err) {
-        console.error("Failed to parse user from localStorage", err);
-      }
-    }
+    setHasMounted(true);
   }, []);
 
   useEffect(() => {
-    dispatch(fetchWishlist());
-  }, [dispatch]);
+    if (hasMounted) {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        try {
+          setUser(JSON.parse(storedUser));
+        } catch (err) {
+          console.error("Failed to parse user from localStorage", err);
+        }
+      }
+      dispatch(fetchWishlist());
+    }
+  }, [hasMounted, dispatch]);
 
   const handleLinkClick = (href: string) => {
     setLoading(true);
@@ -63,7 +72,6 @@ export default function Header() {
 
   return (
     <div className="w-full bg-white">
-      <DreamToast />
       {/* Top Bar */}
       <div className="overflow-hidden whitespace-nowrap bg-[tomato] text-white text-sm text-center py-2 font-semibold">
         <div className="inline-block animate-scroll">
@@ -107,29 +115,32 @@ export default function Header() {
 
           {/* Right: Icons */}
           <div className="flex-1 flex justify-end gap-3 items-center text-lg">
-            {/* Tìm kiếm */}
+            {/* Search Input */}
             <div className="relative">
               <input
-  type="text"
-  placeholder="Tìm sản phẩm..."
-  value={keyword}
-  
-  className="border border-gray-300 rounded-full px-3 py-1 w-40 text-sm focus:outline-none focus:ring focus:ring-purple-400"
-/>
-
+                type="text"
+                placeholder="Tìm sản phẩm..."
+                value={keyword}
+                onChange={(e) => setKeyword(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && keyword.trim()) {
+                    router.push(
+                      `/search?query=${encodeURIComponent(keyword.trim())}`
+                    );
+                    setKeyword("");
+                  }
+                }}
+              />
             </div>
 
-            {/* Icon tìm ảnh */}
+            {/* Image Search */}
             <Search
               className="cursor-pointer w-4 h-4"
-              onClick={() => {
-                setShowImageSearch(true);
-                toast("Khởi động tìm kiếm bằng ảnh...");
-              }}
+              onClick={() => setShowImageSearch(true)}
             />
 
             {/* User */}
-            {user ? (
+            {hasMounted && user ? (
               <button
                 className="text-sm font-semibold hover:text-purple-600 flex items-center gap-1"
                 onClick={() => router.push("/account")}
@@ -148,11 +159,11 @@ export default function Header() {
                   </div>
                 )}
               </button>
-            ) : (
+            ) : hasMounted ? (
               <Link href="/login">
                 <User className="cursor-pointer w-4 h-4" />
               </Link>
-            )}
+            ) : null}
 
             {/* Wishlist */}
             <span
@@ -167,7 +178,9 @@ export default function Header() {
               )}
             </span>
 
-            {showWishlistModal && <WishlistModal onClose={() => setShowWishlistModal(false)} />}
+            {showWishlistModal && (
+              <WishlistModal onClose={() => setShowWishlistModal(false)} />
+            )}
 
             {/* Cart */}
             <span
@@ -186,25 +199,37 @@ export default function Header() {
 
         {/* Navigation */}
         <nav className="sticky top-0 z-40 bg-white border-b py-4 flex justify-center gap-10 font-semibold text-sm shadow-sm">
-          <button onClick={() => handleLinkClick("/")} className="hover:text-purple-600">
+          <button
+            onClick={() => handleLinkClick("/")}
+            className="hover:text-purple-600"
+          >
             {language === "vi" ? "Trang chủ" : "Home"}
           </button>
 
-          <button onClick={() => handleLinkClick("/products")} className="hover:text-purple-600">
+          <button
+            onClick={() => handleLinkClick("/products")}
+            className="hover:text-purple-600"
+          >
             {language === "vi" ? "Cửa hàng" : "Shop"}
           </button>
 
-          <button onClick={() => handleLinkClick("/lucky")} className="hover:text-purple-600">
+          <button
+            onClick={() => handleLinkClick("/lucky")}
+            className="hover:text-purple-600"
+          >
             {language === "vi" ? "Vòng quay may mắn" : "Lucky Wheel"}
           </button>
 
-          <button onClick={() => handleLinkClick("/blog")} className="hover:text-purple-600">
-            {language === "vi" ? "Tin tức" : "About"}
+          <button
+            onClick={() => handleLinkClick("/blog")}
+            className="hover:text-purple-600"
+          >
+            {language === "vi" ? "Tin tức" : "News"}
           </button>
         </nav>
       </div>
 
-      {/* Loading */}
+      {/* Loading bar */}
       {loading && (
         <div className="relative h-1 w-full overflow-hidden bg-gray-200">
           <div className="absolute inset-0 w-full">
@@ -213,21 +238,30 @@ export default function Header() {
         </div>
       )}
 
-      {/* Modal Giỏ hàng */}
+      {/* Modals */}
       {showCartModal && <CartModal onClose={() => setShowCartModal(false)} />}
 
-      {/* Modal Tìm kiếm hình ảnh */}
       {showImageSearch && (
         <div className="fixed inset-0 z-50 flex justify-end items-center bg-black/60 backdrop-blur-sm animate-fade-in">
           <div className="relative h-full md:h-[90vh] w-full sm:w-[90vw] md:max-w-[600px] overflow-y-auto bg-white/80 dark:bg-[#1e1e1e]/90 shadow-2xl rounded-l-3xl p-8 animate-slide-in transition-all duration-300 ease-in-out">
-            {/* Nút đóng */}
             <button
               onClick={() => setShowImageSearch(false)}
               className="absolute top-5 right-5 rounded-full bg-white dark:bg-[#2c2c2c] p-2 shadow-md hover:shadow-lg hover:text-red-500 text-gray-600 dark:text-gray-300 hover:scale-110 transition-all duration-200"
               aria-label="Đóng modal"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-5 h-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </button>
 

@@ -1,6 +1,5 @@
 "use client";
 import Image from "next/image";
-
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronDown, Search, User, Heart, ShoppingCart } from "lucide-react";
@@ -12,6 +11,9 @@ import { useAppSelector } from "@/store/hooks";
 import WishlistModal from "./WishlistModal";
 import { useAppDispatch } from "@/store/hooks";
 import { fetchWishlist } from "@/store/wishlistSlice";
+import { toast } from "react-hot-toast";
+import { DreamToast } from "./DreamToast";
+
 type UserInfo = {
   id: number;
   name: string;
@@ -35,6 +37,7 @@ export default function Header() {
   const cartItems = useAppSelector((state) => state.cart.items);
   const totalQty = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const dispatch = useAppDispatch();
+
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
@@ -45,9 +48,11 @@ export default function Header() {
       }
     }
   }, []);
+
   useEffect(() => {
     dispatch(fetchWishlist());
   }, [dispatch]);
+
   const handleLinkClick = (href: string) => {
     setLoading(true);
     startTransition(() => {
@@ -58,6 +63,7 @@ export default function Header() {
 
   return (
     <div className="w-full bg-white">
+      <DreamToast />
       {/* Top Bar */}
       <div className="overflow-hidden whitespace-nowrap bg-[tomato] text-white text-sm text-center py-2 font-semibold">
         <div className="inline-block animate-scroll">
@@ -91,7 +97,7 @@ export default function Header() {
               <Image
                 src="/img/dr2025.png"
                 alt="DREAMS Logo"
-                width={80} // giảm kích thước logo
+                width={80}
                 height={30}
                 className="mx-auto object-contain"
                 priority
@@ -104,25 +110,22 @@ export default function Header() {
             {/* Tìm kiếm */}
             <div className="relative">
               <input
-                type="text"
-                placeholder="Tìm sản phẩm..."
-                value={keyword}
-                onChange={(e) => setKeyword(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && keyword.trim()) {
-                    router.push(
-                      `/search?query=${encodeURIComponent(keyword.trim())}`
-                    );
-                    setKeyword("");
-                  }
-                }}
-              />
+  type="text"
+  placeholder="Tìm sản phẩm..."
+  value={keyword}
+  
+  className="border border-gray-300 rounded-full px-3 py-1 w-40 text-sm focus:outline-none focus:ring focus:ring-purple-400"
+/>
+
             </div>
 
             {/* Icon tìm ảnh */}
             <Search
               className="cursor-pointer w-4 h-4"
-              onClick={() => setShowImageSearch(true)}
+              onClick={() => {
+                setShowImageSearch(true);
+                toast("Khởi động tìm kiếm bằng ảnh...");
+              }}
             />
 
             {/* User */}
@@ -164,9 +167,7 @@ export default function Header() {
               )}
             </span>
 
-            {showWishlistModal && (
-              <WishlistModal onClose={() => setShowWishlistModal(false)} />
-            )}
+            {showWishlistModal && <WishlistModal onClose={() => setShowWishlistModal(false)} />}
 
             {/* Cart */}
             <span
@@ -185,31 +186,19 @@ export default function Header() {
 
         {/* Navigation */}
         <nav className="sticky top-0 z-40 bg-white border-b py-4 flex justify-center gap-10 font-semibold text-sm shadow-sm">
-          <button
-            onClick={() => handleLinkClick("/")}
-            className="hover:text-purple-600"
-          >
+          <button onClick={() => handleLinkClick("/")} className="hover:text-purple-600">
             {language === "vi" ? "Trang chủ" : "Home"}
           </button>
 
-          <button
-            onClick={() => handleLinkClick("/products")}
-            className="hover:text-purple-600"
-          >
+          <button onClick={() => handleLinkClick("/products")} className="hover:text-purple-600">
             {language === "vi" ? "Cửa hàng" : "Shop"}
           </button>
 
-          <button
-            onClick={() => handleLinkClick("/lucky")}
-            className="hover:text-purple-600"
-          >
+          <button onClick={() => handleLinkClick("/lucky")} className="hover:text-purple-600">
             {language === "vi" ? "Vòng quay may mắn" : "Lucky Wheel"}
           </button>
 
-          <button
-            onClick={() => handleLinkClick("/blog")}
-            className="hover:text-purple-600"
-          >
+          <button onClick={() => handleLinkClick("/blog")} className="hover:text-purple-600">
             {language === "vi" ? "Tin tức" : "About"}
           </button>
         </nav>
@@ -237,23 +226,11 @@ export default function Header() {
               className="absolute top-5 right-5 rounded-full bg-white dark:bg-[#2c2c2c] p-2 shadow-md hover:shadow-lg hover:text-red-500 text-gray-600 dark:text-gray-300 hover:scale-110 transition-all duration-200"
               aria-label="Đóng modal"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="w-5 h-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
 
-            {/* Tiêu đề modal */}
             <div className="mb-6">
               <h2 className="text-2xl font-semibold text-gray-800 dark:text-white tracking-tight">
                 Tìm kiếm hình ảnh thông minh
@@ -263,7 +240,6 @@ export default function Header() {
               </p>
             </div>
 
-            {/* Nội dung chính */}
             <div className="space-y-4">
               <ImageSearch />
             </div>

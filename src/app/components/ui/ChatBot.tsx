@@ -31,12 +31,13 @@ export default function ChatBox({
 }) {
   const [darkMode, setDarkMode] = useDarkMode();
   const [messages, setMessages] = useState<Message[]>(() => {
+    if (typeof window === "undefined") return [];
     const saved = localStorage.getItem("chat_messages");
     return saved
       ? JSON.parse(saved)
       : [
           {
-            type: "bot",
+            type: "bot" as const,
             text: "🎉 Xin chào! Mình là stylist AI. Bạn cần tư vấn gì hôm nay?",
           },
         ];
@@ -63,7 +64,7 @@ export default function ChatBox({
   const handleSend = async () => {
     if (!input.trim()) return;
 
-    const userMessage = { type: "user", text: input };
+    const userMessage: Message = { type: "user", text: input };
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setLoading(true);
@@ -78,11 +79,11 @@ export default function ChatBox({
 
       if (res.data.product) {
         const p = res.data.product;
-        const productCard = {
+        const productCard: Product = {
           id: p.id,
           name: p.name,
           description: p.description,
-          img: p.images?.map((url) => ({ name: url.split("/").pop() })),
+          img: p.images?.map((url: string) => ({ name: url.split("/").pop() || "" })),
         };
         setMessages((prev) => [
           ...prev,
@@ -257,7 +258,7 @@ export default function ChatBox({
         <button
           onClick={handleSend}
           disabled={loading}
-          className={`${
+          className={`$${
             loading
               ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
               : "bg-orange-500 hover:bg-orange-600"

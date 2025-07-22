@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 const IMAGE_BASE_URL = "http://localhost:8000/img/";
 
@@ -19,7 +20,7 @@ export default function AISearchCard() {
   };
 
   const handleSearch = async () => {
-    if (!image) return alert("Vui lòng chọn ảnh!");
+    if (!image) return toast.error("Vui lòng chọn ảnh!");
 
     const formData = new FormData();
     formData.append("image", image);
@@ -33,8 +34,8 @@ export default function AISearchCard() {
       );
       setResults(res.data);
     } catch (err) {
-      alert("Lỗi khi tìm kiếm hình ảnh");
       console.error(err);
+      toast.error("Lỗi khi tìm kiếm hình ảnh");
     } finally {
       setLoading(false);
     }
@@ -48,7 +49,7 @@ export default function AISearchCard() {
         product_name: item.product_name,
         images: [],
         score: item.score,
-        price: item.price || Math.floor(Math.random() * 500000 + 100000), // nếu chưa có price thì giả lập
+        price: item.price || Math.floor(Math.random() * 500000 + 100000),
       };
     }
     acc[pid].images.push(item.image_path);
@@ -57,21 +58,25 @@ export default function AISearchCard() {
 
   return (
     <div className="p-4 w-full max-w-2xl mx-auto font-sans">
-      <h2 className="text-2xl font-bold mb-4 text-center text-gray-800">
-         Tìm sản phẩm bằng hình ảnh
+      <h2 className="text-xl font-semibold mb-4 text-center text-gray-800">
+        Tìm sản phẩm bằng hình ảnh
       </h2>
 
-      <div className="bg-white border rounded-lg p-4 shadow mb-6">
-        <div className="flex flex-col md:flex-row items-center gap-4">
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            className="border border-dashed border-gray-400 p-2 rounded w-full md:w-auto"
-          />
+      <div className="bg-white border border-gray-200 rounded-lg p-4 mb-6">
+        <div className="flex flex-col md:flex-row items-center gap-3 justify-center">
+          <label className="cursor-pointer border border-dashed border-gray-400 px-4 py-2 rounded-md text-sm text-gray-600 hover:bg-gray-50 transition">
+            Chọn ảnh
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+          </label>
+
           <button
             onClick={handleSearch}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow"
+            className="bg-gray-800 text-white text-sm px-4 py-2 rounded-md hover:bg-gray-700 transition"
           >
             Tìm kiếm
           </button>
@@ -79,64 +84,59 @@ export default function AISearchCard() {
 
         {previewUrl && (
           <div className="mt-4 text-center">
-            <p className="text-sm text-gray-500 mb-1">Ảnh đã chọn:</p>
             <img
               src={previewUrl}
               alt="Preview"
-              className="w-32 h-32 object-cover rounded border shadow inline-block"
+              className="w-28 h-28 object-cover rounded border inline-block"
             />
           </div>
         )}
       </div>
 
       {loading && (
-        <p className="text-center text-blue-500 text-lg animate-pulse">
-          ⏳ Đang xử lý...
-        </p>
+        <p className="text-center text-sm text-gray-500">Đang xử lý...</p>
       )}
 
       {!loading && results.length === 0 && image && (
-        <p className="text-center text-gray-500">
+        <p className="text-center text-sm text-gray-400">
           Không tìm thấy sản phẩm tương tự.
         </p>
       )}
 
       {Object.values(groupedResults).length > 0 && (
-        <div className="space-y-6">
-          <h3 className="text-lg font-semibold text-gray-700 mb-2">
-            🛒 Kết quả tương đồng
+        <div className="space-y-5">
+          <h3 className="text-sm font-medium text-gray-700">
+            Kết quả tương đồng
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {Object.values(groupedResults).map((item: any, idx: number) => (
               <div
                 key={idx}
-                className="border rounded-xl shadow hover:shadow-lg transition p-3 bg-white relative"
+                className="border border-gray-200 rounded-lg p-3 bg-white hover:shadow-sm transition"
               >
                 <img
                   src={`${IMAGE_BASE_URL}${item.images[0]}`}
                   alt={item.product_name}
-                  className="w-full h-48 object-cover rounded-lg mb-2"
+                  className="w-full h-40 object-cover rounded mb-2"
                 />
 
-                <div className="flex gap-2 overflow-x-auto pb-1">
+                <div className="flex gap-1 overflow-x-auto pb-1">
                   {item.images.map((img: string, i: number) => (
                     <img
                       key={i}
                       src={`${IMAGE_BASE_URL}${img}`}
                       alt={`thumb-${i}`}
-                      className="w-10 h-10 object-cover rounded-md border hover:border-blue-500"
+                      className="w-8 h-8 object-cover rounded border"
                     />
                   ))}
                 </div>
 
-                <div className="mt-2 space-y-1">
-                  <p className="text-sm text-gray-500 line-clamp-1">
-                    {item.product_name}
-                  </p>
-                  <p className="text-red-500 font-bold text-base">
+                <div className="mt-2 text-sm text-gray-700 space-y-1">
+                  <p className="line-clamp-1">{item.product_name}</p>
+                  <p className="font-semibold text-gray-900">
                     {item.price.toLocaleString()} ₫
                   </p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-400">
                     Độ tương đồng: {item.score?.toFixed(3)}
                   </p>
                 </div>

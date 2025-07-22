@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
-
+import Image from "next/image";
 const IMAGE_BASE_URL = "http://localhost:8000/img/";
 
 export default function AISearchCard() {
@@ -114,7 +114,7 @@ export default function AISearchCard() {
                 key={idx}
                 className="border border-gray-200 rounded-lg p-3 bg-white hover:shadow-sm transition"
               >
-                <img
+                <Image
                   src={`${IMAGE_BASE_URL}${item.images[0]}`}
                   alt={item.product_name}
                   className="w-full h-40 object-cover rounded mb-2"
@@ -122,7 +122,7 @@ export default function AISearchCard() {
 
                 <div className="flex gap-1 overflow-x-auto pb-1">
                   {item.images.map((img: string, i: number) => (
-                    <img
+                    <Image
                       key={i}
                       src={`${IMAGE_BASE_URL}${img}`}
                       alt={`thumb-${i}`}

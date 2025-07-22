@@ -502,6 +502,8 @@
 
 import { Shirt, ShoppingBag, Tags, Package, MoveDiagonal } from "lucide-react";
 import ProductCard from "./ProductList";
+import Image from "next/image";
+import Link from "next/link";
 
 const getCategoryIcon = (name: string) => {
   const lower = name?.toLowerCase() || "";
@@ -559,7 +561,9 @@ export default async function CategoryProduct() {
               >
                 <div className="w-24 h-24 mb-3 overflow-hidden flex items-center justify-center">
                   {category.image_url ? (
-                    <img
+                    <Image
+                      width={96}
+                      height={96}
                       src={`/img/${category.image_url}`}
                       alt={category.name}
                       className="object-contain w-full h-full"
@@ -600,7 +604,7 @@ export default async function CategoryProduct() {
             </div>
 
             {products.length > 6 && (
-              <a
+              <Link
                 href="/products"
                 className="text-black font-semibold hover:underline inline-flex items-center gap-1 text-sm"
               >
@@ -618,7 +622,7 @@ export default async function CategoryProduct() {
                     d="M9 5l7 7-7 7"
                   />
                 </svg>
-              </a>
+              </Link>
             )}
           </div>
 

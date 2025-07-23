@@ -35,8 +35,6 @@
 //     </>
 //   );
 // }
-// src/app/product/page.tsx
-
 import BannerCarousel from "./components/ui/BannerCarousel";
 import HeaderHome from "./components/ui/Header";
 import ProductTabs from "./components/ui/ProductTabs";
@@ -50,16 +48,12 @@ import VoiceQuickOrderTest from "./components/ui/VoiceQuickOrderTest";
 import AIRecommendedProducts from "./components/ui/AIRecommendedProducts";
 import PostList from "./components/post/PostList";
 
-type ProductPageProps = {
-  searchParams?: {
-    type?: string;
-    [key: string]: string | string[] | undefined;
-  };
-};
+interface ProductPageProps {
+  searchParams?: { [key: string]: string | string[] | undefined };
+}
 
-export default async function ProductPage({ searchParams }: ProductPageProps) {
-  const typeParam = searchParams?.type;
-  const type = typeParam === "new" ? "new" : "hot";
+export default function ProductPage({ searchParams }: ProductPageProps) {
+  const type = searchParams?.type === "new" ? "new" : "hot";
 
   return (
     <>

@@ -8,6 +8,8 @@ import CheckoutProgress from "../components/ui/CheckoutProgress";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { RootState } from "@/store/store";
+import Footer from "../components/ui/Footer";
+import HeaderHome from "../components/ui/Header";
 
 export default function PaymentPage() {
   const [showLogin, setShowLogin] = useState(false);
@@ -18,6 +20,7 @@ export default function PaymentPage() {
   const [discount, setDiscount] = useState(0); // giá trị giảm (VND)
   const [couponId, setCouponId] = useState<number | null>(null); // Lưu ID coupon
   const [shippingFee, setShippingFee] = useState<number>(0); //tính tiền ship
+  const [hasMounted, setHasMounted] = useState(false);
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -78,6 +81,14 @@ export default function PaymentPage() {
   };
 
   const handlePayment = async () => {
+    const token = localStorage.getItem("token");
+
+    // ✅ Kiểm tra nếu chưa đăng nhập
+    if (!token) {
+      toast.error("Không thể đặt hàng vì quý khách chưa đăng nhập.");
+      return;
+    }
+
     // 1. Kiểm tra form trước
     if (!validateForm()) {
       toast.error("Vui lòng điền đầy đủ thông tin bắt buộc.");
@@ -304,40 +315,85 @@ export default function PaymentPage() {
     }
   };
 
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
+  if (!hasMounted) return null;
+
+  const handleApplyCoupon = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.post(
+        "http://localhost:8000/api/coupons/check",
+        {
+          code: couponCode,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const result = response.data;
+
+      if (result && result.data && result.data.discount_amount) {
+        setDiscount(result.data.discount_amount);
+        setCouponId(result.data.id); // lưu lại ID coupon
+        toast.success("Áp dụng mã giảm giá thành công!");
+      } else {
+        setDiscount(0);
+        setCouponId(null);
+        toast.error("Mã giảm giá không hợp lệ.");
+      }
+    } catch (error) {
+      console.error("Lỗi khi áp dụng mã giảm giá:", error);
+      toast.error("Có lỗi xảy ra khi kiểm tra mã giảm giá.");
+    }
+  };
+
   return (
     <>
+      <HeaderHome />
       <ToastContainer />
       <CheckoutProgress currentStep="checkout" />
 
-      <div className="wrapper">
+      <div className="flex justify-center gap-10 mx-auto my-10 flex-wrap max-w-[1200px]">
         {/* Thông tin thanh toán */}
-        <div className="container">
-          <h2>THÔNG TIN THANH TOÁN</h2>
-          <hr />
+        <div className="w-full lg:w-[600px] bg-white p-8 rounded-xl shadow-md">
+          <h2 className="text-center text-xl font-bold uppercase mb-4">
+            THÔNG TIN THANH TOÁN
+          </h2>
+          <hr className="mb-6" />
           <form>
-            <div className="row">
-              <div className="col">
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1">
                 <input
                   type="text"
                   name="firstName"
                   placeholder="Tên *"
                   value={formData.firstName}
                   onChange={handleChange}
+                  className="w-full p-4 mb-2 border border-gray-300 rounded-md text-base"
                 />
                 {errors.firstName && (
-                  <p className="error-text">{errors.firstName}</p>
+                  <p className="text-red-600 text-sm mb-2">
+                    {errors.firstName}
+                  </p>
                 )}
               </div>
-              <div className="col">
+              <div className="flex-1">
                 <input
                   type="text"
                   name="lastName"
                   placeholder="Họ *"
                   value={formData.lastName}
                   onChange={handleChange}
+                  className="w-full p-4 mb-2 border border-gray-300 rounded-md text-base"
                 />
                 {errors.lastName && (
-                  <p className="error-text">{errors.lastName}</p>
+                  <p className="text-red-600 text-sm mb-2">{errors.lastName}</p>
                 )}
               </div>
             </div>
@@ -347,11 +403,14 @@ export default function PaymentPage() {
               value={formData.country}
               onChange={handleChange}
               required
+              className="w-full p-4 mb-4 border border-gray-300 rounded-md bg-gray-50"
             >
               <option value="">Quốc gia/Khu vực *</option>
               <option value="VN">Việt Nam</option>
             </select>
-            {errors.country && <p className="error-text">{errors.country}</p>}
+            {errors.country && (
+              <p className="text-red-600 text-sm mb-2">{errors.country}</p>
+            )}
 
             <input
               type="text"
@@ -360,43 +419,54 @@ export default function PaymentPage() {
               value={formData.address}
               onChange={handleChange}
               required
+              className="w-full p-4 mb-4 border border-gray-300 rounded-md text-base"
             />
-            {errors.address && <p className="error-text">{errors.address}</p>}
+            {errors.address && (
+              <p className="text-red-600 text-sm mb-2">{errors.address}</p>
+            )}
 
             <select
               name="city"
               value={formData.city}
               onChange={handleChange}
               required
+              className="w-full p-4 mb-4 border border-gray-300 rounded-md bg-gray-50"
             >
               <option value="">Tỉnh / Thành phố *</option>
               <option value="HCM">TP. Hồ Chí Minh</option>
               <option value="HN">Hà Nội</option>
               <option value="DN">Đà Nẵng</option>
             </select>
+            {errors.city && (
+              <p className="text-red-600 text-sm mb-2">{errors.city}</p>
+            )}
 
-            {errors.city && <p className="error-text">{errors.city}</p>}
-
-            <div className="row">
-              <div className="col">
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1">
                 <input
                   type="text"
                   name="phone"
                   placeholder="Số điện thoại *"
                   value={formData.phone}
                   onChange={handleChange}
+                  className="w-full p-4 mb-2 border border-gray-300 rounded-md text-base"
                 />
-                {errors.phone && <p className="error-text">{errors.phone}</p>}
+                {errors.phone && (
+                  <p className="text-red-600 text-sm mb-2">{errors.phone}</p>
+                )}
               </div>
-              <div className="col">
+              <div className="flex-1">
                 <input
                   type="email"
                   name="email"
                   placeholder="Địa chỉ email *"
                   value={formData.email}
                   onChange={handleChange}
+                  className="w-full p-4 mb-2 border border-gray-300 rounded-md text-base"
                 />
-                {errors.email && <p className="error-text">{errors.email}</p>}
+                {errors.email && (
+                  <p className="text-red-600 text-sm mb-2">{errors.email}</p>
+                )}
               </div>
             </div>
 
@@ -405,181 +475,164 @@ export default function PaymentPage() {
               placeholder="Ghi chú về đơn hàng..."
               value={formData.note}
               onChange={handleChange}
+              className="w-full p-4 mb-4 border border-gray-300 rounded-md min-h-[80px]"
             ></textarea>
           </form>
         </div>
 
         {/* Thông tin đơn hàng */}
-        <div className="order-container">
-          <h2>THÔNG TIN ĐƠN HÀNG</h2>
-          <div className="order-summary">
-            <div className="order-header">
+        <div className="w-full lg:w-[400px] bg-gray-100 p-6 rounded-xl shadow-md">
+          <h2 className="text-center text-xl font-bold mb-4 pb-4 border-b border-gray-300">
+            THÔNG TIN ĐƠN HÀNG
+          </h2>
+
+          <div className="bg-white rounded-lg p-4 mb-6">
+            <div className="flex justify-between font-bold text-sm text-gray-600 border-b pb-2">
               <span>SẢN PHẨM</span>
               <span>TỔNG PHỤ</span>
             </div>
 
             {cartItems.map((item) => (
               <div
-                className="order-item"
+                className="flex justify-between items-center gap-3 py-3 border-b"
                 key={`${item.productId}-${item.variantId}`}
               >
-                <div className="item-left">
-                  <img src={item.img} alt={item.name} />
-                  <div className="item-details">
-                    <p>
-                      <strong>{item.name}</strong>
-                    </p>
-                    <p className="small-text">
+                <div className="flex items-center gap-3 flex-1">
+                  <img
+                    src={item.img}
+                    alt={item.name}
+                    className="w-[60px] h-[60px] object-cover rounded"
+                  />
+                  <div className="flex-1">
+                    <p className="font-semibold text-sm">{item.name}</p>
+                    <p className="text-gray-500 text-sm">
                       {item.size} / Số lượng: {item.quantity}
                     </p>
                   </div>
                 </div>
-                <p className="price">{item.price.toLocaleString("vi-VN")}đ</p>
+                <p className="text-right font-bold text-sm min-w-[80px]">
+                  {item.price.toLocaleString("vi-VN")}đ
+                </p>
               </div>
             ))}
 
-            <div className="summary-box">
-              <p>
-                Tổng phụ: <span>{subtotal.toLocaleString("vi-VN")}đ</span>
+            <div className="pt-4">
+              <p className="flex justify-between text-base font-bold mb-2">
+                Tổng phụ:{" "}
+                <span className="font-normal">
+                  {subtotal.toLocaleString("vi-VN")}đ
+                </span>
               </p>
               {discount > 0 && (
-                <p>
-                  Giảm giá: <span>-{discount.toLocaleString("vi-VN")}đ</span>
+                <p className="flex justify-between text-base font-bold mb-2">
+                  Giảm giá:{" "}
+                  <span className="font-normal">
+                    -{discount.toLocaleString("vi-VN")}đ
+                  </span>
                 </p>
               )}
-              <p>
+              <p className="flex justify-between text-base font-bold mb-2">
                 Giao hàng:{" "}
-                <span>
+                <span className="font-normal">
                   {shippingFee === 0
                     ? "Miễn phí"
                     : shippingFee.toLocaleString("vi-VN") + " đ"}
                 </span>
               </p>
 
-              <div className="total-line">
+              <div className="flex justify-between items-center text-lg font-bold text-red-600 pt-4 border-t mt-4">
                 <span>TỔNG</span>
                 <span>{finalTotal.toLocaleString("vi-VN")} đ</span>
               </div>
             </div>
+          </div>
 
-            <div className="coupon-section">
-              <p>
-                Có mã giảm giá?{" "}
-                <a
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setShowCoupon(!showCoupon);
-                  }}
-                >
-                  Nhấn vào đây để nhập mã giảm giá{" "}
-                  <FontAwesomeIcon icon={faChevronDown} />
-                </a>
-              </p>
-
-              {showCoupon && (
-                <div id="coupon-box">
-                  <p>Nếu bạn có mã giảm giá, vui lòng áp dụng nó bên dưới.</p>
-                  <div className="coupon-container">
-                    <input
-                      type="text"
-                      className="coupon-input"
-                      placeholder="Mã giảm giá"
-                      value={couponCode}
-                      onChange={(e) => setCouponCode(e.target.value)}
-                    />
-                    <button
-                      className="apply-btn"
-                      onClick={async (e) => {
-                        e.preventDefault();
-                        if (!couponCode.trim()) {
-                          toast.error("Vui lòng nhập mã giảm giá.");
-                          return;
-                        }
-
-                        try {
-                          const token = localStorage.getItem("token");
-                          const response = await axios.post(
-                            "http://localhost:8000/api/apply-coupon",
-                            { code: couponCode.trim() },
-                            {
-                              headers: {
-                                Authorization: `Bearer ${token}`,
-                              },
-                            }
-                          );
-                          const data = response.data;
-                          if (data.status === 200) {
-                            setDiscount(Number(data.coupon.discount_value));
-                            setCouponId(data.coupon.id);
-                            toast.success(
-                              data.message || "Áp dụng mã giảm giá thành công!"
-                            );
-                          } else {
-                            setDiscount(0);
-                            setCouponId(null);
-                            toast.error(
-                              data.message || "Mã giảm giá không hợp lệ."
-                            );
-                          }
-                        } catch (error) {
-                          setDiscount(0);
-                          setCouponId(null);
-                          toast.error(
-                            error.response?.data?.message ||
-                              "Đã xảy ra lỗi khi kiểm tra mã giảm giá."
-                          );
-                        }
-                      }}
-                    >
-                      ÁP DỤNG
-                    </button>
-                  </div>
+          {/* Mã giảm giá */}
+          <div className="mt-4 border-t border-dashed pt-4">
+            <p className="text-sm">
+              Có mã giảm giá?{" "}
+              <a
+                href="#"
+                className="font-semibold cursor-pointer text-black hover:underline"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setShowCoupon(!showCoupon);
+                }}
+              >
+                Nhấn vào đây để nhập mã giảm giá{" "}
+                <FontAwesomeIcon icon={faChevronDown} />
+              </a>
+            </p>
+            {showCoupon && (
+              <div className="mt-4 border border-dashed border-gray-300 rounded-lg p-4 bg-white">
+                <p className="text-sm text-gray-700 mb-3">
+                  Nếu bạn có mã giảm giá, vui lòng nhập bên dưới:
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+                  <input
+                    type="text"
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white text-sm"
+                    placeholder="Nhập mã giảm giá..."
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value)}
+                  />
+                  <button
+                    className="bg-orange-600 hover:bg-orange-700 text-white font-semibold px-6 py-2 rounded-md transition duration-200 text-sm"
+                    onClick={handleApplyCoupon}
+                  >
+                    ÁP DỤNG
+                  </button>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
 
           {/* Phương thức thanh toán */}
-          <div className="payment-method">
-            <label className="payment-option">
+          <div className="mt-6 p-4 rounded-lg">
+            <label className="flex items-center gap-2 font-semibold text-base py-2 hover:bg-gray-100 cursor-pointer">
               <input
                 type="radio"
                 name="payment"
                 value="bank"
                 checked={paymentMethod === "bank"}
                 onChange={() => setPaymentMethod("bank")}
+                className="w-[18px] h-[18px]"
               />
               <span>Thanh toán qua VNPAY</span>
             </label>
             {paymentMethod === "bank" && (
-              <div className="payment-info">
+              <div className="text-sm text-gray-700 ml-6 p-3 border border-gray-300 rounded bg-gray-50 animate-fade-in">
                 <p>Thực hiện thanh toán qua cổng VNPAY.</p>
               </div>
             )}
 
-            <label className="payment-option">
+            <label className="flex items-center gap-2 font-semibold text-base py-2 hover:bg-gray-100 cursor-pointer">
               <input
                 type="radio"
                 name="payment"
                 value="cod"
                 checked={paymentMethod === "cod"}
                 onChange={() => setPaymentMethod("cod")}
+                className="w-[18px] h-[18px]"
               />
               <span>Trả tiền mặt khi nhận hàng</span>
             </label>
             {paymentMethod === "cod" && (
-              <div className="payment-info">
+              <div className="text-sm text-gray-700 ml-6 p-3 border border-gray-300 rounded bg-gray-50 animate-fade-in">
                 <p>Bạn sẽ thanh toán bằng tiền mặt khi nhận hàng.</p>
               </div>
             )}
           </div>
 
-          <button className="order-btn" onClick={handlePayment}>
+          <button
+            className="w-full py-4 bg-orange-600 text-white text-lg font-bold rounded mt-6 hover:bg-orange-700"
+            onClick={handlePayment}
+          >
             ĐẶT HÀNG
           </button>
         </div>
       </div>
+      <Footer />
     </>
   );
 }

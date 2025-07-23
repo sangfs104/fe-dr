@@ -3,30 +3,13 @@
 import React, { useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
-import Image from "next/image";
 
 const IMAGE_BASE_URL = "http://localhost:8000/img/";
-
-interface SearchResult {
-  product_id: string;
-  product_name: string;
-  image_path: string;
-  score: number;
-  price?: number;
-}
-
-interface GroupedProduct {
-  product_id: string;
-  product_name: string;
-  images: string[];
-  score: number;
-  price: number;
-}
 
 export default function AISearchCard() {
   const [image, setImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [results, setResults] = useState<SearchResult[]>([]);
+  const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,7 +41,7 @@ export default function AISearchCard() {
     }
   };
 
-  const groupedResults = results.reduce((acc: Record<string, GroupedProduct>, item) => {
+  const groupedResults = results.reduce((acc, item) => {
     const pid = item.product_id;
     if (!acc[pid]) {
       acc[pid] = {
@@ -71,7 +54,7 @@ export default function AISearchCard() {
     }
     acc[pid].images.push(item.image_path);
     return acc;
-  }, {} as Record<string, GroupedProduct>);
+  }, {} as Record<string, any>);
 
   return (
     <div className="p-4 w-full max-w-2xl mx-auto font-sans">
@@ -101,12 +84,10 @@ export default function AISearchCard() {
 
         {previewUrl && (
           <div className="mt-4 text-center">
-            <Image
+            <img
               src={previewUrl}
               alt="Preview"
-              width={112}
-              height={112}
-              className="object-cover rounded border inline-block"
+              className="w-28 h-28 object-cover rounded border inline-block"
             />
           </div>
         )}
@@ -128,27 +109,23 @@ export default function AISearchCard() {
             Kết quả tương đồng
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {Object.values(groupedResults).map((item: GroupedProduct, idx: number) => (
+            {Object.values(groupedResults).map((item: any, idx: number) => (
               <div
                 key={idx}
                 className="border border-gray-200 rounded-lg p-3 bg-white hover:shadow-sm transition"
               >
-                <Image
+                <img
                   src={`${IMAGE_BASE_URL}${item.images[0]}`}
                   alt={item.product_name}
-                  width={300} // Điều chỉnh theo kích thước thực tế
-                  height={160} // Điều chỉnh theo kích thước thực tế
                   className="w-full h-40 object-cover rounded mb-2"
                 />
 
                 <div className="flex gap-1 overflow-x-auto pb-1">
                   {item.images.map((img: string, i: number) => (
-                    <Image
+                    <img
                       key={i}
                       src={`${IMAGE_BASE_URL}${img}`}
                       alt={`thumb-${i}`}
-                      width={32}
-                      height={32}
                       className="w-8 h-8 object-cover rounded border"
                     />
                   ))}

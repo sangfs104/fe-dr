@@ -13,18 +13,25 @@ import {
 
 const sizes = ["S", "M", "L", "XL"];
 
+interface BreadcrumbFilterProps {
+  onSortChange?: (sortOrder: "asc" | "desc") => void;
+  onSizeChange?: (size: string | null) => void;
+  onPriceChange?: (price: number) => void;
+  currentPrice?: number;
+}
+
 export default function BreadcrumbFilter({
   onSortChange,
   onSizeChange,
   onPriceChange,
   currentPrice,
-}) {
+}: BreadcrumbFilterProps) {
   const [filterOpen, setFilterOpen] = useState(false);
   const [sortOpen, setSortOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("color");
-  const [selectedColors, setSelectedColors] = useState([]);
-  const [selectedSize, setSelectedSize] = useState(null);
-  const [priceRange, setPriceRange] = useState(currentPrice ?? 0);
+  const [activeTab, setActiveTab] = useState<"color" | "size" | "price">("color");
+  const [selectedColors, setSelectedColors] = useState<string[]>([]);
+  const [selectedSize, setSelectedSize] = useState<string | null>(null);
+  const [priceRange, setPriceRange] = useState<number>(currentPrice ?? 0);
 
   function toggleFilter() {
     setFilterOpen(!filterOpen);
@@ -36,18 +43,18 @@ export default function BreadcrumbFilter({
     if (!sortOpen) setFilterOpen(false);
   }
 
-  function selectSize(size) {
+  function selectSize(size: string) {
     setSelectedSize(size);
-    onSizeChange?.(size); // Gửi filter luôn
+    onSizeChange?.(size);
   }
 
-  function handlePriceChange(e) {
+  function handlePriceChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = parseInt(e.target.value);
     setPriceRange(value);
-    onPriceChange?.(value); // Gửi giá trị luôn khi kéo
+    onPriceChange?.(value);
   }
 
-  function createRipple(e) {
+  function createRipple(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
     const button = e.currentTarget;
     const circle = document.createElement("span");
     circle.className = "ripple";
@@ -62,10 +69,8 @@ export default function BreadcrumbFilter({
     }, 600);
   }
 
-  function handleSort(sortOrder) {
-    if (onSortChange) {
-      onSortChange(sortOrder);
-    }
+  function handleSort(sortOrder: "asc" | "desc") {
+    onSortChange?.(sortOrder);
   }
 
   function handleClearFilters() {
@@ -100,11 +105,9 @@ export default function BreadcrumbFilter({
                 <button
                   key={tab}
                   className={`px-3 py-2 border cursor-pointer ${
-                    activeTab === tab
-                      ? "border-black font-bold"
-                      : "border-gray-300"
+                    activeTab === tab ? "border-black font-bold" : "border-gray-300"
                   }`}
-                  onClick={() => setActiveTab(tab)}
+                  onClick={() => setActiveTab(tab as "color" | "size" | "price")}
                 >
                   {tab === "color" ? "Màu" : tab === "size" ? "Kích Cỡ" : "Giá"}
                 </button>
@@ -117,9 +120,7 @@ export default function BreadcrumbFilter({
                   <div
                     key={size}
                     className={`w-12 px-2 py-1 border text-center cursor-pointer ${
-                      selectedSize === size
-                        ? "border-black font-bold"
-                        : "border-gray-300"
+                      selectedSize === size ? "border-black font-bold" : "border-gray-300"
                     }`}
                     onClick={(e) => {
                       createRipple(e);
@@ -192,13 +193,6 @@ export default function BreadcrumbFilter({
             </ul>
           </div>
         )}
-      </div>
-
-      <div className="flex flex-wrap gap-3 px-40 py-4 border-b text-sm">
-        <button className="border px-2 py-1 bg-white">GIÁ TỐT</button>
-        <button className="border px-2 py-1 bg-white">Áo Thun Nữ</button>
-        <button className="border px-2 py-1 bg-white">Áo Tank Top Nữ</button>
-        <button className="border px-2 py-1 bg-white">Áo Sơ Mi Nữ</button>
       </div>
     </>
   );

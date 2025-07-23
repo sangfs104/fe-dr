@@ -678,6 +678,10 @@ interface PostListProps {
   limit?: number;
   showMore?: boolean;
 }
+interface PostItemProps {
+  post: Post;
+  token: string | null;
+}
 interface Post {
   id: number;
   title: string;
@@ -736,7 +740,7 @@ export default function PostList({ limit, showMore }: PostListProps) {
   );
 }
 
-function PostItem({ post, token }) {
+function PostItem({ post, token }: PostItemProps) {token }) {
   const [comments, setComments] = useState([]);
   const [reactions, setReactions] = useState([]);
   const [commentInput, setCommentInput] = useState("");

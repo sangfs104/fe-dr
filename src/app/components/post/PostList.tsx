@@ -678,11 +678,24 @@ interface PostListProps {
   limit?: number;
   showMore?: boolean;
 }
-
+interface Post {
+  id: number;
+  title: string;
+  content: string;
+  image?: string;
+  excerpt?: string;
+  meta_description?: string;
+  created_at: string;
+  slug: string;
+  tags?: string;
+  author_id: string;
+  type?: string;
+  product?: any;
+}
 // Nhận props limit và showMore để dùng cho trang chủ hoặc trang blog
 // export default function PostList({ limit = null, showMore = false }) {
 export default function PostList({ limit, showMore }: PostListProps) {
-  const [posts, setPosts] = useState([]);
+  const [posts, setPosts] = useState<Post[]>([]);
   const token =
     typeof window !== "undefined" ? localStorage.getItem("token") : null;
 

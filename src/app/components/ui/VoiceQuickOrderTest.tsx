@@ -27,6 +27,7 @@
 //   const [paymentMethod, setPaymentMethod] = useState<1 | 2>(1);
 //   const recognitionRef = useRef<SpeechRecognition | null>(null);
 //   const [showWidget, setShowWidget] = useState<boolean>(false);
+//   const [aiSpeechText, setAiSpeechText] = useState<string>(""); // 👈 subtitle AI nói
 
 //   useEffect(() => {
 //     if (showWidget && step === "idle") {
@@ -38,7 +39,11 @@
 //     if ("speechSynthesis" in window) {
 //       const utter = new SpeechSynthesisUtterance(text);
 //       utter.lang = "vi-VN";
-//       utter.onend = () => callback && callback();
+//       setAiSpeechText(text); // 👈 subtitle hiển thị
+//       utter.onend = () => {
+//         setAiSpeechText(""); // 👈 ẩn sau khi nói xong
+//         callback && callback();
+//       };
 //       window.speechSynthesis.speak(utter);
 //     }
 //   };
@@ -177,12 +182,47 @@
 //       className="fixed bottom-20 right-4 z-50"
 //     >
 //       {!showWidget && (
-//         <button
-//           className="rounded-full bg-gradient-to-r from-purple-500 to-pink-500 p-4 shadow-lg text-white hover:scale-105 transition"
-//           onClick={() => setShowWidget(true)}
-//         >
-//           <Bot size={24} />
-//         </button>
+//         <div className="relative flex flex-col items-center group">
+//           {/* Đám mây lời nhắn chớp từ từ */}
+//           <motion.div
+//             initial={{ opacity: 0 }}
+//             animate={{ opacity: [0, 1, 0] }}
+//             transition={{
+//               duration: 3,
+//               repeat: Infinity,
+//               ease: "easeInOut",
+//             }}
+//             className="mb-3 px-4 py-1 bg-white text-purple-600 text-sm font-semibold rounded-full border border-purple-300 shadow-md backdrop-blur-md"
+//           >
+//             🛒 Mua hàng nhanh - nhấn tui đi!
+//           </motion.div>
+
+//           {/* Nút tròn AI */}
+//           <motion.button
+//             whileHover={{ scale: 1.08 }}
+//             whileTap={{ scale: 0.95 }}
+//             onClick={() => setShowWidget(true)}
+//             className="rounded-full p-4 bg-gradient-to-br from-pink-500 via-purple-500 to-indigo-500 text-white shadow-2xl transition-all duration-300"
+//           >
+//             <motion.div
+//               animate={{
+//                 scale: [1, 1.05, 1],
+//                 boxShadow: [
+//                   "0 0 0px rgba(255, 255, 255, 0.6)",
+//                   "0 0 20px rgba(255, 255, 255, 0.9)",
+//                   "0 0 0px rgba(255, 255, 255, 0.6)",
+//                 ],
+//               }}
+//               transition={{
+//                 duration: 4,
+//                 repeat: Infinity,
+//                 ease: "easeInOut",
+//               }}
+//             >
+//               <Bot size={24} />
+//             </motion.div>
+//           </motion.button>
+//         </div>
 //       )}
 
 //       {showWidget && (
@@ -241,6 +281,13 @@
 //               ✅ {orderResult.message}
 //             </div>
 //           )}
+
+//           {/* 👇 Subtitle AI đang nói */}
+//           {aiSpeechText && (
+//             <div className="mt-4 px-3 py-2 rounded-md bg-yellow-100 text-yellow-800 text-sm border border-yellow-300 animate-pulse">
+//               🤖 <strong>AI:</strong> {aiSpeechText}
+//             </div>
+//           )}
 //         </motion.div>
 //       )}
 //     </motion.div>
@@ -253,6 +300,17 @@ import { useState, useRef, useEffect } from "react";
 import { Bot, Mic, Send } from "lucide-react";
 import { motion } from "framer-motion";
 
+// 👇 Fix lỗi no-explicit-any
+
+declare global {
+  interface Window {
+    webkitSpeechRecognition: any;
+  }
+
+  interface SpeechRecognitionEvent extends Event {
+    results: SpeechRecognitionResultList;
+  }
+}
 // Định nghĩa kiểu dữ liệu
 interface OrderInfo {
   product: string;
@@ -288,10 +346,10 @@ export default function VoiceQuickOrderFlexible() {
     if ("speechSynthesis" in window) {
       const utter = new SpeechSynthesisUtterance(text);
       utter.lang = "vi-VN";
-      setAiSpeechText(text); // 👈 subtitle hiển thị
+      setAiSpeechText(text);
       utter.onend = () => {
-        setAiSpeechText(""); // 👈 ẩn sau khi nói xong
-        callback && callback();
+        setAiSpeechText("");
+        if (callback) callback();
       };
       window.speechSynthesis.speak(utter);
     }
@@ -299,7 +357,7 @@ export default function VoiceQuickOrderFlexible() {
 
   const waitForVoiceConfirm = (): Promise<"yes" | "no"> => {
     return new Promise((resolve) => {
-      const recognition = new (window as any).webkitSpeechRecognition();
+      const recognition = new window.webkitSpeechRecognition();
       recognition.lang = "vi-VN";
       recognition.start();
 
@@ -318,7 +376,7 @@ export default function VoiceQuickOrderFlexible() {
 
   const waitForVoicePaymentMethod = (): Promise<1 | 2> => {
     return new Promise((resolve) => {
-      const recognition = new (window as any).webkitSpeechRecognition();
+      const recognition = new window.webkitSpeechRecognition();
       recognition.lang = "vi-VN";
       recognition.start();
 
@@ -344,7 +402,7 @@ export default function VoiceQuickOrderFlexible() {
     }
 
     setStep("listening");
-    const recognition = new (window as any).webkitSpeechRecognition();
+    const recognition = new window.webkitSpeechRecognition();
     recognition.lang = "vi-VN";
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
@@ -432,7 +490,6 @@ export default function VoiceQuickOrderFlexible() {
     >
       {!showWidget && (
         <div className="relative flex flex-col items-center group">
-          {/* Đám mây lời nhắn chớp từ từ */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: [0, 1, 0] }}
@@ -446,7 +503,6 @@ export default function VoiceQuickOrderFlexible() {
             🛒 Mua hàng nhanh - nhấn tui đi!
           </motion.div>
 
-          {/* Nút tròn AI */}
           <motion.button
             whileHover={{ scale: 1.08 }}
             whileTap={{ scale: 0.95 }}
@@ -529,6 +585,24 @@ export default function VoiceQuickOrderFlexible() {
             <div className="mt-2 text-sm text-green-600">
               ✅ {orderResult.message}
             </div>
+          )}
+
+          {/* 👇 Hiển thị orderInfo */}
+          {orderInfo && (
+            <div className="mt-2 text-sm text-gray-700">
+              🛒 Sản phẩm: {orderInfo.product} - Số lượng: {orderInfo.quantity}{" "}
+              - Size: {orderInfo.size}
+              <br />
+              📍 Giao đến: {orderInfo.address}
+            </div>
+          )}
+
+          {/* 👇 Hiển thị payment method */}
+          {step === "confirming" && (
+            <p className="text-xs text-purple-600 mt-1">
+              💳 Phương thức thanh toán:{" "}
+              {paymentMethod === 1 ? "Tiền mặt" : "Chuyển khoản"}
+            </p>
           )}
 
           {/* 👇 Subtitle AI đang nói */}

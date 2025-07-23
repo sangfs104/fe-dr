@@ -9,14 +9,13 @@
 // import ShopArticle from "./components/ui/ShopArticle";
 // import VoiceQuickOrderTest from "./components/ui/VoiceQuickOrderTest";
 // import AIRecommendedProducts from "./components/ui/AIRecommendedProducts";
+// import PostList from "./components/post/PostList";
 
-// type ProductPageProps = {
-//   searchParams?: {
-//     type?: string;
-//   };
-// };
+// interface ProductPageProps {
+//   searchParams: { [key: string]: string | string[] | undefined };
+// }
 
-// export default function ProductPage({ searchParams }: ProductPageProps) {
+// export default async function ProductPage({ searchParams }: ProductPageProps) {
 //   const type = searchParams?.type === "new" ? "new" : "hot";
 
 //   return (
@@ -31,10 +30,12 @@
 //       <VoiceQuickOrderTest />
 //       <HeroSlider />
 //       <ShopArticle />
+//       <PostList limit={3} showMore={true} />
 //       <Footer />
 //     </>
 //   );
 // }
+// src/app/product/page.tsx (hoặc đường dẫn bạn đang dùng)
 
 import BannerCarousel from "./components/ui/BannerCarousel";
 import HeaderHome from "./components/ui/Header";
@@ -49,11 +50,15 @@ import VoiceQuickOrderTest from "./components/ui/VoiceQuickOrderTest";
 import AIRecommendedProducts from "./components/ui/AIRecommendedProducts";
 import PostList from "./components/post/PostList";
 
-interface ProductPageProps {
-  searchParams: { [key: string]: string | string[] | undefined };
+// ⛳️ Interface chuẩn cho searchParams
+interface SearchParamsProps {
+  searchParams?: {
+    [key: string]: string | string[] | undefined;
+  };
 }
 
-export default async function ProductPage({ searchParams }: ProductPageProps) {
+// ✅ Component chính
+export default async function ProductPage({ searchParams }: SearchParamsProps) {
   const type = searchParams?.type === "new" ? "new" : "hot";
 
   return (

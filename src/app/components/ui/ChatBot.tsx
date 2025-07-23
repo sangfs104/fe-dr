@@ -4,7 +4,6 @@ import { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import { useDarkMode } from "../../types/useDarkMode";
 import Link from "next/link";
-import Image from "next/image";
 
 const aiAvatar = "/img/ai-avatar.webp";
 
@@ -149,20 +148,16 @@ export default function ChatBox({
               className={`flex items-start gap-2 ${m.type === "bot" ? "" : "flex-row-reverse"}`}
             >
               {m.type === "bot" ? (
-                <Image
+                <img
                   src={aiAvatar}
                   alt="AI Avatar"
-                  width={32}
-                  height={32}
-                  className="rounded-full mt-1 shadow-md object-cover"
+                  className="w-8 h-8 rounded-full mt-1 shadow-md object-cover"
                 />
               ) : userAvatar ? (
-                <Image
+                <img
                   src={`http://127.0.0.1:8000/storage/${userAvatar}`}
                   alt="User Avatar"
-                  width={32}
-                  height={32}
-                  className="rounded-full mt-1 shadow-md object-cover"
+                  className="w-8 h-8 rounded-full mt-1 shadow-md object-cover"
                 />
               ) : (
                 <div className="w-8 h-8 mt-1 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-xs font-bold uppercase shadow-md">
@@ -187,7 +182,7 @@ export default function ChatBox({
                         href={`/products/${p.id}`}
                         className="block border border-orange-200 dark:border-orange-700 rounded-lg overflow-hidden hover:shadow-md hover:scale-[1.01] transition-transform duration-200"
                       >
-                        <Image
+                        <img
                           src={
                             p.image
                               ? p.image
@@ -195,9 +190,7 @@ export default function ChatBox({
                               ? `/img/${p.img[0].name}`
                               : "/img/no-image.jpg"
                           }
-                          alt={p.name || "Hình ảnh sản phẩm"}
-                          width={300}
-                          height={128}
+                          alt={p.name}
                           className="w-full h-32 object-cover"
                         />
                         <div className="p-2 text-xs">
@@ -217,13 +210,7 @@ export default function ChatBox({
 
         {loading && (
           <div className="flex items-center gap-2 animate-pulse">
-            <Image
-              src={aiAvatar}
-              alt="AI Avatar"
-              width={32}
-              height={32}
-              className="rounded-full mt-1 shadow-md object-cover"
-            />
+            <img src={aiAvatar} className="w-8 h-8 rounded-full mt-1 shadow-md" />
             <div className="bg-white border border-orange-300 px-4 py-2 rounded-xl text-gray-600">
               ✍️ Đang phân tích phong cách...
             </div>
@@ -233,7 +220,7 @@ export default function ChatBox({
       </div>
 
       {/* Gợi ý nhanh */}
-      {! loading && (
+      {!loading && (
         <div className="px-3 pt-1 pb-2 text-xs text-orange-700 dark:text-orange-300">
           Gợi ý nhanh:
           <div className="flex flex-wrap gap-2 mt-1">
@@ -271,7 +258,7 @@ export default function ChatBox({
         <button
           onClick={handleSend}
           disabled={loading}
-          className={`${
+          className={`$${
             loading
               ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
               : "bg-orange-500 hover:bg-orange-600"

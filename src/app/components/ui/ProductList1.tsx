@@ -1,4 +1,5 @@
 import ProductCard from "./ProductCard";
+import type { Product } from "../../types/Product"; // Đường dẫn có thể cần chỉnh lại
 
 interface Product {
   id: number;

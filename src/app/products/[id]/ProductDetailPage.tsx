@@ -9,7 +9,6 @@ import ReactImageMagnify from "react-image-magnify";
 import { toast } from "react-hot-toast";
 import * as Dialog from "@radix-ui/react-dialog";
 import AddToCartModal from "../../components/ui/AddToCartModal";
-import { useRouter } from "next/navigation";
 
 interface Review {
   id: number;
@@ -84,7 +83,6 @@ export default function ProductDetailClient({
   const dispatch = useAppDispatch();
   const [comment, setComment] = useState("");
   const [rating, setRating] = useState(5);
-  const router = useRouter();
   const [reviews, setReviews] = useState(initialReviews);
   const [mainImg, setMainImg] = useState<string>("");
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
@@ -167,7 +165,7 @@ export default function ProductDetailClient({
       } else {
         toast.error(data.message || "Có lỗi khi gửi đánh giá");
       }
-    } catch (err) {
+    } catch {
       toast.error("Có lỗi khi gửi đánh giá");
     }
   };

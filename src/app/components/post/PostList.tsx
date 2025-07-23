@@ -766,8 +766,11 @@ function PostItem({ post, token }: PostItemProps) {
   const [isImageOverflow, setIsImageOverflow] = useState(false);
   const [isContentOverflow, setIsContentOverflow] = useState(false);
 
-  const imageRef = useRef(null);
-  const contentRef = useRef(null);
+  // const imageRef = useRef(null);
+  // const contentRef = useRef(null);
+  const imageRef = useRef<HTMLDivElement | null>(null);
+  const contentRef = useRef<HTMLDivElement | null>(null);
+
   useEffect(() => {
     fetch(`http://localhost:8000/api/posts/${post.id}/comments`)
       .then((res) => res.json())

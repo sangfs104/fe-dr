@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faChevronRight,
@@ -13,18 +13,28 @@ import {
 
 const sizes = ["S", "M", "L", "XL"];
 
+interface BreadcrumbFilterProps {
+  onSortChange?: (sortOrder: "asc" | "desc") => void;
+  onSizeChange?: (size: string | null) => void;
+  onPriceChange?: (price: number) => void;
+  currentPrice?: number;
+}
+
 export default function BreadcrumbFilter({
   onSortChange,
   onSizeChange,
   onPriceChange,
   currentPrice,
-}) {
+}: BreadcrumbFilterProps) {
   const [filterOpen, setFilterOpen] = useState(false);
   const [sortOpen, setSortOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("color");
-  const [selectedColors, setSelectedColors] = useState([]);
-  const [selectedSize, setSelectedSize] = useState(null);
+  const [activeTab, setActiveTab] = useState<"size" | "price">("size");
+  const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [priceRange, setPriceRange] = useState(currentPrice ?? 0);
+
+  useEffect(() => {
+    setPriceRange(currentPrice ?? 0);
+  }, [currentPrice]);
 
   function toggleFilter() {
     setFilterOpen(!filterOpen);
@@ -36,40 +46,39 @@ export default function BreadcrumbFilter({
     if (!sortOpen) setFilterOpen(false);
   }
 
-  function selectSize(size) {
+  function selectSize(size: string) {
     setSelectedSize(size);
-    onSizeChange?.(size); // Gửi filter luôn
+    onSizeChange?.(size);
   }
 
-  function handlePriceChange(e) {
+  function handlePriceChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = parseInt(e.target.value);
     setPriceRange(value);
-    onPriceChange?.(value); // Gửi giá trị luôn khi kéo
+    onPriceChange?.(value);
   }
 
-  function createRipple(e) {
+  function createRipple(e: React.MouseEvent<HTMLElement>) {
     const button = e.currentTarget;
+    if (!button) return;
+
     const circle = document.createElement("span");
     circle.className = "ripple";
     const rect = button.getBoundingClientRect();
     const size = Math.max(rect.width, rect.height);
-    circle.style.width = circle.style.height = size + "px";
-    circle.style.left = e.clientX - rect.left - size / 2 + "px";
-    circle.style.top = e.clientY - rect.top - size / 2 + "px";
+    circle.style.width = circle.style.height = `${size}px`;
+    circle.style.left = `${e.clientX - rect.left - size / 2}px`;
+    circle.style.top = `${e.clientY - rect.top - size / 2}px`;
     button.appendChild(circle);
     setTimeout(() => {
       circle.remove();
     }, 600);
   }
 
-  function handleSort(sortOrder) {
-    if (onSortChange) {
-      onSortChange(sortOrder);
-    }
+  function handleSort(sortOrder: "asc" | "desc") {
+    onSortChange?.(sortOrder);
   }
 
   function handleClearFilters() {
-    setSelectedColors([]);
     setSelectedSize(null);
     setPriceRange(0);
     onSizeChange?.(null);
@@ -96,7 +105,7 @@ export default function BreadcrumbFilter({
           <div className="absolute top-16 right-[70px] w-72 bg-white border p-5 shadow-lg z-10">
             <h4 className="text-base mb-3 font-medium">Bộ lọc</h4>
             <div className="flex gap-2 mb-4">
-              {["color", "size", "price"].map((tab) => (
+              {["size", "price"].map((tab) => (
                 <button
                   key={tab}
                   className={`px-3 py-2 border cursor-pointer ${
@@ -104,9 +113,9 @@ export default function BreadcrumbFilter({
                       ? "border-black font-bold"
                       : "border-gray-300"
                   }`}
-                  onClick={() => setActiveTab(tab)}
+                  onClick={() => setActiveTab(tab as "size" | "price")}
                 >
-                  {tab === "color" ? "Màu" : tab === "size" ? "Kích Cỡ" : "Giá"}
+                  {tab === "size" ? "Kích Cỡ" : "Giá"}
                 </button>
               ))}
             </div>

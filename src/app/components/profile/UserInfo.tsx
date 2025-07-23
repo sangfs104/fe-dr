@@ -251,7 +251,7 @@ export default function UserInfo() {
               value={form.day_of_birth}
               onChange={handleChange}
             />
-            {/* <div>
+            <div>
               <label className="block text-sm text-gray-600 mb-1">
                 Ảnh đại diện
               </label>
@@ -275,7 +275,7 @@ export default function UserInfo() {
                   className="w-20 h-20 rounded-full mt-2 object-cover border"
                 />
               )}
-            </div> */}
+            </div>
 
             {/* Đổi mật khẩu */}
             <div className="md:col-span-2 border-t pt-4 mt-4">

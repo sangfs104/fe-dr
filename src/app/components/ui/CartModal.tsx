@@ -1060,7 +1060,7 @@ export default function CartModal({ onClose }: { onClose: () => void }) {
       >
         {/* Header */}
         <div className="p-4 flex justify-between items-center border-b">
-          <h2 className="text-xl font-bold">🛒 Giỏ hàng</h2>
+          <h2 className="text-xl font-bold"> Giỏ hàng</h2>
           <motion.button
             whileTap={{ scale: 0.9 }}
             whileHover={{ rotate: 90 }}
@@ -1081,7 +1081,7 @@ export default function CartModal({ onClose }: { onClose: () => void }) {
                 exit={{ opacity: 0 }}
                 className="text-center text-gray-500"
               >
-                Giỏ hàng trống 😢
+                Giỏ hàng trống
               </motion.p>
             ) : (
               cartItems.map((item, idx) => (

@@ -5,10 +5,11 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import HeaderHome from "../components/ui/Header";
 import Footer from "../components/ui/Footer";
 import { useRouter } from "next/navigation";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import "react-toastify/dist/ReactToastify.css";
 import GoogleLoginButton from "../components/ui/GoogleLoginButton";
 import { motion } from "framer-motion";
+import { DreamToast } from "../components/ui/DreamToast";
 
 const RegisterPage = () => {
   const router = useRouter();
@@ -57,7 +58,10 @@ const RegisterPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!validate()) return;
+
+    setLoading(true); // 🔄 Bắt đầu loading
 
     try {
       const res = await fetch("http://localhost:8000/api/register", {
@@ -65,6 +69,7 @@ const RegisterPage = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
+
       const data = await res.json();
 
       if (res.ok) {
@@ -78,6 +83,8 @@ const RegisterPage = () => {
     } catch (err) {
       console.error(err);
       toast.error("Lỗi kết nối tới server");
+    } finally {
+      setLoading(false); // ✅ Tắt loading sau khi xử lý xong
     }
   };
 
@@ -87,6 +94,9 @@ const RegisterPage = () => {
     /[0-9]/.test(formData.password),
     /[!@#\$%\^&*\)\(+=._-]/.test(formData.password),
   ].filter(Boolean).length;
+
+  const [loading, setLoading] = useState(false);
+  const [loadingGoogle, setLoadingGoogle] = useState(false);
 
   return (
     <div className="flex flex-col min-h-screen bg-[#f9f9fb] overflow-auto">
@@ -229,10 +239,42 @@ const RegisterPage = () => {
               <div className="col-span-full mt-4">
                 <button
                   type="submit"
-                  className="w-full py-2 bg-[#FF5722] text-white font-semibold rounded-md hover:bg-[#e64a19] transition"
+                  className="w-full py-2 bg-[#FF5722] text-white font-semibold rounded-md hover:bg-[#e64a19] transition flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                  disabled={loading || loadingGoogle}
                 >
-                  Đăng ký
+                  {loading || loadingGoogle ? (
+                    <>
+                      <svg
+                        className="animate-spin h-5 w-5 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                        ></path>
+                      </svg>
+                      <span>
+                        {loading
+                          ? "Đang đăng ký..."
+                          : "Đang đăng ký bằng Google..."}
+                      </span>
+                    </>
+                  ) : (
+                    "Đăng ký"
+                  )}
                 </button>
+
                 <p className="mt-3 text-center text-xs sm:text-sm">
                   Đã có tài khoản?{" "}
                   <a href="/login" className="text-purple-600 hover:underline">
@@ -249,13 +291,13 @@ const RegisterPage = () => {
               Hoặc đăng nhập bằng
             </p>
             <div className="flex justify-center">
-              <GoogleLoginButton />
+              <GoogleLoginButton setLoading={setLoadingGoogle} />
             </div>
           </div>
         </motion.div>
       </main>
 
-      <ToastContainer position="top-right" autoClose={3000} />
+      <DreamToast />
       <Footer />
     </div>
   );

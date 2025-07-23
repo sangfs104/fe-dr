@@ -3,9 +3,12 @@
 import { useEffect } from "react";
 import { toast } from "react-hot-toast";
 
-export default function GoogleLoginButton() {
+type Props = {
+  setLoading: (value: boolean) => void;
+};
+
+export default function GoogleLoginButton({ setLoading }: Props) {
   useEffect(() => {
-    // Load Google Identity Services SDK
     const script = document.createElement("script");
     script.src = "https://accounts.google.com/gsi/client";
     script.async = true;
@@ -13,23 +16,22 @@ export default function GoogleLoginButton() {
     document.body.appendChild(script);
 
     script.onload = () => {
+      // @ts-ignore
       window.google.accounts.id.initialize({
         client_id:
           "618672128676-6dopq4dgv5p5qgl83mphuppi9vkrmd2k.apps.googleusercontent.com",
         callback: async (response: any) => {
           const idToken = response.credential;
           console.log("ID Token:", idToken);
-
-          // Lưu ID token vào localStorage
           localStorage.setItem("id_token", idToken);
+
+          setLoading(true); // 👉 show loading spinner
 
           try {
             const res = await fetch("http://localhost:8000/api/auth/google", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                id_token: idToken,
-              }),
+              body: JSON.stringify({ id_token: idToken }),
             });
 
             if (!res.ok) throw new Error("Đăng nhập thất bại");
@@ -43,6 +45,8 @@ export default function GoogleLoginButton() {
           } catch (err) {
             console.error("Lỗi login:", err);
             toast.error("Đăng nhập thất bại");
+          } finally {
+            setLoading(false); // 👉 hide loading spinner
           }
         },
       });
@@ -57,7 +61,7 @@ export default function GoogleLoginButton() {
         }
       );
     };
-  }, []);
+  }, [setLoading]);
 
   return (
     <div className="flex justify-center">

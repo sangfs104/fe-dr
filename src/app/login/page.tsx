@@ -1,4 +1,5 @@
 "use client";
+
 import { useState } from "react";
 import Image from "next/image";
 import HeaderHome from "../components/ui/Header";
@@ -7,14 +8,19 @@ import { toast } from "react-hot-toast";
 import { DreamToast } from "../components/ui/DreamToast";
 import { motion, AnimatePresence } from "framer-motion";
 import GoogleLoginButton from "../components/ui/GoogleLoginButton";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
+  const router = useRouter();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showForgotModal, setShowForgotModal] = useState(false);
   const [forgotEmail, setForgotEmail] = useState("");
   const [forgotMessage, setForgotMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [loadingGoogle, setLoadingGoogle] = useState(false);
 
   const togglePassword = () => setShowPassword((prev) => !prev);
 
@@ -31,6 +37,8 @@ export default function LoginPage() {
       return;
     }
 
+    setLoading(true);
+
     try {
       const res = await fetch("http://localhost:8000/api/login", {
         method: "POST",
@@ -41,16 +49,21 @@ export default function LoginPage() {
       const data = await res.json();
 
       if (res.ok && data.status === 200) {
-        localStorage.setItem("token", data.access_token);
-        localStorage.setItem("user", JSON.stringify(data.user));
+        if (typeof window !== "undefined") {
+          localStorage.setItem("token", data.access_token);
+          localStorage.setItem("user", JSON.stringify(data.user));
+        }
+
         toast.success("✅ Đăng nhập thành công!");
-        setTimeout(() => (window.location.href = "/"), 1500);
+        setTimeout(() => router.push("/"), 1500);
       } else {
         toast.error("❌ " + (data.message || "Đăng nhập thất bại"));
       }
     } catch (err) {
       console.error("Login error:", err);
       toast.error("❌ Lỗi kết nối đến server");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -93,7 +106,6 @@ export default function LoginPage() {
           transition={{ duration: 0.5 }}
           className="flex flex-col md:flex-row bg-white shadow-md rounded-xl overflow-hidden max-w-5xl w-full max-h-[90vh] overflow-y-auto"
         >
-          {/* Left image */}
           <div className="w-full max-w-sm aspect-square flex items-center justify-center">
             <Image
               src="/img/BANNERREAM.png"
@@ -104,12 +116,10 @@ export default function LoginPage() {
             />
           </div>
 
-          {/* Login form */}
           <div className="flex-1 p-10">
             <h2 className="login-bounce text-3xl font-bold text-orange-500 mb-4">
               Đăng nhập
             </h2>
-
             <p className="text-gray-500 mb-6">
               Đăng nhập tài khoản mua sắm nhiều ưu đãi
             </p>
@@ -158,20 +168,50 @@ export default function LoginPage() {
               </div>
 
               <div className="mt-2 text-sm text-left">
-                <a
-                  href="#"
+                <button
+                  type="button"
                   onClick={() => setShowForgotModal(true)}
                   className="text-purple-600 hover:underline"
                 >
                   Quên mật khẩu?
-                </a>
+                </button>
               </div>
-
               <button
                 type="submit"
-                className="mt-6 bg-[#FF5722] text-white font-semibold py-3 rounded-lg hover:bg-[#e34b47] transition"
+                className="mt-6 bg-[#FF5722] text-white font-semibold py-3 rounded-lg hover:bg-[#e34b47] transition flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                disabled={loading || loadingGoogle} // 👈 Vô hiệu hóa nếu đang xử lý bất kỳ đăng nhập nào
               >
-                Đăng nhập
+                {loading || loadingGoogle ? (
+                  <>
+                    <svg
+                      className="animate-spin h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                      ></path>
+                    </svg>
+                    <span>
+                      {loading
+                        ? "Đang đăng nhập..."
+                        : "Đang đăng nhập bằng Google..."}
+                    </span>
+                  </>
+                ) : (
+                  "Đăng nhập"
+                )}
               </button>
             </form>
 
@@ -191,15 +231,15 @@ export default function LoginPage() {
               <div className="absolute right-0 top-1/2 w-2/5 h-px bg-gray-300"></div>
             </div>
 
-            <GoogleLoginButton />
+            <GoogleLoginButton setLoading={setLoadingGoogle} />
           </div>
         </motion.div>
       </main>
 
-      {/* Forgot password modal with animation */}
       <AnimatePresence>
         {showForgotModal && (
           <motion.div
+            key="forgot-modal"
             className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

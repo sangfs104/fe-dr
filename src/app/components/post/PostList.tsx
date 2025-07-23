@@ -660,6 +660,8 @@ import { useRef, useEffect, useState } from "react";
 import Image from "next/image";
 import ProductCard from "../ui/ProductList";
 import { toast } from "react-hot-toast";
+import type { Product } from "@/app/types/Product"; // Đường dẫn có thể cần chỉnh lại
+
 import { DreamToast } from "../ui/DreamToast";
 import {
   ThumbsUp,
@@ -694,7 +696,7 @@ interface Post {
   tags?: string;
   author_id: string;
   type?: string;
-  product?: any;
+product?: Product; 
 }
 // Nhận props limit và showMore để dùng cho trang chủ hoặc trang blog
 // export default function PostList({ limit = null, showMore = false }) {

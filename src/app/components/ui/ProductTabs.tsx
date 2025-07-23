@@ -67,6 +67,7 @@
 // app/components/ui/ProductTabs.tsx
 import ProductCard from "./ProductList";
 import Link from "next/link";
+import type { Product } from "../../types/Product"; // Thêm dòng này ở đầu file
 
 async function getHotProducts() {
   const res = await fetch("http://127.0.0.1:8000/hotProduct", {
@@ -120,11 +121,11 @@ export default async function ProductTabs({
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8 animate-fadeIn">
-        {products.map((product: any) => (
-          <div key={product.id}>
-            <ProductCard product={product} />
-          </div>
-        ))}
+      {products.map((product: Product) => (
+  <div key={product.id}>
+    <ProductCard product={product} />
+  </div>
+))}
       </div>
     </div>
   );

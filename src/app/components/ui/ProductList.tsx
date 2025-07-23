@@ -628,9 +628,8 @@ export default function ProductCard({ product }: { product: Product }) {
   const [mainImage, setMainImage] = useState<string | undefined>(
     defaultImg?.name
   );
-  const [selectedVariant, setSelectedVariant] = useState<
-    ProductVariant | undefined
-  >(product.variant?.[0]);
+  const selectedVariant = product.variant?.[0];
+
   const [showModal, setShowModal] = useState(false);
 
   const handleImageHover = (imgName: string) => {

@@ -740,7 +740,21 @@ export default function PostList({ limit, showMore }: PostListProps) {
   );
 }
 
-function PostItem({ post, token }: PostItemProps) {token }) {
+// function PostItem({ post, token }: PostItemProps) {
+//   const [comments, setComments] = useState([]);
+//   const [reactions, setReactions] = useState([]);
+//   const [commentInput, setCommentInput] = useState("");
+//   const [myReaction, setMyReaction] = useState(null);
+//   const [showComments, setShowComments] = useState(false);
+//   const [showProduct, setShowProduct] = useState(false);
+//   const [showFullImage, setShowFullImage] = useState(false);
+//   const [showFullContent, setShowFullContent] = useState(false);
+//   const [isImageOverflow, setIsImageOverflow] = useState(false);
+//   const [isContentOverflow, setIsContentOverflow] = useState(false);
+
+//   const imageRef = useRef(null);
+//   const contentRef = useRef(null);
+function PostItem({ post, token }: PostItemProps) {
   const [comments, setComments] = useState([]);
   const [reactions, setReactions] = useState([]);
   const [commentInput, setCommentInput] = useState("");
@@ -754,7 +768,6 @@ function PostItem({ post, token }: PostItemProps) {token }) {
 
   const imageRef = useRef(null);
   const contentRef = useRef(null);
-
   useEffect(() => {
     fetch(`http://localhost:8000/api/posts/${post.id}/comments`)
       .then((res) => res.json())

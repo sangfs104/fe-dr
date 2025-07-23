@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { CheckCircle } from "lucide-react";
 
 export default function ShopVideoSection() {
   return (
@@ -45,12 +46,11 @@ export default function ShopVideoSection() {
             Thiết kế trẻ trung, chất liệu cao cấp, phù hợp nhiều phong cách cá
             tính.
           </p>
-
           <ul className="space-y-3 text-sm md:text-base">
             {[
-              "✔ Đa dạng mẫu mã, bắt kịp xu hướng",
-              "✔ Chất liệu thân thiện với môi trường",
-              "✔ Miễn phí đổi trả trong 7 ngày",
+              "Đa dạng mẫu mã, bắt kịp xu hướng",
+              "Chất liệu thân thiện với môi trường",
+              "Miễn phí đổi trả trong 7 ngày",
             ].map((item, idx) => (
               <motion.li
                 key={idx}
@@ -58,8 +58,9 @@ export default function ShopVideoSection() {
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.2 + idx * 0.15 }}
                 viewport={{ once: true }}
-                className="flex items-start text-gray-700"
+                className="flex items-start text-gray-700 gap-2"
               >
+                <CheckCircle className="w-5 h-5 text-[#FF5722] mt-1" />
                 {item}
               </motion.li>
             ))}

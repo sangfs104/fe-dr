@@ -8,9 +8,15 @@ const getRandomIcon = () => {
   const icons = ["truck", "ticket", "percent"] as const;
   return icons[Math.floor(Math.random() * icons.length)];
 };
+interface Coupon {
+  discount_value: number;
+  code: string;
+  expiry_date: string;
+}
 
 export default function LuckyWheel() {
-  const [coupons, setCoupons] = useState<any[]>([]);
+  const [coupons, setCoupons] = useState<Coupon[]>([]);
+
   const [mustSpin, setMustSpin] = useState(false);
   const [prizeNumber, setPrizeNumber] = useState(0);
   const [showModal, setShowModal] = useState(false);

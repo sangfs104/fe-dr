@@ -82,7 +82,7 @@ export default function UserInfo() {
         }
       );
 
-      toast.success("✅ Cập nhật thông tin thành công!");
+      toast.success("Cập nhật thông tin thành công!");
       setUser(res.data.data);
       localStorage.setItem("user", JSON.stringify(res.data.data));
       setAvatarFile(null);
@@ -107,7 +107,7 @@ export default function UserInfo() {
           },
         }
       );
-      toast.success("✅ Đổi mật khẩu thành công!");
+      toast.success("Đổi mật khẩu thành công!");
       setPasswordForm({ old_password: "", new_password: "" });
     } catch (error) {
       toast.error("❌ Đổi mật khẩu thất bại!");
@@ -167,13 +167,43 @@ export default function UserInfo() {
             className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border"
           />
         ) : user.avatar ? (
-          <Image
-            src={`http://127.0.0.1:8000/storage/${user.avatar}`}
-            alt="Avatar"
-            width={80} // 👈 Thêm
-            height={80} // 👈 Thêm
-            className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border"
-          />
+          // <Image
+          //   src={`http://127.0.0.1:8000/storage/${user.avatar}`}
+          //   alt="Avatar"
+          //   width={80} // 👈 Thêm
+          //   height={80} // 👈 Thêm
+          //   className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border"
+          // />
+          <div className="relative group w-20 h-20 sm:w-24 sm:h-24">
+            <Image
+              src={
+                avatarPreview || `http://127.0.0.1:8000/storage/${user.avatar}`
+              }
+              alt="Avatar"
+              fill
+              className="rounded-full object-cover border"
+              sizes="96px"
+            />
+            {isEditing && (
+              <>
+                <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+                  <span className="text-white text-sm">Thay ảnh</span>
+                </div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setAvatarFile(file);
+                      setAvatarPreview(URL.createObjectURL(file));
+                    }
+                  }}
+                  className="absolute inset-0 opacity-0 cursor-pointer"
+                />
+              </>
+            )}
+          </div>
         ) : (
           <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center font-bold text-xl uppercase">
             {user.name.charAt(0)}
@@ -299,7 +329,7 @@ export default function UserInfo() {
                   : ""
               }
             />
-            <Field
+            {/* <Field
               label="Tình trạng"
               value={user.is_active === "on" ? "Đang hoạt động" : "Bị khóa"}
             />
@@ -318,7 +348,7 @@ export default function UserInfo() {
                   ? new Date(user.updated_at).toLocaleString("vi-VN")
                   : ""
               }
-            />
+            /> */}
           </>
         )}
       </div>

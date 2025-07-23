@@ -12,7 +12,8 @@ export type Variant = {
   color: string;
   stock_quantity: number;
   price: number;
-  sale_price: number | null;
+  // sale_price: number | null;
+    sale_price: string | null; 
   status: string;
 };
 

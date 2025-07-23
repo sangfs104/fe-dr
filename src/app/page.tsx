@@ -35,6 +35,7 @@
 //     </>
 //   );
 // }
+
 import BannerCarousel from "./components/ui/BannerCarousel";
 import HeaderHome from "./components/ui/Header";
 import ProductTabs from "./components/ui/ProductTabs";
@@ -46,6 +47,7 @@ import CategoryProduct from "./components/ui/CategoryProduct";
 import ShopArticle from "./components/ui/ShopArticle";
 import VoiceQuickOrderTest from "./components/ui/VoiceQuickOrderTest";
 import AIRecommendedProducts from "./components/ui/AIRecommendedProducts";
+import PostList from "./components/post/PostList";
 
 interface ProductPageProps {
   searchParams: { [key: string]: string | string[] | undefined };
@@ -66,6 +68,7 @@ export default async function ProductPage({ searchParams }: ProductPageProps) {
       <VoiceQuickOrderTest />
       <HeroSlider />
       <ShopArticle />
+      <PostList limit={3} showMore={true} />
       <Footer />
     </>
   );

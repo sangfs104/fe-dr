@@ -398,7 +398,7 @@ export default function ProductDetailClient({
             </Dialog.Portal>
           </Dialog.Root>
         </div>
-        <div className="mt-10">
+        {/* <div className="mt-10">
           <h2 className="text-lg font-semibold mb-6 text-gray-900">
             Viết đánh giá của bạn
           </h2>
@@ -433,7 +433,60 @@ export default function ProductDetailClient({
           >
             Gửi đánh giá
           </button>
-        </div>
+        </div> */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+          className="mt-10"
+        >
+          <h2 className="text-lg font-semibold mb-6 text-gray-900">
+            Viết đánh giá của bạn
+          </h2>
+
+          <div className="flex items-center gap-3 mb-4">
+            <span className="text-gray-700">Chọn sao:</span>
+            {[1, 2, 3, 4, 5].map((star) => (
+              <motion.div
+                key={star}
+                whileTap={{ scale: 1.2 }}
+                whileHover={{ scale: 1.15 }}
+                onClick={() => setRating(star)}
+                className="cursor-pointer"
+              >
+                <Star
+                  size={26}
+                  className={`transition-colors ${
+                    rating >= star
+                      ? "text-yellow-400 fill-yellow-400"
+                      : "text-gray-300"
+                  }`}
+                />
+              </motion.div>
+            ))}
+          </div>
+
+          <motion.textarea
+            initial={{ scale: 0.98, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            className="w-full border border-gray-300 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition resize-none shadow-sm"
+            rows={3}
+            placeholder="Nhập bình luận của bạn..."
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+          />
+
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.03 }}
+            transition={{ type: "spring", stiffness: 200 }}
+            className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl text-sm font-medium shadow-md"
+            onClick={handleSubmitReview}
+          >
+            Gửi đánh giá
+          </motion.button>
+        </motion.div>
 
         <div className="mt-10">
           <h2 className="text-lg font-semibold mb-6 text-gray-900">

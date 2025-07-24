@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faChevronRight,
@@ -28,19 +28,44 @@ export default function BreadcrumbFilter({
 }: BreadcrumbFilterProps) {
   const [filterOpen, setFilterOpen] = useState(false);
   const [sortOpen, setSortOpen] = useState(false);
+  const [categoryOpen, setCategoryOpen] = useState(false); // 👈
   const [activeTab, setActiveTab] = useState<"color" | "size" | "price">("color");
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [priceRange, setPriceRange] = useState<number>(currentPrice ?? 0);
+  const [categoryList, setCategoryList] = useState<any[]>([]); // 👈
+
+  useEffect(() => {
+    fetch("http://127.0.0.1:8000/category")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data.data)) {
+          setCategoryList(data.data.filter((c) => c.status === 1));
+        }
+      })
+      .catch((err) => {
+        console.error("Lỗi khi lấy danh mục:", err);
+      });
+  }, []);
 
   function toggleFilter() {
     setFilterOpen(!filterOpen);
     if (!filterOpen) setSortOpen(false);
+    setCategoryOpen(false);
   }
 
   function toggleSort() {
     setSortOpen(!sortOpen);
     if (!sortOpen) setFilterOpen(false);
+    setCategoryOpen(false);
+  }
+
+  function toggleCategory() {
+    setCategoryOpen(!categoryOpen);
+    if (!categoryOpen) {
+      setFilterOpen(false);
+      setSortOpen(false);
+    }
   }
 
   function selectSize(size: string) {
@@ -90,10 +115,11 @@ export default function BreadcrumbFilter({
             Trang chủ <FontAwesomeIcon icon={faChevronRight} />
           </div>
         </div>
+
         <div className="flex items-center gap-4 text-lg text-gray-700 cursor-pointer">
           <FontAwesomeIcon icon={faFilter} onClick={toggleFilter} />
           <FontAwesomeIcon icon={faBars} onClick={toggleSort} />
-          <FontAwesomeIcon icon={faGrip} />
+          <FontAwesomeIcon icon={faGrip} onClick={toggleCategory} />
         </div>
 
         {/* Bộ lọc */}
@@ -191,6 +217,28 @@ export default function BreadcrumbFilter({
                 Giá tăng dần
               </li>
             </ul>
+          </div>
+        )}
+
+        {/* DANH MỤC sản phẩm */}
+        {categoryOpen && (
+          <div className="absolute top-16 right-0 w-64 bg-white border p-4 shadow-lg z-10 max-h-[300px] overflow-y-auto">
+            <h4 className="text-base mb-3 font-medium">Danh mục sản phẩm</h4>
+            {categoryList.length > 0 ? (
+              <ul className="text-sm space-y-2">
+                {categoryList.map((cat) => (
+                  <li
+                    key={cat.id}
+                    className="cursor-pointer hover:font-semibold"
+                    // Bạn có thể thêm logic khi click để lọc sản phẩm theo danh mục
+                  >
+                    {cat.name}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="text-sm text-gray-400">Không có danh mục nào.</div>
+            )}
           </div>
         )}
       </div>

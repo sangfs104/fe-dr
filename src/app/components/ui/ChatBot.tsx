@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import { useDarkMode } from "../../types/useDarkMode";
 import Link from "next/link";
-import Image from "next/image";
+import Image from "next/image"; // Import Image từ Next.js
 
 const aiAvatar = "/img/ai-avatar.webp";
 
@@ -12,9 +12,7 @@ type Product = {
   id: number;
   name: string;
   description: string;
-  price?: number;
-  image?: string;
-  img?: { name: string }[];
+  img: { name: string }[];
 };
 
 type Message = {
@@ -23,22 +21,24 @@ type Message = {
   products?: Product[];
 };
 
-export default function ChatBox({
-  onClose,
-  userAvatar,
-}: {
-  onClose: () => void;
-  userAvatar?: string | null;
-}) {
+type UserInfo = {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  role: string;
+  avatar: string | null;
+};
+
+export default function ChatBox({ onClose }: { onClose: () => void }) {
   const [darkMode, setDarkMode] = useDarkMode();
   const [messages, setMessages] = useState<Message[]>(() => {
-    if (typeof window === "undefined") return [];
     const saved = localStorage.getItem("chat_messages");
     return saved
       ? JSON.parse(saved)
       : [
           {
-            type: "bot" as const,
+            type: "bot",
             text: "🎉 Xin chào! Mình là stylist AI. Bạn cần tư vấn gì hôm nay?",
           },
         ];
@@ -48,6 +48,7 @@ export default function ChatBox({
   const [loading, setLoading] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [user, setUser] = useState<UserInfo | null>(null);
 
   const scrollToBottom = () => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -62,47 +63,43 @@ export default function ChatBox({
     localStorage.setItem("chat_messages", JSON.stringify(messages));
   }, [messages]);
 
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch (err) {
+        console.error("Failed to parse user from localStorage", err);
+      }
+    }
+  }, []);
+
   const handleSend = async () => {
     if (!input.trim()) return;
 
-    const userMessage: Message = { type: "user", text: input };
+    const userMessage = { type: "user", text: input };
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setLoading(true);
 
     try {
-      const isProductQuery = /sản phẩm/i.test(input);
-      const payload = isProductQuery
-        ? { product_name: input }
-        : { answers: [input], mix_and_match: true };
+      const res = await axios.post("http://127.0.0.1:8000/api/stylist/analyze", {
+        message: input,
+      });
 
-      const res = await axios.post("http://localhost:8000/api/stylist/analyze", payload);
+      const reply = res.data.style_name
+        ? `🎯 Phong cách phù hợp: ${res.data.style_name}`
+        : "🤖 Xin lỗi, mình chưa rõ gu bạn. Hỏi lại nhé?";
+      const products = res.data.products || [];
 
-      if (res.data.product) {
-        const p = res.data.product;
-        const productCard: Product = {
-          id: p.id,
-          name: p.name,
-          description: p.description,
-          img: p.images?.map((url: string) => ({ name: url.split("/").pop() || "" })),
-        };
-        setMessages((prev) => [
-          ...prev,
-          { type: "bot", text: `🛍️ Đây là thông tin sản phẩm **${p.name}**:`, products: [productCard] },
-        ]);
-      } else {
-        const reply = res.data.style_name
-          ? `🎯 Phong cách phù hợp: ${res.data.style_name}\n\n${res.data.description}`
-          : res.data.message || "🤖 Xin lỗi, mình chưa rõ gu bạn. Hỏi lại nhé?";
-        const products = res.data.products || [];
-
-        setMessages((prev) => [...prev, { type: "bot", text: reply, products }]);
-      }
-    } catch (error) {
-      console.error("Chat error:", error);
+      setMessages((prev) => [...prev, { type: "bot", text: reply, products }]);
+    } catch {
       setMessages((prev) => [
         ...prev,
-        { type: "bot", text: "❌ Không thể kết nối đến hệ thống. Vui lòng thử lại." },
+        {
+          type: "bot",
+          text: "❌ Không thể kết nối đến hệ thống. Vui lòng thử lại.",
+        },
       ]);
     }
 
@@ -149,27 +146,25 @@ export default function ChatBox({
               className={`flex items-start gap-2 ${m.type === "bot" ? "" : "flex-row-reverse"}`}
             >
               {m.type === "bot" ? (
-                <Image
+                <img
                   src={aiAvatar}
                   alt="AI Avatar"
-                  width={32}
-                  height={32}
-                  className="rounded-full mt-1 shadow-md object-cover"
-                />
-              ) : userAvatar ? (
-                <Image
-                  src={`http://127.0.0.1:8000/storage/${userAvatar}`}
-                  alt="User Avatar"
-                  width={32}
-                  height={32}
-                  className="rounded-full mt-1 shadow-md object-cover"
+                  className="w-8 h-8 rounded-full mt-1 shadow-md object-cover"
                 />
               ) : (
-                <div className="w-8 h-8 mt-1 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-xs font-bold uppercase shadow-md">
-                  Bạn
-                </div>
+                <Image
+                  src={
+                    user?.avatar
+                      ? `http://127.0.0.1:8000/storage/${encodeURIComponent(user.avatar)}`
+                      : "/img/user-avatar.webp"
+                  }
+                  width={32}
+                  height={32}
+                  alt="User Avatar"
+                  className="rounded-full mt-1 shadow-md object-cover"
+                  onError={(e) => console.log("Image load error:", e)}
+                />
               )}
-
               <div
                 className={`px-4 py-2 rounded-2xl max-w-[75%] shadow-sm whitespace-pre-line ${
                   m.type === "bot"
@@ -187,17 +182,9 @@ export default function ChatBox({
                         href={`/products/${p.id}`}
                         className="block border border-orange-200 dark:border-orange-700 rounded-lg overflow-hidden hover:shadow-md hover:scale-[1.01] transition-transform duration-200"
                       >
-                        <Image
-                          src={
-                            p.image
-                              ? p.image
-                              : p.img?.[0]?.name
-                              ? `/img/${p.img[0].name}`
-                              : "/img/no-image.jpg"
-                          }
-                          alt={p.name || "Hình ảnh sản phẩm"}
-                          width={300}
-                          height={128}
+                        <img
+                          src={p.img?.[0]?.name ? `/img/${p.img[0].name}` : "/img/no-image.jpg"}
+                          alt={p.name}
                           className="w-full h-32 object-cover"
                         />
                         <div className="p-2 text-xs">
@@ -214,16 +201,9 @@ export default function ChatBox({
             </div>
           </div>
         ))}
-
         {loading && (
           <div className="flex items-center gap-2 animate-pulse">
-            <Image
-              src={aiAvatar}
-              alt="AI Avatar"
-              width={32}
-              height={32}
-              className="rounded-full mt-1 shadow-md object-cover"
-            />
+            <img src={aiAvatar} className="w-8 h-8 rounded-full mt-1 shadow-md" />
             <div className="bg-white border border-orange-300 px-4 py-2 rounded-xl text-gray-600">
               ✍️ Đang phân tích phong cách...
             </div>

@@ -92,7 +92,6 @@ interface ProductPageProps {
   searchParams?: { [key: string]: string | string[] | undefined };
 }
 
-// 👉 Cần thêm `async` ở đây
 export default async function ProductPage({ searchParams }: ProductPageProps) {
   // Xử lý safely searchParams
   const rawType = Array.isArray(searchParams?.type)

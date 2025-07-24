@@ -294,7 +294,7 @@ export default function AIRecommendedProducts() {
     viewedData?.products?.map((p: Product) => p.name) || [];
 
   // ❗ Chỉ hiển thị nếu có lịch sử xem và có sản phẩm gợi ý
-  if (viewedNames.length === 0 || products.length === 0) return null;
+  if (products.length === 0) return null;
 
   return (
     <div className="px-4 xl:px-40 pt-4 pb-10">

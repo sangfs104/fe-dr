@@ -5,8 +5,8 @@ import { useRef, useEffect, useState } from "react";
 import Image from "next/image";
 import ProductCard from "../ui/ProductList";
 import { toast } from "react-hot-toast";
-import type { Product } from "@/app/types/Product"; // Đường dẫn có thể cần chỉnh lại
-
+import type { Product } from "@/app/types/Product"; 
+type ReactionType = "like" | "love" | "haha" | "wow" | "sad" | "angry";
 import { DreamToast } from "../ui/DreamToast";
 import {
   ThumbsUp,
@@ -100,7 +100,7 @@ function PostItem({ post, token }: PostItemProps) {
   const [showFullContent, setShowFullContent] = useState(false);
   const [isImageOverflow, setIsImageOverflow] = useState(false);
   const [isContentOverflow, setIsContentOverflow] = useState(false);
-
+type ReactionType = "like" | "love" | "haha" | "wow" | "sad" | "angry";
   const imageRef = useRef<HTMLDivElement | null>(null);
   const contentRef = useRef<HTMLDivElement | null>(null);
 
@@ -124,7 +124,6 @@ function PostItem({ post, token }: PostItemProps) {
   }, [post.image, post.content]);
 
 const handleComment = async (e: React.FormEvent<HTMLFormElement>) => {
-
     e.preventDefault();
     if (!token) {
       toast.error("Bạn cần đăng nhập để bình luận nha!");
@@ -167,23 +166,40 @@ const handleComment = async (e: React.FormEvent<HTMLFormElement>) => {
     setReactions(await res.json());
   };
 
-  const reactionIcons = {
-    like: <ThumbsUp size={16} />,
-    love: <Heart size={16} />,
-    haha: <Laugh size={16} />,
-    wow: <Smile size={16} />,
-    sad: <Frown size={16} />,
-    angry: <Angry size={16} />,
-  };
+  // const reactionIcons = {
+  //   like: <ThumbsUp size={16} />,
+  //   love: <Heart size={16} />,
+  //   haha: <Laugh size={16} />,
+  //   wow: <Smile size={16} />,
+  //   sad: <Frown size={16} />,
+  //   angry: <Angry size={16} />,
+  // };
 
-  const reactionColors = {
-    like: "text-blue-600",
-    love: "text-red-600",
-    haha: "text-yellow-500",
-    wow: "text-orange-500",
-    sad: "text-gray-500",
-    angry: "text-red-700",
-  };
+  // const reactionColors = {
+  //   like: "text-blue-600",
+  //   love: "text-red-600",
+  //   haha: "text-yellow-500",
+  //   wow: "text-orange-500",
+  //   sad: "text-gray-500",
+  //   angry: "text-red-700",
+  // };
+const reactionIcons: Record<ReactionType, JSX.Element> = {
+  like: <ThumbsUp size={16} />,
+  love: <Heart size={16} />,
+  haha: <Laugh size={16} />,
+  wow: <Smile size={16} />,
+  sad: <Frown size={16} />,
+  angry: <Angry size={16} />,
+};
+
+const reactionColors: Record<ReactionType, string> = {
+  like: "text-blue-600",
+  love: "text-red-600",
+  haha: "text-yellow-500",
+  wow: "text-orange-500",
+  sad: "text-gray-500",
+  angry: "text-red-700",
+};
 
   return (
     <div className="bg-white rounded-3xl shadow-lg mb-8 overflow-hidden border border-gray-100 hover:shadow-xl transition-all duration-300">
@@ -265,7 +281,7 @@ const handleComment = async (e: React.FormEvent<HTMLFormElement>) => {
           ))}
         </div>
 
-        <div className="flex gap-1 justify-start items-center flex-wrap border-t pt-4">
+        {/* <div className="flex gap-1 justify-start items-center flex-wrap border-t pt-4">
           {Object.keys(reactionIcons).map((r) => {
             const isActive = myReaction === r;
             const colorClass = reactionColors[r];
@@ -292,7 +308,39 @@ const handleComment = async (e: React.FormEvent<HTMLFormElement>) => {
               </button>
             );
           })}
-        </div>
+        </div> */}
+        
+<div className="flex gap-1 justify-start items-center flex-wrap border-t pt-4">
+  {(Object.keys(reactionIcons) as ReactionType[]).map((r) => {
+    const isActive = myReaction === r;
+    const colorClass = reactionColors[r];
+
+    return (
+      <button
+        key={r}
+        title={r}
+        onClick={() => handleReact(r)}
+        className={`flex items-center gap-1 text-[12px] px-2.5 py-1 rounded-full transition border ${
+          isActive
+            ? `${colorClass} bg-opacity-20 border-${colorClass.split("-")[1]}-300`
+            : "bg-white text-gray-600 hover:bg-gray-100 border-gray-200 hover:text-gray-800"
+        }`}
+        style={{ minWidth: "48px" }}
+      >
+        <span
+          className={`${colorClass} transition-colors ${
+            isActive
+              ? "text-opacity-100"
+              : "text-opacity-50 hover:text-opacity-100"
+          }`}
+        >
+          {reactionIcons[r]}
+        </span>
+        <span>{reactions.find((x) => x.reaction === r)?.total || 0}</span>
+      </button>
+    );
+  })}
+</div>
       </div>
 
       <div className="px-6 pb-5 pt-2">

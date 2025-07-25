@@ -1399,12 +1399,14 @@
 //     </div>
 //   );
 // }
+
 "use client";
 import { useRef, useEffect, useState } from "react";
 import Image from "next/image";
 import ProductCard from "../ui/ProductList";
 import { toast } from "react-hot-toast";
 import type { Product } from "@/app/types/Product";
+import React from "react";
 
 import { DreamToast } from "../ui/DreamToast";
 import {

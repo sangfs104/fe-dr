@@ -43,7 +43,7 @@
 // src/app/page.tsx
 import BannerCarousel from "./components/ui/BannerCarousel";
 import HeaderHome from "./components/ui/Header";
-import ProductTabs from "./components/ui/ProductTabs";
+// import ProductTabs from "./components/ui/ProductTabs";
 import ServiceHighlights from "./components/ui/ServiceHighlights";
 import HeroSlider from "./components/ui/HeroSlider";
 import Footer from "./components/ui/Footer";
@@ -76,7 +76,7 @@ export default async function ProductPage({ searchParams }: ProductPageProps) {
       <FlashSaleList />
       <CategoryProduct />
       <AIRecommendedProducts />
-      <ProductTabs type={type} />
+      {/* <ProductTabs type={type} /> */}
       <VoiceQuickOrderTest />
       <HeroSlider />
       <ShopArticle />

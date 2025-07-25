@@ -232,21 +232,30 @@
 //     </>
 //   );
 // }
+// fe-dr\src\app\components\ProductList.tsx
 "use client";
 
+import ProductModal from "./ProductModal";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCartShopping } from "@fortawesome/free-solid-svg-icons";
-import { faEye, faHeart } from "@fortawesome/free-regular-svg-icons";
+import { faEye } from "@fortawesome/free-regular-svg-icons";
 import toast from "react-hot-toast";
-import { useRouter } from "next/navigation";
 
 import { addToCart } from "@/store/cartSlice";
+import { faHeart } from "@fortawesome/free-regular-svg-icons";
 import { addToWishlistAPI, fetchWishlist } from "@/store/wishlistSlice";
 import { useAppDispatch } from "@/store/hooks";
-import ProductModal from "./ProductModal";
+import { useRouter } from "next/navigation";
+
+interface ProductImage {
+  id: number;
+  product_id: number;
+  name: string;
+  color?: string;
+}
 
 interface ProductVariant {
   id: number;
@@ -265,9 +274,14 @@ interface Product {
   name: string;
   description: string;
   status: string;
-  images: string[]; // Dùng image URL đầy đủ từ API
+  img: ProductImage[];
   variant: ProductVariant[];
-  category: {
+  // Thêm thuộc tính images array từ API
+  images: string[];
+  // Thay đổi ở đây để phù hợp với dữ liệu API
+  category_id: number; // Thêm thuộc tính category_id
+  category?: {
+    // Giữ lại category object nhưng làm cho nó optional
     id: number;
     name: string;
   };
@@ -275,13 +289,18 @@ interface Product {
 
 export default function ProductCard({ product }: { product: Product }) {
   const dispatch = useAppDispatch();
-  const router = useRouter();
+  const router = useRouter(); // Thêm useRouter
 
-  const [mainImage, setMainImage] = useState(product.images?.[0] || "");
+  // Sử dụng images array thay vì img array để lấy đường dẫn đầy đủ
+  const defaultImageUrl = product.images?.[0];
+  const [mainImage, setMainImage] = useState<string>(defaultImageUrl || "");
   const selectedVariant = product.variant?.[0];
+
   const [showModal, setShowModal] = useState(false);
 
-  const handleImageHover = (imageUrl: string) => setMainImage(imageUrl);
+  const handleImageHover = (imageUrl: string) => {
+    setMainImage(imageUrl);
+  };
 
   const handleAddToCart = () => {
     if (!selectedVariant) return;
@@ -295,8 +314,8 @@ export default function ProductCard({ product }: { product: Product }) {
       addToCart({
         productId: product.id,
         variantId: selectedVariant.id,
-        name: `${product.name} - Size ${selectedVariant.size}`,
-        img: mainImage,
+        name: product.name,
+        img: mainImage, // Sử dụng đường dẫn đầy đủ
         price: priceToUse,
         size: selectedVariant.size,
         quantity: 1,
@@ -315,14 +334,13 @@ export default function ProductCard({ product }: { product: Product }) {
       router.push("/login");
       return;
     }
-
     if (!selectedVariant) return;
 
     const wishlistItem = {
       productId: product.id,
       variantId: selectedVariant.id,
       name: product.name,
-      img: mainImage,
+      img: mainImage, // Sử dụng đường dẫn đầy đủ
       price:
         selectedVariant.sale_price && Number(selectedVariant.sale_price) > 0
           ? Number(selectedVariant.sale_price)
@@ -355,12 +373,14 @@ export default function ProductCard({ product }: { product: Product }) {
       <div className="border rounded-lg mt-10 shadow-sm p-4 group bg-white hover:shadow-md transition duration-200">
         <div className="relative">
           <Link href={`/products/${product.id}`} className="block relative">
+            {/* Badge giảm giá */}
             {discountPercent > 0 && (
               <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded shadow z-10">
                 -{discountPercent}%
               </div>
             )}
 
+            {/* Sử dụng đường dẫn đầy đủ từ images array */}
             {mainImage ? (
               <Image
                 src={mainImage}
@@ -393,7 +413,6 @@ export default function ProductCard({ product }: { product: Product }) {
             >
               <FontAwesomeIcon icon={faEye} />
             </button>
-
             <button
               className="bg-white p-2 rounded-full shadow hover:bg-gray-100"
               onClick={handleAddToWishlist}
@@ -404,10 +423,11 @@ export default function ProductCard({ product }: { product: Product }) {
           </div>
         </div>
 
+        {/* Hiển thị thumbnail từ images array thay vì img array */}
         <div className="flex gap-2 mt-2">
           {product.images?.slice(0, 2).map((imageUrl, idx) => (
             <div
-              key={idx}
+              key={`${imageUrl}-${idx}`}
               className={`w-10 h-10 rounded border cursor-pointer ${
                 imageUrl === mainImage ? "border-blue-500" : "border-gray-300"
               }`}
@@ -415,13 +435,14 @@ export default function ProductCard({ product }: { product: Product }) {
             >
               <Image
                 src={imageUrl}
-                alt={`thumb-${idx}`}
+                alt={`variant-${idx}`}
                 width={40}
                 height={40}
                 className="w-full h-full object-cover rounded"
               />
             </div>
           ))}
+          {/* Hiển thị thêm indicator nếu có nhiều hơn 2 ảnh */}
           {product.images && product.images.length > 2 && (
             <div className="w-10 h-10 rounded border border-gray-300 bg-gray-100 flex items-center justify-center text-xs text-gray-500">
               +{product.images.length - 2}
@@ -430,7 +451,10 @@ export default function ProductCard({ product }: { product: Product }) {
         </div>
 
         <div className="mt-3">
-          <h3 className="text-sm text-gray-500">{product.category.name}</h3>
+          {/* Sử dụng optional chaining để truy cập product.category?.name */}
+          <h3 className="text-sm text-gray-500">
+            {product.category?.name || `Category ID: ${product.category_id}`}
+          </h3>
           <h2 className="text-lg font-semibold">{product.name}</h2>
 
           <div className="mt-1 text-base font-medium">

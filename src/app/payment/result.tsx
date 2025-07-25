@@ -4,12 +4,31 @@ import { useRouter } from "next/router";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { clearCart } from "@/store/cartSlice";
+
+// Kiểu dữ liệu cho đơn hàng
+type OrderType = {
+  id: number;
+  user_id: number;
+  shipping_id: number | null;
+  discount_id?: number | null;
+  payment_id: number | null;
+  coupon_id: number | null;
+  address_id: number | null;
+  status: string;
+  total_price: number;
+  vnp_TxnRef: string | null;
+  order_code: string | null;
+  shipping_fee: number;
+  created_at: string;
+  updated_at: string;
+};
+
 export default function PaymentResultPage() {
   const router = useRouter();
   const dispatch = useDispatch();
   const [result, setResult] = useState<{
     message: string;
-    order?: any;
+    order?: OrderType;
   } | null>(null);
 
   useEffect(() => {
@@ -25,13 +44,15 @@ export default function PaymentResultPage() {
       }
     };
 
-    fetchResult();
+    if (router.isReady) {
+      fetchResult();
+    }
   }, [router.isReady]);
 
   useEffect(() => {
-    // Khi vào trang này (thanh toán thành công), xóa giỏ hàng
     dispatch(clearCart());
   }, [dispatch]);
+
   if (!result) return <div>Đang xử lý...</div>;
 
   return (

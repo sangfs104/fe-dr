@@ -1,18 +1,27 @@
 "use client";
-
 import React, { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const RegisterForm = () => {
   const router = useRouter();
-  const [formData, setFormData] = useState({
+  type RegisterFormData = {
+    name: string;
+    email: string;
+    phone: string;
+    password: string;
+    role: string;
+  };
+
+  const [formData, setFormData] = useState<RegisterFormData>({
     name: "",
     email: "",
     phone: "",
     password: "",
     role: "user",
   });
+
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -40,6 +49,7 @@ const RegisterForm = () => {
         setMessage(data.message || "Đăng ký thất bại");
       }
     } catch (err) {
+      console.error("Đăng ký lỗi:", err);
       setMessage("Lỗi kết nối tới server");
     }
   };
@@ -63,7 +73,7 @@ const RegisterForm = () => {
             name={field}
             type={field === "email" ? "email" : "text"}
             placeholder=" "
-            value={(formData as any)[field]}
+            value={formData[field as keyof RegisterFormData]}
             onChange={handleChange}
             required
             className="peer w-full px-4 pt-6 pb-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-300"
@@ -158,10 +168,11 @@ const RegisterForm = () => {
           type="button"
           className="flex items-center justify-center gap-3 bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition w-full"
         >
-          <img
+          <Image
             src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
             alt="Google"
-            className="w-5 h-5"
+            width={20}
+            height={20}
           />
           Đăng nhập bằng Google
         </button>

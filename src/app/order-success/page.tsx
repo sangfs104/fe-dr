@@ -3,7 +3,29 @@ import { useEffect, useState } from "react";
 import confetti from "canvas-confetti";
 import { useDispatch } from "react-redux";
 import { clearCart } from "@/store/cartSlice";
-const renderPaymentMethod = (method: any) => {
+import Image from "next/image";
+
+type Variant = {
+  name: string;
+  price: number;
+  image_url: string;
+};
+
+type OrderItem = {
+  variant: Variant;
+  quantity: number;
+};
+
+type Order = {
+  id: string;
+  total_price: number;
+  payment_method: string | { name?: string };
+  items: OrderItem[];
+};
+
+const renderPaymentMethod = (
+  method: string | { name?: string } | null
+): string => {
   if (!method) return "Chưa xác định";
 
   if (typeof method === "string") {
@@ -21,18 +43,19 @@ const renderPaymentMethod = (method: any) => {
 };
 
 const OrderSuccess = () => {
-  const [order, setOrder] = useState<any>(null);
+  const [order, setOrder] = useState<Order | null>(null);
   const dispatch = useDispatch();
+
   useEffect(() => {
     const latestOrder = localStorage.getItem("latestOrder");
     dispatch(clearCart());
+
     if (latestOrder) {
-      const parsed = JSON.parse(latestOrder);
+      const parsed: Order = JSON.parse(latestOrder);
       console.log("🔥 parsed order:", parsed);
       console.log("🔥 order.payment_method:", parsed.payment_method);
       setOrder(parsed);
 
-      // 🌟 Hiệu ứng confetti kéo dài 3 giây
       const duration = 3 * 1000;
       const animationEnd = Date.now() + duration;
 
@@ -47,7 +70,7 @@ const OrderSuccess = () => {
         return Math.random() * (max - min) + min;
       }
 
-      const interval: any = setInterval(() => {
+      const interval = setInterval(() => {
         const timeLeft = animationEnd - Date.now();
 
         if (timeLeft <= 0) {
@@ -74,13 +97,9 @@ const OrderSuccess = () => {
         });
       }, 250);
     }
-  }, []);
+  }, [dispatch]); // ✅ đã thêm dependency `dispatch`
 
   if (!order) return <p>Đang xử lý...</p>;
-
-  const total = order.items?.reduce((sum: number, item: any) => {
-    return sum + item.variant.price * item.quantity;
-  }, 0);
 
   return (
     <div className="success-wrapper">
@@ -90,11 +109,13 @@ const OrderSuccess = () => {
         <h3>Đơn hàng của bạn sẽ được chuẩn bị.</h3>
 
         <div className="product-preview">
-          {order.items?.map((item: any, index: number) => (
+          {order.items?.map((item, index) => (
             <div key={index}>
-              <img
+              <Image
                 src={item.variant?.image_url}
                 alt={item.variant?.name}
+                width={120}
+                height={120}
                 className="product-img"
               />
               <div className="product-info">

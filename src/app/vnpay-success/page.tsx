@@ -162,7 +162,6 @@
 //     </div>
 //   );
 // }
-
 "use client";
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -174,9 +173,37 @@ import {
   ReceiptText,
   ArrowRightCircle,
 } from "lucide-react";
+import Image from "next/image";
+
+interface Variant {
+  name: string;
+  price: number;
+  image: string;
+}
+
+interface OrderItem {
+  quantity: number;
+  price: number;
+  variant: Variant;
+}
+
+interface Order {
+  vnp_TxnRef: string;
+  total_price: number;
+  order_items: OrderItem[];
+}
+
+interface StoredItem {
+  quantity: number;
+  variant: {
+    name: string;
+    price: number;
+    image_url: string;
+  };
+}
 
 export default function VnpaySuccessPage() {
-  const [order, setOrder] = useState<any>(null);
+  const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -198,29 +225,32 @@ export default function VnpaySuccessPage() {
         );
 
         if (res.data.status === 200) {
-          // bắn pháo hoa
           confetti({
             particleCount: 200,
             spread: 150,
             origin: { y: 0.6 },
           });
 
-          let order = res.data.order;
+          const order: Order = res.data.order;
 
-          // fallback nếu thiếu order_items
           if (!order.order_items || order.order_items.length === 0) {
             const latestOrderStr = localStorage.getItem("latestOrder");
             if (latestOrderStr) {
-              const latestOrder = JSON.parse(latestOrderStr);
-              order.order_items = latestOrder.items.map((item: any) => ({
-                quantity: item.quantity,
-                variant: {
-                  name: item.variant.name,
+              const latestOrder = JSON.parse(latestOrderStr) as {
+                items: StoredItem[];
+              };
+
+              order.order_items = latestOrder.items.map(
+                (item: StoredItem): OrderItem => ({
+                  quantity: item.quantity,
                   price: item.variant.price,
-                  image: item.variant.image_url,
-                },
-                price: item.variant.price,
-              }));
+                  variant: {
+                    name: item.variant.name,
+                    price: item.variant.price,
+                    image: item.variant.image_url,
+                  },
+                })
+              );
             }
           }
 
@@ -264,7 +294,7 @@ export default function VnpaySuccessPage() {
             <div className="flex items-center mb-2 text-gray-700">
               <ReceiptText className="w-5 h-5 mr-2 text-gray-500" />
               <span>
-                <strong>Mã giao dịch VNPAY:</strong> {order?.vnp_TxnRef}
+                <strong>Mã giao dịch VNPAY:</strong> {order.vnp_TxnRef}
               </span>
             </div>
             <div className="text-xl text-center font-semibold text-blue-600">
@@ -280,23 +310,25 @@ export default function VnpaySuccessPage() {
 
             {order.order_items && order.order_items.length > 0 ? (
               <ul className="divide-y divide-gray-200 mt-2">
-                {order.order_items.map((item: any, idx: number) => (
+                {order.order_items.map((item, idx) => (
                   <li key={idx} className="py-3 flex items-center gap-3">
-                    <img
-                      src={item.variant?.image || "/placeholder.png"}
-                      alt={item.variant?.name}
-                      className="w-14 h-14 rounded border"
+                    <Image
+                      src={item.variant.image || "/placeholder.png"}
+                      alt={item.variant.name}
+                      width={56}
+                      height={56}
+                      className="rounded border object-cover"
                     />
                     <div className="flex-1">
                       <p className="text-gray-800 font-semibold">
-                        {item.variant?.name || "Sản phẩm"}
+                        {item.variant.name}
                       </p>
                       <p className="text-gray-500 text-sm">
                         Số lượng: {item.quantity}
                       </p>
                     </div>
                     <div className="text-gray-700 font-semibold">
-                      {item.price?.toLocaleString("vi-VN")}₫
+                      {item.price.toLocaleString("vi-VN")}₫
                     </div>
                   </li>
                 ))}

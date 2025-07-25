@@ -1,25 +1,32 @@
 "use client";
 
-import HeaderHome from "../components/ui/Header";
-import Image from "next/image";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { X } from "lucide-react";
-import CheckoutProgress from "../components/ui/CheckoutProgress";
+import Image from "next/image";
+
+import HeaderHome from "../components/ui/Header";
 import Footer from "../components/ui/Footer";
+import CheckoutProgress from "../components/ui/CheckoutProgress";
+
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { removeFromCart, updateQuantity } from "@/store/cartSlice";
-import { CartItem } from "../types/cart";
-import { useRouter } from "next/navigation";
 import { RootState } from "@/store/store";
+import { CartItem } from "../types/cart";
 
 export default function CartPage() {
-  const cartItems = useAppSelector((state: RootState) => state.cart.items);
-  const dispatch = useAppDispatch();
   const router = useRouter();
+  const dispatch = useAppDispatch();
+  const cartItems = useAppSelector((state: RootState) => state.cart.items);
+  const [isClient, setIsClient] = useState(false);
 
-  const totalPrice = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  const totalPrice = isClient
+    ? cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
+    : 0;
 
   return (
     <>
@@ -29,86 +36,91 @@ export default function CartPage() {
       <div className="mt-10 px-4 sm:px-6 md:px-10 lg:px-20 xl:px-40 flex flex-col lg:flex-row gap-5">
         {/* Cart Items */}
         <div className="flex-[6] max-h-[500px] overflow-y-auto border border-gray-300 bg-white p-4 rounded-md">
-          <p className="text-base mb-4">
-            Bạn đang có <strong>{cartItems.length} sản phẩm</strong> trong giỏ
-            hàng
-          </p>
+          {isClient && (
+            <p className="text-base mb-4">
+              Bạn đang có <strong>{cartItems.length} sản phẩm</strong> trong giỏ
+              hàng
+            </p>
+          )}
 
-          {cartItems.map((item: CartItem, i: number) => (
-            <div key={i} className="flex flex-col gap-4 mb-4">
-              <div className="flex flex-col sm:flex-row justify-between items-center gap-4 border-b border-gray-200 pb-4">
-                <Image
-                  src={item.img}
-                  alt={item.name}
-                  width={80}
-                  height={80}
-                  className="w-20 h-20 object-cover rounded"
-                />
-                <div className="flex-1 min-w-0 text-center sm:text-left">
-                  <h2 className="text-base font-bold truncate">{item.name}</h2>
-                  <p className="text-sm text-gray-500">Size {item.size}</p>
-                  <p className="text-sm text-gray-500">
-                    {item.price.toLocaleString("vi-VN")}₫
-                  </p>
-                </div>
-                <div className="flex flex-col sm:flex-row items-center justify-between min-w-[200px] gap-3 w-full sm:w-auto">
-                  <div className="flex items-center">
+          {isClient &&
+            cartItems.map((item: CartItem, i: number) => (
+              <div key={i} className="flex flex-col gap-4 mb-4">
+                <div className="flex flex-col sm:flex-row justify-between items-center gap-4 border-b border-gray-200 pb-4">
+                  <Image
+                    src={item.img}
+                    alt={item.name}
+                    width={80}
+                    height={80}
+                    className="w-20 h-20 object-cover rounded"
+                  />
+                  <div className="flex-1 min-w-0 text-center sm:text-left">
+                    <h2 className="text-base font-bold truncate">
+                      {item.name}
+                    </h2>
+                    <p className="text-sm text-gray-500">Size {item.size}</p>
+                    <p className="text-sm text-gray-500">
+                      {item.price.toLocaleString("vi-VN")}₫
+                    </p>
+                  </div>
+                  <div className="flex flex-col sm:flex-row items-center justify-between min-w-[200px] gap-3 w-full sm:w-auto">
+                    <div className="flex items-center">
+                      <button
+                        className="w-8 h-8 bg-gray-100 border border-gray-300 disabled:opacity-50"
+                        onClick={() =>
+                          dispatch(
+                            updateQuantity({
+                              productId: +item.productId,
+                              variantId: +item.variantId,
+                              newQuantity: item.quantity - 1,
+                            })
+                          )
+                        }
+                        disabled={item.quantity <= 1}
+                      >
+                        -
+                      </button>
+                      <input
+                        type="number"
+                        value={item.quantity}
+                        readOnly
+                        className="w-10 h-8 border-t border-b border-gray-300 text-center p-0"
+                      />
+                      <button
+                        className="w-8 h-8 bg-gray-100 border border-gray-300"
+                        onClick={() =>
+                          dispatch(
+                            updateQuantity({
+                              productId: +item.productId,
+                              variantId: +item.variantId,
+                              newQuantity: item.quantity + 1,
+                            })
+                          )
+                        }
+                      >
+                        +
+                      </button>
+                    </div>
+                    <p className="font-medium text-gray-800 text-right min-w-[100px]">
+                      {(item.price * item.quantity).toLocaleString("vi-VN")}₫
+                    </p>
                     <button
-                      className="w-8 h-8 bg-gray-100 border border-gray-300 disabled:opacity-50"
+                      className="text-red-500 text-lg"
                       onClick={() =>
                         dispatch(
-                          updateQuantity({
+                          removeFromCart({
                             productId: +item.productId,
                             variantId: +item.variantId,
-                            newQuantity: item.quantity - 1,
                           })
                         )
                       }
-                      disabled={item.quantity <= 1}
                     >
-                      -
-                    </button>
-                    <input
-                      type="number"
-                      value={item.quantity}
-                      readOnly
-                      className="w-10 h-8 border-t border-b border-gray-300 text-center p-0"
-                    />
-                    <button
-                      className="w-8 h-8 bg-gray-100 border border-gray-300"
-                      onClick={() =>
-                        dispatch(
-                          updateQuantity({
-                            productId: +item.productId,
-                            variantId: +item.variantId,
-                            newQuantity: item.quantity + 1,
-                          })
-                        )
-                      }
-                    >
-                      +
+                      <X size={18} />
                     </button>
                   </div>
-                  <p className="font-medium text-gray-800 text-right min-w-[100px]">
-                    {(item.price * item.quantity).toLocaleString("vi-VN")}₫
-                  </p>
-                  <button
-                    className="text-red-500 text-lg"
-                    onClick={() =>
-                      dispatch(
-                        removeFromCart({
-                          productId: +item.productId,
-                          variantId: +item.variantId,
-                        })
-                      )
-                    }
-                  >
-                    <X size={18} />
-                  </button>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
 
           {/* Note & Policy */}
           <div className="flex flex-col md:flex-row justify-between gap-5 mt-5 p-4 bg-gray-100 border border-gray-300 rounded-lg">
@@ -145,7 +157,7 @@ export default function CartPage() {
           <p className="text-sm mb-2">
             Tổng tiền:{" "}
             <span className="font-bold text-lg text-rose-600">
-              {totalPrice.toLocaleString("vi-VN")}₫
+              {isClient ? totalPrice.toLocaleString("vi-VN") : "0"}₫
             </span>
           </p>
           <p className="text-sm mb-4 text-gray-600">

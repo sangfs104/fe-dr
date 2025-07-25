@@ -41,7 +41,6 @@
 //   );
 // }
 // src/app/page.tsx
-
 import BannerCarousel from "./components/ui/BannerCarousel";
 import HeaderHome from "./components/ui/Header";
 import ProductTabs from "./components/ui/ProductTabs";
@@ -62,7 +61,6 @@ interface ProductPageProps {
 export default async function ProductPage({ searchParams }: ProductPageProps) {
   // Await searchParams trước khi sử dụng
   const resolvedSearchParams = await searchParams;
-
   // Xử lý safely searchParams
   const rawType = Array.isArray(resolvedSearchParams?.type)
     ? resolvedSearchParams?.type[0]

@@ -1,7 +1,23 @@
+// // /** @type {import('next').NextConfig} */
+// // const nextConfig = {
+// //   reactStrictMode: true,
+// //   swcMinify: true,
+// //   images: {
+// //     remotePatterns: [
+// //       {
+// //         protocol: "http",
+// //         hostname: "127.0.0.1",
+// //         port: "8000",
+// //         pathname: "/storage/**",
+// //       },
+// //     ],
+// //   },
+// // };
+
+// // module.exports = nextConfig;
 // /** @type {import('next').NextConfig} */
 // const nextConfig = {
 //   reactStrictMode: true,
-//   swcMinify: true,
 //   images: {
 //     remotePatterns: [
 //       {
@@ -24,7 +40,13 @@ const nextConfig = {
         protocol: "http",
         hostname: "127.0.0.1",
         port: "8000",
-        pathname: "/storage/**",
+        pathname: "/storage/**", // giữ nguyên
+      },
+      {
+        protocol: "http",
+        hostname: "127.0.0.1",
+        port: "8000",
+        pathname: "/img/**", // ✅ thêm vào cho ảnh từ folder /img
       },
     ],
   },

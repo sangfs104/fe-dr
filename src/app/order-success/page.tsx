@@ -27,18 +27,15 @@ const renderPaymentMethod = (
   method: string | { name?: string } | null
 ): string => {
   if (!method) return "Chưa xác định";
-
   if (typeof method === "string") {
     const lowerMethod = method.toLowerCase();
     if (lowerMethod === "cod") return "Thanh toán khi nhận hàng";
     if (lowerMethod === "vnpay" || lowerMethod === "bank") return "VNPAY";
     return method;
   }
-
   if (typeof method === "object" && method !== null) {
     return method.name || "Chưa rõ";
   }
-
   return "Chưa rõ";
 };
 
@@ -52,11 +49,9 @@ const OrderSuccess = () => {
 
     if (latestOrder) {
       const parsed: Order = JSON.parse(latestOrder);
-      console.log("🔥 parsed order:", parsed);
-      console.log("🔥 order.payment_method:", parsed.payment_method);
       setOrder(parsed);
 
-      const duration = 3 * 1000;
+      const duration = 3000;
       const animationEnd = Date.now() + duration;
 
       const defaults = {
@@ -66,9 +61,8 @@ const OrderSuccess = () => {
         zIndex: 1000,
       };
 
-      function randomInRange(min: number, max: number) {
-        return Math.random() * (max - min) + min;
-      }
+      const randomInRange = (min: number, max: number) =>
+        Math.random() * (max - min) + min;
 
       const interval = setInterval(() => {
         const timeLeft = animationEnd - Date.now();
@@ -80,7 +74,7 @@ const OrderSuccess = () => {
 
         confetti({
           ...defaults,
-          particleCount: 50,
+          particleCount: 40,
           origin: {
             x: randomInRange(0.1, 0.3),
             y: Math.random() - 0.2,
@@ -89,7 +83,7 @@ const OrderSuccess = () => {
 
         confetti({
           ...defaults,
-          particleCount: 50,
+          particleCount: 40,
           origin: {
             x: randomInRange(0.7, 0.9),
             y: Math.random() - 0.2,
@@ -97,41 +91,38 @@ const OrderSuccess = () => {
         });
       }, 250);
     }
-  }, [dispatch]); // ✅ đã thêm dependency `dispatch`
+  }, [dispatch]);
 
-  if (!order) return <p>Đang xử lý...</p>;
+  if (!order) return <p className="text-center mt-20">Đang xử lý...</p>;
 
   return (
-    <div className="success-wrapper">
-      <div className="confetti-bg" />
-      <div className="success-box">
-        <h2>Cảm ơn bạn! 🎉</h2>
-        <h3>Đơn hàng của bạn sẽ được chuẩn bị.</h3>
+    <div className="min-h-screen flex items-center justify-center bg-white px-4 relative">
+      <div className="relative z-10 w-full max-w-xl p-8 bg-white rounded-2xl shadow-xl text-center">
+        <h2 className="text-2xl sm:text-3xl font-bold text-[#ff5722] mb-2">
+          Cảm ơn bạn! 🎉
+        </h2>
+        <h3 className="text-lg sm:text-xl text-gray-600 mb-6">
+          Đơn hàng của bạn sẽ được chuẩn bị.
+        </h3>
 
-        <div className="product-preview">
-          {order.items?.map((item, index) => (
-            <div key={index}>
+        <div className="flex justify-center flex-wrap gap-4 mb-6">
+          {order.items.map((item, index) => (
+            <div key={index} className="relative">
               <Image
                 src={item.variant?.image_url}
                 alt={item.variant?.name}
-                width={120}
-                height={120}
-                className="product-img"
+                width={100}
+                height={100}
+                className="rounded-md object-cover"
               />
-              <div className="product-info">
-                <h4>{item.variant?.name}</h4>
-                <p>Số lượng: {item.quantity}</p>
-                {item.variant?.price && (
-                  <p>
-                    Giá: {Number(item.variant.price).toLocaleString("vi-VN")}₫
-                  </p>
-                )}
-              </div>
+              <span className="absolute -top-2 -right-2 bg-black text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                {item.quantity}
+              </span>
             </div>
           ))}
         </div>
 
-        <div className="order-details">
+        <div className="border-t pt-4 space-y-2 text-sm text-left text-gray-700">
           <p>
             <strong>Mã đơn hàng:</strong> {order.id}
           </p>
@@ -146,23 +137,22 @@ const OrderSuccess = () => {
           </p>
           <p>
             <strong>Tổng cộng:</strong>{" "}
-            {order.total_price
-              ? Number(order.total_price).toLocaleString("vi-VN") + "₫"
-              : "Chưa xác định"}
+            {Number(order.total_price).toLocaleString("vi-VN")}₫
           </p>
-
           <p>
             <strong>Phương thức thanh toán:</strong>{" "}
             {renderPaymentMethod(order.payment_method)}
           </p>
         </div>
 
-        <button
-          onClick={() => (window.location.href = "/account")}
-          className="bg-orange-500 text-white px-5 py-2 rounded-lg font-semibold hover:bg-orange-600"
-        >
-          Lịch sử mua hàng
-        </button>
+        <div className="text-center mt-6">
+          <button
+            onClick={() => (window.location.href = "/account")}
+            className="bg-[#FF5722] text-white px-6 py-3 rounded-full font-semibold hover:bg-[#ff5721] transition duration-200"
+          >
+            Lịch sử mua hàng
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -84,7 +84,6 @@ async function getNewProducts() {
   const json = await res.json();
   return json.data;
 }
-
 export default async function ProductTabs({
   type = "hot",
 }: {

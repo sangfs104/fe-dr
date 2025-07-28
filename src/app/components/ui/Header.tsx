@@ -39,7 +39,8 @@ export default function Header() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const searchTimeoutRef = useRef<NodeJS.Timeout>();
+  // const searchTimeoutRef = useRef<NodeJS.Timeout>();
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const [language, setLanguage] = useState<"vi" | "en">("vi");
   const [showCartModal, setShowCartModal] = useState(false);
@@ -82,31 +83,31 @@ export default function Header() {
   //   "Phụ kiện thời trang",
   // ];
 
-  // // Auto-hide header on scroll down, show on scroll up
-  // useEffect(() => {
-  //   let lastScrollY = window.scrollY;
+  // Auto-hide header on scroll down, show on scroll up
+  useEffect(() => {
+    let lastScrollY = window.scrollY;
 
-  //   const handleScroll = () => {
-  //     const currentScrollY = window.scrollY;
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
 
-  //     if (currentScrollY > 100) {
-  //       setIsScrolled(true);
-  //     } else {
-  //       setIsScrolled(false);
-  //     }
+      if (currentScrollY > 100) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
 
-  //     if (currentScrollY > lastScrollY && currentScrollY > 200) {
-  //       setHeaderAnimation("translate-y-[-100%]");
-  //     } else {
-  //       setHeaderAnimation("translate-y-0");
-  //     }
+      if (currentScrollY > lastScrollY && currentScrollY > 200) {
+        setHeaderAnimation("translate-y-[-100%]");
+      } else {
+        setHeaderAnimation("translate-y-0");
+      }
 
-  //     lastScrollY = currentScrollY;
-  //   };
+      lastScrollY = currentScrollY;
+    };
 
-  //   window.addEventListener("scroll", handleScroll, { passive: true });
-  //   return () => window.removeEventListener("scroll", handleScroll);
-  // }, []);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
   useEffect(() => {
     const mockSuggestions = [
       "Áo thun nam",

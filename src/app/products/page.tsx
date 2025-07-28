@@ -23,13 +23,14 @@ export default function ProductPage() {
   const [sortDirection, setSortDirection] = useState<string>("asc");
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [priceRange, setPriceRange] = useState<number>(0);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Debounce các giá trị để tránh gọi API liên tục
   const debouncedSort = useDebounce(sortDirection, 300);
   const debouncedSize = useDebounce(selectedSize, 300);
   const debouncedPrice = useDebounce(priceRange, 300);
+  const debouncedCategory = useDebounce(selectedCategoryId, 300);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -37,16 +38,23 @@ export default function ProductPage() {
       setError(null);
 
       try {
+        let url = "";
         const params = new URLSearchParams();
 
-        if (debouncedSize) params.append("size", debouncedSize);
-        if (debouncedPrice > 0) {
-          params.append("min", "0");
-          params.append("max", debouncedPrice.toString());
+        // Nếu có danh mục thì gọi API lọc theo danh mục
+        if (debouncedCategory) {
+          params.append("category_id", debouncedCategory.toString());
+          url = `http://127.0.0.1:8000/api/products-by-category?${params.toString()}`;
+        } else {
+          if (debouncedSize) params.append("size", debouncedSize);
+          if (debouncedPrice > 0) {
+            params.append("min", "0");
+            params.append("max", debouncedPrice.toString());
+          }
+          if (debouncedSort) params.append("sort", debouncedSort);
+          url = `http://127.0.0.1:8000/api/products/filter-all?${params.toString()}`;
         }
-        if (debouncedSort) params.append("sort", debouncedSort);
 
-        const url = `http://127.0.0.1:8000/api/products/filter-all?${params.toString()}`;
         const res = await fetch(url);
         const json = await res.json();
 
@@ -71,7 +79,7 @@ export default function ProductPage() {
     };
 
     fetchProducts();
-  }, [debouncedSort, debouncedSize, debouncedPrice]);
+  }, [debouncedSort, debouncedSize, debouncedPrice, debouncedCategory]);
 
   return (
     <>
@@ -81,8 +89,10 @@ export default function ProductPage() {
         onSortChange={setSortDirection}
         onSizeChange={setSelectedSize}
         onPriceChange={setPriceRange}
+        onCategoryChange={setSelectedCategoryId} // ✅ Gửi selectedCategoryId từ BreadcrumbFilter
         currentSize={selectedSize}
         currentPrice={priceRange}
+        currentCategory={selectedCategoryId}
       />
 
       <div className="px-6 md:px-20 lg:px-40 py-6">

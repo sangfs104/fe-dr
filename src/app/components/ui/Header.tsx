@@ -71,45 +71,54 @@ export default function Header() {
     : 0;
 
   // Mock search suggestions - replace with actual API call
-  const mockSuggestions = [
-    "Áo thun nam",
-    "Áo khoác nữ",
-    "Giày sneaker",
-    "Túi xách",
-    "Quần jeans",
-    "Váy midi",
-    "Áo sơ mi",
-    "Phụ kiện thời trang",
-  ];
+  // const mockSuggestions = [
+  //   "Áo thun nam",
+  //   "Áo khoác nữ",
+  //   "Giày sneaker",
+  //   "Túi xách",
+  //   "Quần jeans",
+  //   "Váy midi",
+  //   "Áo sơ mi",
+  //   "Phụ kiện thời trang",
+  // ];
 
-  // Auto-hide header on scroll down, show on scroll up
+  // // Auto-hide header on scroll down, show on scroll up
+  // useEffect(() => {
+  //   let lastScrollY = window.scrollY;
+
+  //   const handleScroll = () => {
+  //     const currentScrollY = window.scrollY;
+
+  //     if (currentScrollY > 100) {
+  //       setIsScrolled(true);
+  //     } else {
+  //       setIsScrolled(false);
+  //     }
+
+  //     if (currentScrollY > lastScrollY && currentScrollY > 200) {
+  //       setHeaderAnimation("translate-y-[-100%]");
+  //     } else {
+  //       setHeaderAnimation("translate-y-0");
+  //     }
+
+  //     lastScrollY = currentScrollY;
+  //   };
+
+  //   window.addEventListener("scroll", handleScroll, { passive: true });
+  //   return () => window.removeEventListener("scroll", handleScroll);
+  // }, []);
   useEffect(() => {
-    let lastScrollY = window.scrollY;
+    const mockSuggestions = [
+      "Áo thun nam",
+      "Áo khoác nữ",
+      "Giày sneaker",
+      "Túi xách",
+      "Quần jeans",
+      "Váy midi",
+      "Áo sơ mi",
+      "Phụ kiện thời trang",
+    ];
 
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-
-      if (currentScrollY > 100) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
-
-      if (currentScrollY > lastScrollY && currentScrollY > 200) {
-        setHeaderAnimation("translate-y-[-100%]");
-      } else {
-        setHeaderAnimation("translate-y-0");
-      }
-
-      lastScrollY = currentScrollY;
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  // Auto-search suggestions with debounce
-  useEffect(() => {
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
     }
@@ -132,6 +141,8 @@ export default function Header() {
       }
     };
   }, [keyword, isSearchFocused]);
+
+  // Auto-search suggestions with debounce
 
   // Pulse animation for cart/wishlist updates
   useEffect(() => {

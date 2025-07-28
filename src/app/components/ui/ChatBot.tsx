@@ -5,49 +5,98 @@ import axios from "axios";
 import { useDarkMode } from "../../types/useDarkMode";
 import Link from "next/link";
 import Image from "next/image";
+import toast from "react-hot-toast";
+import {
+  Brain,
+  MessageCircle,
+  Trash2,
+  Sun,
+  Moon,
+  Minus,
+  X,
+  Bot,
+  Smile,
+  Heart,
+  Send,
+  Loader2,
+  Sparkles,
+  Briefcase,
+  Waves,
+  Palette,
+  ShoppingCart,
+  Eye,
+} from "lucide-react";
+import { useAppDispatch } from "@/store/hooks";
+import { addToCart } from "@/store/cartSlice";
+import { addToWishlistAPI, fetchWishlist } from "@/store/wishlistSlice";
+import { useRouter } from "next/navigation";
 
 const aiAvatar = "/img/ai-avatar.webp";
+
+type ProductVariant = {
+  id: number;
+  product_id: number;
+  img_id: number;
+  size: string;
+  color?: string;
+  price: number;
+  sale_price: string | null;
+  stock_quantity: number;
+  status: string;
+};
 
 type Product = {
   id: number;
   name: string;
   description: string;
-  price?: number;
-  image?: string;
-  img?: { name: string }[];
+  images: string[];
+  variant: ProductVariant[];
+  category: {
+    id: number;
+    name: string;
+  };
 };
 
 type Message = {
   type: "user" | "bot";
   text: string;
   products?: Product[];
+  timestamp?: Date;
 };
 
-export default function ChatBox({
-  onClose,
-  userAvatar,
-}: {
-  onClose: () => void;
-  userAvatar?: string | null;
-}) {
+type UserInfo = {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  role: string;
+  avatar: string | null;
+};
+
+export default function ChatBox({ onClose }: { onClose: () => void }) {
   const [darkMode, setDarkMode] = useDarkMode();
   const [messages, setMessages] = useState<Message[]>(() => {
-    if (typeof window === "undefined") return [];
     const saved = localStorage.getItem("chat_messages");
     return saved
       ? JSON.parse(saved)
       : [
           {
-            type: "bot" as const,
+            type: "bot",
             text: "🎉 Xin chào! Mình là stylist AI. Bạn cần tư vấn gì hôm nay?",
+            timestamp: new Date(),
           },
         ];
   });
 
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [user, setUser] = useState<UserInfo | null>(null);
+  const [isMinimized, setIsMinimized] = useState(false);
+  const dispatch = useAppDispatch();
+  const router = useRouter();
 
   const scrollToBottom = () => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -62,151 +111,328 @@ export default function ChatBox({
     localStorage.setItem("chat_messages", JSON.stringify(messages));
   }, [messages]);
 
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch (err) {
+        console.error("Failed to parse user from localStorage", err);
+      }
+    }
+  }, []);
+
+  const handleAddToCart = (product: Product) => {
+    const selectedVariant = product.variant?.[0];
+    if (!selectedVariant) {
+      toast.error("Không có biến thể sản phẩm!");
+      return;
+    }
+
+    const priceToUse =
+      selectedVariant.sale_price && Number(selectedVariant.sale_price) > 0
+        ? Number(selectedVariant.sale_price)
+        : selectedVariant.price;
+
+    dispatch(
+      addToCart({
+        productId: product.id,
+        variantId: selectedVariant.id,
+        name: `${product.name} - Size ${selectedVariant.size}`,
+        img: product.images?.[0] || "/img/no-image.jpg",
+        price: priceToUse,
+        size: selectedVariant.size,
+        quantity: 1,
+        variantList: product.variant,
+      })
+    );
+
+    toast.success("Đã thêm vào giỏ hàng");
+  };
+
+  const handleAddToWishlist = async (product: Product) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("Bạn cần đăng nhập để thêm vào wishlist!");
+      router.push("/login");
+      return;
+    }
+
+    const selectedVariant = product.variant?.[0];
+    if (!selectedVariant) {
+      toast.error("Không có biến thể sản phẩm!");
+      return;
+    }
+
+    const wishlistItem = {
+      productId: product.id,
+      variantId: selectedVariant.id,
+      name: product.name,
+      img: product.images?.[0] || "/img/no-image.jpg",
+      price:
+        selectedVariant.sale_price && Number(selectedVariant.sale_price) > 0
+          ? Number(selectedVariant.sale_price)
+          : selectedVariant.price,
+      size: selectedVariant.size,
+    };
+
+    const result = await dispatch(addToWishlistAPI(wishlistItem));
+    if (addToWishlistAPI.fulfilled.match(result)) {
+      toast.success("Đã thêm vào wishlist 💖");
+      await dispatch(fetchWishlist());
+    } else {
+      toast.error((result.payload as string) || "Có lỗi khi thêm vào wishlist");
+    }
+  };
+
   const handleSend = async () => {
     if (!input.trim()) return;
 
-    const userMessage: Message = { type: "user", text: input };
+    const userMessage: Message = {
+      type: "user",
+      text: input,
+      timestamp: new Date(),
+    };
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setLoading(true);
+    setIsTyping(true);
 
     try {
-      const isProductQuery = /sản phẩm/i.test(input);
-      const payload = isProductQuery
-        ? { product_name: input }
-        : { answers: [input], mix_and_match: true };
+      setTimeout(async () => {
+        const res = await axios.post("http://127.0.0.1:8000/api/stylist/analyze", {
+          message: input,
+        });
 
-      const res = await axios.post("http://localhost:8000/api/stylist/analyze", payload);
-
-      if (res.data.product) {
-        const p = res.data.product;
-        const productCard: Product = {
-          id: p.id,
-          name: p.name,
-          description: p.description,
-          img: p.images?.map((url: string) => ({ name: url.split("/").pop() || "" })),
-        };
-        setMessages((prev) => [
-          ...prev,
-          { type: "bot", text: `🛍️ Đây là thông tin sản phẩm **${p.name}**:`, products: [productCard] },
-        ]);
-      } else {
         const reply = res.data.style_name
-          ? `🎯 Phong cách phù hợp: ${res.data.style_name}\n\n${res.data.description}`
-          : res.data.message || "🤖 Xin lỗi, mình chưa rõ gu bạn. Hỏi lại nhé?";
+          ? `🎯 Phong cách phù hợp: ${res.data.style_name}`
+          : "🤖 Xin lỗi, mình chưa rõ gu bạn. Hỏi lại nhé?";
         const products = res.data.products || [];
 
-        setMessages((prev) => [...prev, { type: "bot", text: reply, products }]);
-      }
+        setMessages((prev) => [
+          ...prev,
+          {
+            type: "bot",
+            text: reply,
+            products,
+            timestamp: new Date(),
+          },
+        ]);
+        setIsTyping(false);
+        setLoading(false);
+      }, 1000);
     } catch (error) {
-      console.error("Chat error:", error);
       setMessages((prev) => [
         ...prev,
-        { type: "bot", text: "❌ Không thể kết nối đến hệ thống. Vui lòng thử lại." },
+        {
+          type: "bot",
+          text: "❌ Không thể kết nối đến hệ thống. Vui lòng thử lại.",
+          timestamp: new Date(),
+        },
       ]);
+      setIsTyping(false);
+      setLoading(false);
     }
+  };
 
-    setLoading(false);
+  const clearChat = () => {
+    setMessages([
+      {
+        type: "bot",
+        text: "🎉 Xin chào! Mình là stylist AI. Bạn cần tư vấn gì hôm nay?",
+        timestamp: new Date(),
+      },
+    ]);
   };
 
   const quickReplies = [
-    "Phong cách nữ tính",
-    "Trang phục công sở",
-    "Outfit đi biển",
-    "Màu sắc hợp da trắng",
+    { text: "Phong cách nữ tính" },
+    { text: "Trang phục công sở", icon: <Briefcase size={16} /> },
+    { text: "Outfit đi biển", icon: <Waves size={16} /> },
+    { text: "Màu sắc hợp da trắng", icon: <Palette size={16} /> },
   ];
 
+  const formatTime = (date: Date) => {
+    return new Date(date).toLocaleTimeString("vi-VN", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  if (isMinimized) {
+    return (
+      <div className="fixed bottom-20 right-4 z-50">
+        <button
+          onClick={() => setIsMinimized(false)}
+          className="w-16 h-16 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center animate-bounce"
+        >
+          <MessageCircle size={24} />
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <div className="fixed bottom-20 right-4 w-[90vw] max-w-[380px] max-h-[520px] rounded-2xl shadow-2xl bg-white dark:bg-gray-900 border border-orange-300 dark:border-orange-700 flex flex-col z-50 overflow-hidden animate-fade-in transition-colors duration-300">
+    <div className="fixed bottom-20 right-4 w-[90vw] max-w-[400px] max-h-[600px] rounded-3xl shadow-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 flex flex-col z-50 overflow-hidden backdrop-blur-sm transition-all duration-300 transform animate-slideIn">
       {/* Header */}
-      <div className="bg-gradient-to-r from-orange-500 to-orange-600 dark:from-orange-700 dark:to-orange-800 text-white px-4 py-3 font-semibold text-base flex justify-between items-center">
-        🧠 Trợ lý Thời Trang AI
-        <div className="flex items-center gap-2">
+      <div className="bg-gradient-to-r from-orange-500 via-orange-600 to-pink-500 dark:from-orange-700 dark:via-orange-800 dark:to-pink-700 text-white px-6 py-5 font-semibold text-lg flex justify-between items-center relative overflow-hidden">
+        <div className="absolute inset-0 bg-white/10 animate-pulse"></div>
+        <div className="flex items-center gap-3 relative z-10">
+          <div className="relative">
+            <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+              <Brain size={20} />
+            </div>
+            <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-white animate-pulse"></div>
+          </div>
+          <div>
+            <div className="font-bold">Trợ lý AI</div>
+            <div className="text-xs opacity-90">
+              {isTyping ? "đang nhập..." : "trực tuyến"}
+            </div>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 relative z-10">
+          <button
+            onClick={clearChat}
+            title="Xóa cuộc trò chuyện"
+            className="text-white/80 hover:text-white p-1 rounded-full hover:bg-white/20 transition-all"
+          >
+            <Trash2 size={18} />
+          </button>
           <button
             onClick={() => setDarkMode(!darkMode)}
             title="Bật/Tắt chế độ tối"
-            className="text-white text-lg"
+            className="text-white/80 hover:text-white p-1 rounded-full hover:bg-white/20 transition-all"
           >
-            {darkMode ? "☀️" : "🌙"}
+            {darkMode ? <Sun size={18} /> : <Moon size={18} />}
           </button>
-          <button onClick={onClose} className="text-white text-xl">
-            ×
+          <button
+            onClick={() => setIsMinimized(true)}
+            title="Thu nhỏ"
+            className="text-white/80 hover:text-white p-1 rounded-full hover:bg-white/20 transition-all"
+          >
+            <Minus size={18} />
+          </button>
+          <button
+            onClick={onClose}
+            title="Đóng"
+            className="text-white/80 hover:text-white p-1 rounded-full hover:bg-white/20 transition-all"
+          >
+            <X size={20} />
           </button>
         </div>
       </div>
 
-      {/* Messages */}
-      <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-orange-50 dark:bg-gray-800 text-sm text-gray-800 dark:text-gray-100">
+      {/* Messages Area */}
+      <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-gradient-to-b from-orange-50/50 to-white dark:from-gray-800 dark:to-gray-900 text-sm scrollbar-thin scrollbar-thumb-orange-300 scrollbar-track-transparent">
         {messages.map((m, i) => (
           <div
             key={i}
-            className={`flex flex-col ${m.type === "bot" ? "items-start" : "items-end"}`}
+            className={`flex flex-col ${m.type === "bot" ? "items-start" : "items-end"} animate-fadeInUp`}
+            style={{ animationDelay: `${i * 0.1}s` }}
           >
-            <div className="text-xs text-orange-600 dark:text-orange-300 mb-1">
-              {m.type === "bot" ? "🤖 AI" : "🙋 Bạn"}
-            </div>
             <div
-              className={`flex items-start gap-2 ${m.type === "bot" ? "" : "flex-row-reverse"}`}
+              className={`flex items-start gap-3 max-w-[85%] ${m.type === "bot" ? "" : "flex-row-reverse"}`}
             >
               {m.type === "bot" ? (
-                <Image
-                  src={aiAvatar}
-                  alt="AI Avatar"
-                  width={32}
-                  height={32}
-                  className="rounded-full mt-1 shadow-md object-cover"
-                />
-              ) : userAvatar ? (
-                <Image
-                  src={`http://127.0.0.1:8000/storage/${userAvatar}`}
-                  alt="User Avatar"
-                  width={32}
-                  height={32}
-                  className="rounded-full mt-1 shadow-md object-cover"
-                />
+                <div className="relative">
+                  <img
+                    src={aiAvatar}
+                    alt="AI Avatar"
+                    className="w-10 h-10 rounded-full shadow-md object-cover border-2 border-orange-200"
+                  />
+                  <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white flex items-center justify-center">
+                    <Bot size={10} />
+                  </div>
+                </div>
               ) : (
-                <div className="w-8 h-8 mt-1 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-xs font-bold uppercase shadow-md">
-                  Bạn
+                <div className="relative">
+                  <Image
+                    src={
+                      user?.avatar
+                        ? `http://127.0.0.1:8000/storage/${encodeURIComponent(user.avatar)}`
+                        : "/img/user-avatar.webp"
+                    }
+                    width={40}
+                    height={40}
+                    alt="User Avatar"
+                    className="rounded-full shadow-md object-cover border-2 border-orange-200"
+                    onError={(e) => console.log("Image load error:", e)}
+                  />
                 </div>
               )}
 
-              <div
-                className={`px-4 py-2 rounded-2xl max-w-[75%] shadow-sm whitespace-pre-line ${
-                  m.type === "bot"
-                    ? "bg-white border border-orange-200 text-gray-800"
-                    : "bg-orange-100 text-right"
-                }`}
-              >
-                {m.text}
+              <div className="flex flex-col gap-1">
+                <div
+                  className={`px-4 py-3 rounded-2xl shadow-sm whitespace-pre-line relative ${
+                    m.type === "bot"
+                      ? "bg-white dark:bg-gray-700 border border-orange-100 dark:border-gray-600 text-gray-800 dark:text-gray-100 rounded-tl-md"
+                      : "bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-tr-md"
+                  }`}
+                >
+                  {m.text}
+                  <div
+                    className={`text-xs mt-2 opacity-70 ${
+                      m.type === "bot" ? "text-gray-500" : "text-orange-100"
+                    }`}
+                  >
+                    {m.timestamp && formatTime(m.timestamp)}
+                  </div>
+                </div>
 
+                {/* Products Grid */}
                 {m.products && m.products.length > 0 && (
-                  <div className="mt-2 space-y-2">
+                  <div className="mt-3 grid grid-cols-1 gap-3">
                     {m.products.map((p) => (
-                      <Link
+                      <div
                         key={p.id}
-                        href={`/products/${p.id}`}
-                        className="block border border-orange-200 dark:border-orange-700 rounded-lg overflow-hidden hover:shadow-md hover:scale-[1.01] transition-transform duration-200"
+                        className="block border border-orange-200 dark:border-orange-700 rounded-xl overflow-hidden hover:shadow-lg hover:scale-[1.02] transition-all duration-300 bg-white dark:bg-gray-800 group relative"
                       >
-                        <Image
-                          src={
-                            p.image
-                              ? p.image
-                              : p.img?.[0]?.name
-                              ? `/img/${p.img[0].name}`
-                              : "/img/no-image.jpg"
-                          }
-                          alt={p.name || "Hình ảnh sản phẩm"}
-                          width={300}
-                          height={128}
-                          className="w-full h-32 object-cover"
-                        />
-                        <div className="p-2 text-xs">
-                          <div className="font-semibold text-orange-700">{p.name}</div>
-                          <div className="text-gray-600 dark:text-gray-300 line-clamp-2">
-                            {p.description}
+                        <Link href={`/products/${p.id}`}>
+                          <div className="relative overflow-hidden">
+                            <img
+                              src={p.images?.[0] || "/img/no-image.jpg"}
+                              alt={p.name}
+                              className="w-full h-36 object-cover group-hover:scale-110 transition-transform duration-300"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                           </div>
+                          <div className="p-3">
+                            <div className="font-semibold text-orange-700 dark:text-orange-300 group-hover:text-orange-800 transition-colors">
+                              {p.name}
+                            </div>
+                            <div className="text-gray-600 dark:text-gray-300 text-xs mt-1 line-clamp-2">
+                              {p.description}
+                            </div>
+                            <div className="mt-2 text-xs text-orange-600 dark:text-orange-400 font-medium">
+                              Xem chi tiết →
+                            </div>
+                          </div>
+                        </Link>
+                        <div className="absolute top-2 right-2 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button
+                            onClick={() => handleAddToCart(p)}
+                            className="text-white bg-orange-500 p-1 rounded-full hover:bg-orange-600"
+                            title="Thêm vào giỏ hàng"
+                          >
+                            <ShoppingCart size={20} />
+                          </button>
+                          <button
+                            onClick={() => router.push(`/products/${p.id}`)}
+                            className="text-white bg-orange-500 p-1 rounded-full hover:bg-orange-600"
+                            title="Xem chi tiết"
+                          >
+                            <Eye size={20} />
+                          </button>
+                          <button
+                            onClick={() => handleAddToWishlist(p)}
+                            className="text-white bg-orange-500 p-1 rounded-full hover:bg-orange-600"
+                            title="Thêm vào wishlist"
+                          >
+                            <Heart size={20} />
+                          </button>
                         </div>
-                      </Link>
+                      </div>
                     ))}
                   </div>
                 )}
@@ -215,71 +441,158 @@ export default function ChatBox({
           </div>
         ))}
 
-        {loading && (
-          <div className="flex items-center gap-2 animate-pulse">
-            <Image
+        {isTyping && (
+          <div className="flex items-center gap-3 animate-fadeInUp">
+            <img
               src={aiAvatar}
-              alt="AI Avatar"
-              width={32}
-              height={32}
-              className="rounded-full mt-1 shadow-md object-cover"
+              className="w-10 h-10 rounded-full shadow-md border-2 border-orange-200"
             />
-            <div className="bg-white border border-orange-300 px-4 py-2 rounded-xl text-gray-600">
-              ✍️ Đang phân tích phong cách...
+            <div className="bg-white dark:bg-gray-700 border border-orange-200 dark:border-gray-600 px-4 py-3 rounded-2xl rounded-tl-md flex items-center gap-2">
+              <div className="flex space-x-1">
+                <div className="w-2 h-2 bg-orange-500 rounded-full animate-bounce"></div>
+                <div
+                  className="w-2 h-2 bg-orange-500 rounded-full animate-bounce"
+                  style={{ animationDelay: "0.1s" }}
+                ></div>
+                <div
+                  className="w-2 h-2 bg-orange-500 rounded-full animate-bounce"
+                  style={{ animationDelay: "0.2s" }}
+                ></div>
+              </div>
+              <span className="text-gray-600 dark:text-gray-300 text-xs ml-2">
+                AI đang suy nghĩ...
+              </span>
             </div>
           </div>
         )}
         <div ref={chatEndRef}></div>
       </div>
 
-      {/* Gợi ý nhanh */}
+      {/* Quick Replies */}
       {!loading && (
-        <div className="px-3 pt-1 pb-2 text-xs text-orange-700 dark:text-orange-300">
-          Gợi ý nhanh:
-          <div className="flex flex-wrap gap-2 mt-1">
+        <div className="px-4 py-3 bg-gradient-to-r from-orange-50 to-pink-50 dark:from-gray-800 dark:to-gray-900 border-t border-orange-100 dark:border-gray-700">
+          <div className="text-xs font-medium text-orange-700 dark:text-orange-300 mb-2 flex items-center gap-2">
+            <Sparkles size={14} />
+            Gợi ý nhanh:
+          </div>
+          <div className="flex flex-wrap gap-2">
             {quickReplies.map((q, i) => (
               <button
                 key={i}
-                onClick={() => setInput(q)}
-                className="px-3 py-1 bg-orange-100 dark:bg-orange-800 text-xs rounded-full hover:bg-orange-200 dark:hover:bg-orange-700 transition-all"
+                onClick={() => setInput(q.text)}
+                className="px-3 py-2 bg-white dark:bg-gray-700 border border-orange-200 dark:border-gray-600 text-xs rounded-full hover:bg-orange-100 dark:hover:bg-gray-600 hover:scale-105 transition-all duration-200 flex items-center gap-1 shadow-sm"
               >
-                {q}
+                {q.icon}
+                <span>{q.text}</span>
               </button>
             ))}
           </div>
         </div>
       )}
 
-      {/* Input */}
-      <div className="flex items-center border-t border-orange-200 dark:border-orange-700 px-2 py-2 bg-white dark:bg-gray-900 gap-2">
-        <button
-          onClick={() => setInput((prev) => prev + "😊")}
-          className="text-lg hover:scale-110"
-          title="Thêm cảm xúc"
-        >
-          😊
-        </button>
-        <input
-          ref={inputRef}
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSend()}
-          className="flex-1 px-3 py-2 text-sm rounded-lg border border-orange-300 dark:border-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100"
-          placeholder="Nhập mô tả phong cách bạn muốn..."
-          disabled={loading}
-        />
+      {/* Input Area */}
+      <div className="flex items-center border-t border-orange-200 dark:border-gray-700 px-3 py-3 bg-white dark:bg-gray-900 gap-3">
+        <div className="flex gap-1">
+          <button
+            onClick={() => setInput((prev) => prev + "😊")}
+            className="hover:scale-125 transition-transform p-1"
+            title="Thêm cảm xúc"
+          >
+            <Smile size={18} />
+          </button>
+          <button
+            onClick={() => setInput((prev) => prev + "❤️")}
+            className="hover:scale-125 transition-transform p-1"
+            title="Thêm trái tim"
+          >
+            <Heart size={18} />
+          </button>
+        </div>
+
+        <div className="flex-1 relative">
+          <input
+            ref={inputRef}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
+            className="w-full px-4 py-3 text-sm rounded-2xl border border-orange-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:focus:ring-orange-400 bg-orange-50 dark:bg-gray-800 text-gray-800 dark:text-gray-100 transition-all placeholder:text-gray-500"
+            placeholder="Nhập tin nhắn của bạn..."
+            disabled={loading}
+          />
+          {input && (
+            <button
+              onClick={() => setInput("")}
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            >
+              <X size={16} />
+            </button>
+          )}
+        </div>
+
         <button
           onClick={handleSend}
-          disabled={loading}
+          disabled={loading || !input.trim()}
           className={`${
-            loading
-              ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
-              : "bg-orange-500 hover:bg-orange-600"
-          } text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all`}
+            loading || !input.trim()
+              ? "bg-gray-300 dark:bg-gray-600 cursor-not-allowed"
+              : "bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 active:scale-95"
+          } text-white px-4 py-3 rounded-2xl text-sm font-semibold transition-all duration-200 flex items-center gap-2 shadow-md`}
         >
-          {loading ? "..." : "Gửi"}
+          {loading ? (
+            <Loader2 size={16} className="animate-spin" />
+          ) : (
+            <>
+              <span>Gửi</span>
+              <Send size={16} />
+            </>
+          )}
         </button>
       </div>
+
+      <style jsx>{`
+        @keyframes slideIn {
+          from {
+            opacity: 0;
+            transform: translateY(20px) scale(0.95);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+        }
+
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .animate-slideIn {
+          animation: slideIn 0.3s ease-out;
+        }
+
+        .animate-fadeInUp {
+          animation: fadeInUp 0.3s ease-out forwards;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar {
+          width: 4px;
+        }
+
+        .scrollbar-thumb-orange-300::-webkit-scrollbar-thumb {
+          background-color: #fed7aa;
+          border-radius: 2px;
+        }
+
+        .scrollbar-track-transparent::-webkit-scrollbar-track {
+          background: transparent;
+        }
+      `}</style>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faChevronRight,
@@ -13,10 +13,17 @@ import {
 
 const sizes = ["S", "M", "L", "XL"];
 
+interface Category {
+  id: number;
+  name: string;
+  status: number;
+}
+
 interface BreadcrumbFilterProps {
   onSortChange?: (sortOrder: "asc" | "desc") => void;
   onSizeChange?: (size: string | null) => void;
   onPriceChange?: (price: number) => void;
+  onCategoryChange?: (categoryId: number) => void;
   currentPrice?: number;
 }
 
@@ -24,23 +31,49 @@ export default function BreadcrumbFilter({
   onSortChange,
   onSizeChange,
   onPriceChange,
+  onCategoryChange,
   currentPrice,
 }: BreadcrumbFilterProps) {
   const [filterOpen, setFilterOpen] = useState(false);
   const [sortOpen, setSortOpen] = useState(false);
+  const [categoryOpen, setCategoryOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"color" | "size" | "price">("color");
-  const [selectedColors, setSelectedColors] = useState<string[]>([]);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [priceRange, setPriceRange] = useState<number>(currentPrice ?? 0);
+  const [categoryList, setCategoryList] = useState<Category[]>([]);
+
+  useEffect(() => {
+    fetch("http://127.0.0.1:8000/category")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data.data)) {
+          const filtered = (data.data as Category[]).filter((c: Category) => c.status === 1);
+          setCategoryList(filtered);
+        }
+      })
+      .catch((err) => {
+        console.error("Lỗi khi lấy danh mục:", err);
+      });
+  }, []);
 
   function toggleFilter() {
     setFilterOpen(!filterOpen);
     if (!filterOpen) setSortOpen(false);
+    setCategoryOpen(false);
   }
 
   function toggleSort() {
     setSortOpen(!sortOpen);
     if (!sortOpen) setFilterOpen(false);
+    setCategoryOpen(false);
+  }
+
+  function toggleCategory() {
+    setCategoryOpen(!categoryOpen);
+    if (!categoryOpen) {
+      setFilterOpen(false);
+      setSortOpen(false);
+    }
   }
 
   function selectSize(size: string) {
@@ -74,11 +107,15 @@ export default function BreadcrumbFilter({
   }
 
   function handleClearFilters() {
-    setSelectedColors([]);
     setSelectedSize(null);
     setPriceRange(0);
     onSizeChange?.(null);
     onPriceChange?.(0);
+  }
+
+  function handleCategoryClick(categoryId: number) {
+    onCategoryChange?.(categoryId);
+    setCategoryOpen(false);
   }
 
   return (
@@ -90,10 +127,11 @@ export default function BreadcrumbFilter({
             Trang chủ <FontAwesomeIcon icon={faChevronRight} />
           </div>
         </div>
+
         <div className="flex items-center gap-4 text-lg text-gray-700 cursor-pointer">
           <FontAwesomeIcon icon={faFilter} onClick={toggleFilter} />
           <FontAwesomeIcon icon={faBars} onClick={toggleSort} />
-          <FontAwesomeIcon icon={faGrip} />
+          <FontAwesomeIcon icon={faGrip} onClick={toggleCategory} />
         </div>
 
         {/* Bộ lọc */}
@@ -101,7 +139,7 @@ export default function BreadcrumbFilter({
           <div className="absolute top-16 right-[70px] w-72 bg-white border p-5 shadow-lg z-10">
             <h4 className="text-base mb-3 font-medium">Bộ lọc</h4>
             <div className="flex gap-2 mb-4">
-              {["color", "size", "price"].map((tab) => (
+              {["size", "price"].map((tab) => (
                 <button
                   key={tab}
                   className={`px-3 py-2 border cursor-pointer ${
@@ -191,6 +229,28 @@ export default function BreadcrumbFilter({
                 Giá tăng dần
               </li>
             </ul>
+          </div>
+        )}
+
+        {/* Danh mục sản phẩm */}
+        {categoryOpen && (
+          <div className="absolute top-16 right-0 w-64 bg-white border p-4 shadow-lg z-10 max-h-[300px] overflow-y-auto">
+            <h4 className="text-base mb-3 font-medium">Danh mục sản phẩm</h4>
+            {categoryList.length > 0 ? (
+              <ul className="text-sm space-y-2">
+                {categoryList.map((cat) => (
+                  <li
+                    key={cat.id}
+                    className="cursor-pointer hover:font-semibold"
+                    onClick={() => handleCategoryClick(cat.id)}
+                  >
+                    {cat.name}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="text-sm text-gray-400">Không có danh mục nào.</div>
+            )}
           </div>
         )}
       </div>

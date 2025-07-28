@@ -808,6 +808,7 @@
 //     </>
 //   );
 // }
+
 "use client";
 
 import ProductModal from "./ProductModal";
@@ -849,7 +850,7 @@ interface Product {
   description: string;
   status: string;
   img: ProductImage[];
-  images?: string[]; // Thêm để xử lý ảnh từ API
+  images?: string[];
   variant: ProductVariant[];
   category_id: number;
   category?: {

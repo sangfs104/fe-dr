@@ -116,8 +116,9 @@ export default function FlashSaleProductList() {
                       name: variant.product_name,
                       description: variant.description,
                       status: variant.status,
+                      images: variant.images, // ✅ ADD THIS LINE
                       img: variant.images.map((imgName) => ({
-                        id: `${variant.product_id}-${imgName}`, // ✅ Unique ID
+                        id: `${variant.product_id}-${imgName}`,
                         product_id: variant.product_id,
                         name: imgName,
                       })),
@@ -138,7 +139,7 @@ export default function FlashSaleProductList() {
                       category: {
                         id: variant.category_id,
                         name: sale.flash_sale_name,
-                        image_url: "", // optional
+                        image_url: "",
                       },
                     }}
                   />

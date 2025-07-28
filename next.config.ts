@@ -7,13 +7,13 @@ const nextConfig = {
         protocol: "http",
         hostname: "127.0.0.1",
         port: "8000",
-        pathname: "/img/**", // ảnh sp6.webp, sp6_2.webp, ...
+        pathname: "/img/**", 
       },
       {
         protocol: "http",
         hostname: "127.0.0.1",
         port: "8000",
-        pathname: "/storage/**", // ảnh kiểu public/storage/...
+        pathname: "/storage/**", 
       },
     ],
   },

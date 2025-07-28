@@ -39,7 +39,8 @@ export default function Header() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const searchTimeoutRef = useRef<NodeJS.Timeout>();
+  // const searchTimeoutRef = useRef<NodeJS.Timeout>();
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const [language, setLanguage] = useState<"vi" | "en">("vi");
   const [showCartModal, setShowCartModal] = useState(false);
@@ -71,16 +72,16 @@ export default function Header() {
     : 0;
 
   // Mock search suggestions - replace with actual API call
-  const mockSuggestions = [
-    "Áo thun nam",
-    "Áo khoác nữ",
-    "Giày sneaker",
-    "Túi xách",
-    "Quần jeans",
-    "Váy midi",
-    "Áo sơ mi",
-    "Phụ kiện thời trang",
-  ];
+  // const mockSuggestions = [
+  //   "Áo thun nam",
+  //   "Áo khoác nữ",
+  //   "Giày sneaker",
+  //   "Túi xách",
+  //   "Quần jeans",
+  //   "Váy midi",
+  //   "Áo sơ mi",
+  //   "Phụ kiện thời trang",
+  // ];
 
   // Auto-hide header on scroll down, show on scroll up
   useEffect(() => {
@@ -107,9 +108,18 @@ export default function Header() {
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  // Auto-search suggestions with debounce
   useEffect(() => {
+    const mockSuggestions = [
+      "Áo thun nam",
+      "Áo khoác nữ",
+      "Giày sneaker",
+      "Túi xách",
+      "Quần jeans",
+      "Váy midi",
+      "Áo sơ mi",
+      "Phụ kiện thời trang",
+    ];
+
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
     }
@@ -132,6 +142,8 @@ export default function Header() {
       }
     };
   }, [keyword, isSearchFocused]);
+
+  // Auto-search suggestions with debounce
 
   // Pulse animation for cart/wishlist updates
   useEffect(() => {

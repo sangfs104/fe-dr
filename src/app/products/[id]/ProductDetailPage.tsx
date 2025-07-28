@@ -625,7 +625,7 @@ font-bold tracking-tight bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900
               </motion.div>
 
               <motion.p
-                className="text-gray-600 leading-relaxed text-lg"
+                className="text-gray-600 leading-relaxed text-base"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5 }}
@@ -907,7 +907,7 @@ font-bold tracking-tight bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900
                   <div className="flex items-center justify-between mb-6">
                     <div>
                       <motion.p
-                        className="text-4xl font-bold text-gray-900"
+                        className="text-3xl font-bold text-gray-900"
                         key={selectedVariant.id}
                         initial={{ scale: 0.8, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}

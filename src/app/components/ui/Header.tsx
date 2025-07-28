@@ -1668,6 +1668,7 @@
 //     </div>
 //   );
 // }
+
 "use client";
 
 import Image from "next/image";
@@ -2030,6 +2031,7 @@ export default function Header() {
                     width={80}
                     height={80}
                     alt="Avatar"
+                    unoptimized
                     className="w-6 h-6 rounded-full object-cover border group-hover:border-[tomato] transition-all duration-200 group-hover:scale-110"
                   />
                 ) : (

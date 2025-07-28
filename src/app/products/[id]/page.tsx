@@ -6,8 +6,7 @@ import Footer from "../../components/ui/Footer";
 import CheckoutProgress from "../../components/ui/CheckoutProgress";
 import ProductDetailClient from "./ProductDetailPage";
 import ProductList1 from "../../components/ui/ProductList1";
-import type { Product } from "../../types/Product"; // đường dẫn có thể cần chỉnh lại
-
+import type { Product } from "../../types/Product"; 
 export default function ProductPage({
   params,
 }: {
@@ -82,7 +81,7 @@ export default function ProductPage({
       <CheckoutProgress currentStep="detail" />
 
       {!product ? (
-        <div className="p-6 text-center text-gray-500">
+        <div className=" text-center text-gray-500">
           <span className="animate-pulse">Đang tải sản phẩm...</span>
         </div>
       ) : (

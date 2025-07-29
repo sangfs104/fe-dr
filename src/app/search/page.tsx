@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import axios from "axios";
 import { FaSpinner } from "react-icons/fa";
-import ProductCard from "../components/ui/ProductCard";
+import ProductCard from "../components/ui//ProductList";
 import HeaderHome from "../components/ui/Header";
 import Footer from "../components/ui/Footer";
 
@@ -19,7 +19,10 @@ type Product = {
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
-const debounce = <T extends (...args: any[]) => void>(func: T, wait: number) => {
+const debounce = <T extends (...args: any[]) => void>(
+  func: T,
+  wait: number
+) => {
   let timeout: NodeJS.Timeout | null = null;
   return (...args: Parameters<T>) => {
     if (timeout) clearTimeout(timeout);
@@ -29,7 +32,8 @@ const debounce = <T extends (...args: any[]) => void>(func: T, wait: number) => 
 
 const SearchPage = () => {
   const searchParams = useSearchParams();
-  const keyword = searchParams.get("keyword") || searchParams.get("query") || "";
+  const keyword =
+    searchParams.get("keyword") || searchParams.get("query") || "";
 
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -41,7 +45,9 @@ const SearchPage = () => {
   useEffect(() => {
     const updateSkeletonCount = () => {
       if (typeof window !== "undefined") {
-        setSkeletonCount(window.innerWidth >= 1024 ? 8 : window.innerWidth >= 768 ? 6 : 4);
+        setSkeletonCount(
+          window.innerWidth >= 1024 ? 8 : window.innerWidth >= 768 ? 6 : 4
+        );
       }
     };
     updateSkeletonCount();
@@ -62,7 +68,9 @@ const SearchPage = () => {
     }
 
     try {
-      const res = await axios.get(`${API_BASE}/api/search?${new URLSearchParams({ search: keyword })}`);
+      const res = await axios.get(
+        `${API_BASE}/api/search?${new URLSearchParams({ search: keyword })}`
+      );
       const { status, data, message } = res.data;
 
       if (status === 200 && Array.isArray(data)) {
@@ -73,7 +81,7 @@ const SearchPage = () => {
         setProducts([]);
         setError(message || "Không tìm thấy sản phẩm nào phù hợp.");
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error("Fetch error:", err);
       if (err.response && err.response.data) {
         const { message } = err.response.data;
@@ -87,7 +95,9 @@ const SearchPage = () => {
     }
   }, [keyword]);
 
-  const debouncedFetchProducts = useCallback(debounce(fetchProducts, 300), [fetchProducts]);
+  const debouncedFetchProducts = useCallback(debounce(fetchProducts, 300), [
+    fetchProducts,
+  ]);
 
   useEffect(() => {
     cache.current.clear();
@@ -123,7 +133,8 @@ const SearchPage = () => {
       <section className="px-6 md:px-20 lg:px-40 py-6 min-h-[70vh]">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-3xl font-bold dark:text-white hidden md:block">
-            Kết quả tìm kiếm cho: <span className="text-orange-500">{keyword}</span>
+            Kết quả tìm kiếm cho:{" "}
+            <span className="text-orange-500">{keyword}</span>
           </h2>
         </div>
 
@@ -131,14 +142,18 @@ const SearchPage = () => {
           <>
             <div className="flex justify-center items-center py-4">
               <FaSpinner className="animate-spin text-2xl text-orange-500 mr-2" />
-              <span className="text-gray-600 dark:text-zinc-400">Đang tìm kiếm sản phẩm...</span>
+              <span className="text-gray-600 dark:text-zinc-400">
+                Đang tìm kiếm sản phẩm...
+              </span>
             </div>
             {renderSkeleton()}
           </>
         )}
 
         {error && (
-          <div className="text-center py-16 text-red-500 font-semibold text-lg">{error}</div>
+          <div className="text-center py-16 text-red-500 font-semibold text-lg">
+            {error}
+          </div>
         )}
 
         {!loading && !error && products.length === 0 && (
@@ -146,8 +161,14 @@ const SearchPage = () => {
             Không có sản phẩm nào phù hợp với từ khóa bạn đã nhập.
             <span className="block mt-2">
               Hãy thử các từ khóa khác như{" "}
-              <span className="text-orange-500 cursor-pointer hover:underline">áo thun</span> hoặc{" "}
-              <span className="text-orange-500 cursor-pointer hover:underline">quần jeans</span>.
+              <span className="text-orange-500 cursor-pointer hover:underline">
+                áo thun
+              </span>{" "}
+              hoặc{" "}
+              <span className="text-orange-500 cursor-pointer hover:underline">
+                quần jeans
+              </span>
+              .
             </span>
           </div>
         )}
@@ -155,7 +176,11 @@ const SearchPage = () => {
         {!loading && !error && products.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {products.map((product) => (
-              <ProductCard key={product.id || product.slug} product={product} keyword={keyword} />
+              <ProductCard
+                key={product.id || product.slug}
+                product={product}
+                keyword={keyword}
+              />
             ))}
           </div>
         )}

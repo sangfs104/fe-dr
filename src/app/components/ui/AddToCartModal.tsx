@@ -28,11 +28,10 @@
 //   const router = useRouter();
 
 //   const handleRedirect = (path: string) => {
-//     onClose(); // đóng modal trước
-
+//     onClose();
 //     setTimeout(() => {
 //       router.push(path);
-//     }, 200); // delay chút xíu cho Radix Dialog đóng xong
+//     }, 200); // đợi modal đóng xong rồi mới push
 //   };
 
 //   return (
@@ -40,9 +39,9 @@
 //       <Dialog.Portal>
 //         <Dialog.Overlay className="fixed inset-0 bg-black/30 z-50 backdrop-blur-sm" />
 
-//         <Dialog.Content asChild>
-//           <AnimatePresence>
-//             {open && (
+//         <AnimatePresence>
+//           {open && (
+//             <Dialog.Content asChild forceMount>
 //               <motion.div
 //                 key="modal"
 //                 initial={{ opacity: 0, scale: 0.9, x: "-50%", y: "-50%" }}
@@ -68,7 +67,7 @@
 //                   </Dialog.Close>
 //                 </div>
 
-//                 {/* Sản phẩm */}
+//                 {/* Thông tin sản phẩm */}
 //                 <div className="flex gap-4 items-start">
 //                   <Image
 //                     src={`/img/${image}`}
@@ -104,7 +103,7 @@
 //                   </div>
 //                 </div>
 
-//                 {/* Nút hành động */}
+//                 {/* Nút điều hướng */}
 //                 <div className="flex justify-end gap-2 pt-4">
 //                   <motion.button
 //                     whileTap={{ scale: 0.95 }}
@@ -122,13 +121,14 @@
 //                   </motion.button>
 //                 </div>
 //               </motion.div>
-//             )}
-//           </AnimatePresence>
-//         </Dialog.Content>
+//             </Dialog.Content>
+//           )}
+//         </AnimatePresence>
 //       </Dialog.Portal>
 //     </Dialog.Root>
 //   );
 // }
+
 "use client";
 
 import * as Dialog from "@radix-ui/react-dialog";
@@ -201,7 +201,7 @@ export default function AddToCartModal({
                 {/* Thông tin sản phẩm */}
                 <div className="flex gap-4 items-start">
                   <Image
-                    src={`/img/${image}`}
+                    src={image}
                     alt={productName}
                     width={80}
                     height={80}

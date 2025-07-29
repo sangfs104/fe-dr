@@ -31,7 +31,8 @@ import { addToCart } from "@/store/cartSlice";
 import { addToWishlistAPI, fetchWishlist } from "@/store/wishlistSlice";
 import { useRouter } from "next/navigation";
 
-const aiAvatar = "/img/ai-avatar.webp";
+const aiAvatar = "http://localhost:8000/img/ai-avatar.webp";
+
 
 type ProductVariant = {
   id: number;

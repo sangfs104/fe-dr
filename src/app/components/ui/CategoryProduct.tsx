@@ -91,55 +91,55 @@
 // // //           </div>
 // // //         </div>
 
-// // //         {/* Bên phải: sản phẩm */}
-// // //         <div className="w-full lg:w-3/4">
-// // //           <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-// // //             <div>
-// // //               <h2 className="text-white bg-gradient-to-r from-[#FF8A50] via-[#FF7043] to-[#FF5722] px-4 py-2 text-lg font-bold uppercase inline-block">
-// // //                 SẢN PHẨM
-// // //               </h2>
-// // //               <div className="h-[2px] bg-gradient-to-r from-[#FF8A50] via-[#FF7043] to-[#FF5722] w-1/2 mt-1"></div>
-// // //             </div>
+//         {/* Bên phải: sản phẩm */}
+//         <div className="w-full lg:w-3/4">
+//           <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+//             <div>
+//               <h2 className="text-white bg-gradient-to-r from-[#FF8A50] via-[#FF7043] to-[#FF5722] px-4 py-2 text-lg font-bold uppercase inline-block">
+//                 SẢN PHẨM
+//               </h2>
+//               <div className="h-[2px] bg-gradient-to-r from-[#FF8A50] via-[#FF7043] to-[#FF5722] w-1/2 mt-1"></div>
+//             </div>
 
-// // //             {products.length > 6 && (
-// // //               <Link
-// // //                 href="/products"
-// // //                 className="text-black font-semibold hover:underline inline-flex items-center gap-1 text-sm"
-// // //               >
-// // //                 Xem thêm
-// // //                 <svg
-// // //                   className="w-4 h-4"
-// // //                   fill="none"
-// // //                   stroke="currentColor"
-// // //                   strokeWidth="2"
-// // //                   viewBox="0 0 24 24"
-// // //                 >
-// // //                   <path
-// // //                     strokeLinecap="round"
-// // //                     strokeLinejoin="round"
-// // //                     d="M9 5l7 7-7 7"
-// // //                   />
-// // //                 </svg>
-// // //               </Link>
-// // //             )}
-// // //           </div>
+//             {products.length > 6 && (
+//               <Link
+//                 href="/products"
+//                 className="text-black font-semibold hover:underline inline-flex items-center gap-1 text-sm"
+//               >
+//                 Xem thêm
+//                 <svg
+//                   className="w-4 h-4"
+//                   fill="none"
+//                   stroke="currentColor"
+//                   strokeWidth="2"
+//                   viewBox="0 0 24 24"
+//                 >
+//                   <path
+//                     strokeLinecap="round"
+//                     strokeLinejoin="round"
+//                     d="M9 5l7 7-7 7"
+//                   />
+//                 </svg>
+//               </Link>
+//             )}
+//           </div>
 
-// // //           {products.length > 0 ? (
-// // //             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-4 -gap-y-4 -mt-10">
-// // //               {products.slice(0, 6).map((product) => (
-// // //                 <ProductCard key={product.id} product={product} />
-// // //               ))}
-// // //             </div>
-// // //           ) : (
-// // //             <div className="text-center py-10 text-gray-500">
-// // //               Không có sản phẩm nào.
-// // //             </div>
-// // //           )}
-// // //         </div>
-// // //       </div>
-// // //     </div>
-// // //   );
-// // // }
+//           {products.length > 0 ? (
+//             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-4 -gap-y-4 -mt-10">
+//               {products.slice(0, 6).map((product) => (
+//                 <ProductCard key={product.id} product={product} />
+//               ))}
+//             </div>
+//           ) : (
+//             <div className="text-center py-10 text-gray-500">
+//               Không có sản phẩm nào.
+//             </div>
+//           )}
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
 
 "use client";
 
@@ -387,69 +387,44 @@ export default function CategoryProduct({
               <div className="absolute inset-0 rounded-2xl bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
             </div>
           </div>
-
-          {/* Products Section */}
-          <div
-            className={`w-full lg:w-3/4 transform transition-all duration-1000 ${
-              isVisible
-                ? "translate-x-0 opacity-100"
-                : "translate-x-10 opacity-0"
-            }`}
-            style={{ animationDelay: "0.3s" }}
-          >
+          <div className="w-full lg:w-3/4">
             <div className="mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <SectionTitle
                 title="SẢN PHẨM"
                 subtitle="Những sản phẩm hot nhất hiện tại"
               />
-
               {products.length > 6 && (
                 <Link
                   href="/products"
-                  className="group relative bg-white text-gray-800 font-semibold px-6 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 hover:scale-105 border border-gray-200 hover:border-[#FF7043] overflow-hidden"
+                  className="text-black font-semibold hover:underline inline-flex items-center gap-1 text-sm"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-[#FF8A50] to-[#FF5722] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <span className="relative z-10 flex items-center gap-2 group-hover:text-white transition-colors duration-300">
-                    Xem thêm
-                    <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300" />
-                  </span>
+                  Xem thêm
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
                 </Link>
               )}
             </div>
 
             {products.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                {products.slice(0, 6).map((product, index) => (
-                  <div
-                    key={product.id}
-                    className="transform transition-all duration-500 hover:-translate-y-2"
-                    style={{
-                      animationDelay: `${0.5 + index * 0.1}s`,
-                      animation: isVisible
-                        ? "slideInUp 0.6s ease-out forwards"
-                        : "none",
-                    }}
-                  >
-                    <div className="group relative">
-                      <div className="absolute -inset-2 bg-gradient-to-r from-[#FF8A50] via-[#FF7043] to-[#FF5722] rounded-xl opacity-0 group-hover:opacity-20 transition-opacity duration-300 blur-lg"></div>
-                      <div className="relative">
-                        <ProductCard product={product} />
-                      </div>
-                    </div>
-                  </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-4 -gap-y-4 -mt-10">
+                {products.slice(0, 6).map((product) => (
+                  <ProductCard key={product.id} product={product} />
                 ))}
               </div>
             ) : (
-              <div className="text-center py-20">
-                <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center animate-pulse">
-                  <Package className="w-12 h-12 text-gray-400" />
-                </div>
-                <p className="text-gray-500 text-lg font-medium">
-                  Không có sản phẩm nào.
-                </p>
-                <p className="text-gray-400 text-sm mt-2">
-                  Vui lòng quay lại sau!
-                </p>
+              <div className="text-center py-10 text-gray-500">
+                Không có sản phẩm nào.
               </div>
             )}
           </div>

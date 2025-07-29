@@ -334,7 +334,7 @@ function PostItem({ post, token }: PostItemProps) {
                       : "bg-white/80 text-gray-600 border-gray-200 hover:border-indigo-200"
                   }
                 `}
-                style={{ minWidth: "56px" }}
+                style={{ minWidth: "59px" }}
               >
                 <span
                   className={`${colorClass} transition-colors ${

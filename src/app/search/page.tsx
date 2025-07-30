@@ -7,6 +7,7 @@ import { FaSpinner } from "react-icons/fa";
 import ProductCard from "../components/ui/ProductCard";
 import HeaderHome from "../components/ui/Header";
 import Footer from "../components/ui/Footer";
+import ProductModal from "../components/ui/ProductModal";
 
 type Product = {
   id: number;
@@ -14,6 +15,7 @@ type Product = {
   description: string;
   slug?: string;
   img: { name: string }[];
+  images: string[]; // Thêm trường images
   variant?: Record<string, unknown>;
 };
 
@@ -35,6 +37,7 @@ const SearchPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [skeletonCount, setSkeletonCount] = useState(4);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   const cache = useRef<Map<string, Product[]>>(new Map());
 
@@ -64,10 +67,19 @@ const SearchPage = () => {
     try {
       const res = await axios.get(`${API_BASE}/api/search?${new URLSearchParams({ search: keyword })}`);
       const { status, data, message } = res.data;
-
+      console.log("SearchPage API response:", data); // Debug dữ liệu gốc
       if (status === 200 && Array.isArray(data)) {
-        cache.current.set(cacheKey, data);
-        setProducts(data);
+        const sanitizedData = data.map((item: Product) => ({
+          ...item,
+          img: Array.isArray(item.img) ? item.img : [],
+          variant: Array.isArray(item.variant) ? item.variant : [],
+          images: Array.isArray(item.img)
+            ? item.img.map(img => `${API_BASE}/img/${img.name}`)
+            : [],
+        }));
+        console.log("Sanitized data:", sanitizedData); // Debug dữ liệu sau xử lý
+        cache.current.set(cacheKey, sanitizedData);
+        setProducts(sanitizedData);
         setError("");
       } else {
         setProducts([]);
@@ -155,13 +167,25 @@ const SearchPage = () => {
         {!loading && !error && products.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {products.map((product) => (
-              <ProductCard key={product.id || product.slug} product={product} keyword={keyword} />
+              <ProductCard
+                key={product.id || product.slug}
+                product={product}
+                keyword={keyword}
+                onClick={() => setSelectedProduct(product)}
+              />
             ))}
           </div>
         )}
       </section>
 
       <Footer />
+
+      {selectedProduct && (
+        <ProductModal
+          product={selectedProduct}
+          onClose={() => setSelectedProduct(null)}
+        />
+      )}
 
       <style jsx>{`
         @keyframes fadeIn {

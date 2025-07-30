@@ -46,6 +46,8 @@ interface Product {
   };
 }
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+
 export default function ProductCard({ product }: { product: Product }) {
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -53,11 +55,7 @@ export default function ProductCard({ product }: { product: Product }) {
   const [mainImage, setMainImage] = useState<string | undefined>(
     defaultImg?.name
   );
-  // const [selectedVariant, setSelectedVariant] = useState<
-  //   ProductVariant | undefined
-  // >(product.variant?.[0]);
   const selectedVariant = product.variant?.[0];
-
   const [showModal, setShowModal] = useState(false);
 
   const handleImageHover = (imgName: string) => setMainImage(imgName);
@@ -74,9 +72,8 @@ export default function ProductCard({ product }: { product: Product }) {
       addToCart({
         productId: product.id,
         variantId: selectedVariant.id,
-        // name: product.name,
         name: `${product.name} - Size ${selectedVariant.size}`,
-        img: `/img/${mainImage}`,
+        img: `${API_BASE}/img/${mainImage}`,
         price: priceToUse,
         size: selectedVariant.size,
         quantity: 1,
@@ -102,7 +99,7 @@ export default function ProductCard({ product }: { product: Product }) {
       productId: product.id,
       variantId: selectedVariant.id,
       name: product.name,
-      img: `/img/${mainImage}`,
+      img: `${API_BASE}/img/${mainImage}`,
       price:
         selectedVariant.sale_price && Number(selectedVariant.sale_price) > 0
           ? Number(selectedVariant.sale_price)
@@ -143,11 +140,12 @@ export default function ProductCard({ product }: { product: Product }) {
 
             {mainImage ? (
               <Image
-                src={`/img/${mainImage}`}
+                src={`${API_BASE}/img/${mainImage}`}
                 alt={product.name}
                 width={500}
                 height={600}
                 className="w-full h-64 object-cover rounded"
+                unoptimized
               />
             ) : (
               <div className="w-full h-64 bg-gray-100 flex items-center justify-center text-gray-400 rounded">
@@ -194,11 +192,12 @@ export default function ProductCard({ product }: { product: Product }) {
               onMouseEnter={() => handleImageHover(img.name)}
             >
               <Image
-                src={`/img/${img.name}`}
+                src={`${API_BASE}/img/${img.name}`}
                 alt={`variant-${idx}`}
                 width={40}
                 height={40}
                 className="w-full h-full object-cover rounded"
+                unoptimized
               />
             </div>
           ))}

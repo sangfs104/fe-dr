@@ -3,11 +3,20 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
+import { AxiosError } from "axios";
+
+import {
+  faChevronDown,
+  faReceipt,
+  faCreditCard,
+  faBoxOpen,
+} from "@fortawesome/free-solid-svg-icons";
 import CheckoutProgress from "../components/ui/CheckoutProgress";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { RootState } from "@/store/store";
+import HeaderHome from "../components/ui/Header";
+import Footer from "../components/ui/Footer";
 
 export default function PaymentPage() {
   const [showLogin, setShowLogin] = useState(false);
@@ -15,9 +24,9 @@ export default function PaymentPage() {
   const [paymentMethod, setPaymentMethod] = useState<"bank" | "cod">("bank");
   const cartItems = useSelector((state: RootState) => state.cart.items);
   const [couponCode, setCouponCode] = useState("");
-  const [discount, setDiscount] = useState(0); // giá trị giảm (VND)
-  const [couponId, setCouponId] = useState<number | null>(null); // Lưu ID coupon
-  const [shippingFee, setShippingFee] = useState<number>(0); //tính tiền ship
+  const [discount, setDiscount] = useState(0);
+  const [couponId, setCouponId] = useState<number | null>(null);
+  const [shippingFee, setShippingFee] = useState<number>(0);
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -38,17 +47,13 @@ export default function PaymentPage() {
     >
   ) => {
     const { name, value } = e.target;
-
     setFormData((prev) => {
       const updated = { ...prev, [name]: value };
-
-      // Tính phí ship nếu address hoặc city thay đổi
       if (name === "address" || name === "city") {
         const fullAddress = `${updated.address || ""}, ${updated.city || ""}`;
         const fee = calculateShippingFee(fullAddress);
         setShippingFee(fee);
       }
-
       return updated;
     });
   };
@@ -57,8 +62,7 @@ export default function PaymentPage() {
     (sum, item) => sum + item.price * item.quantity,
     0
   );
-
-  const finalTotal = totalCart + shippingFee;
+  const finalTotal = totalCart + shippingFee - discount;
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
@@ -78,23 +82,27 @@ export default function PaymentPage() {
   };
 
   const handlePayment = async () => {
-    // 1. Kiểm tra form trước
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("Vui lòng đăng nhập trước khi thanh toán.");
+      setTimeout(() => {
+        window.location.href = "/login";
+      }, 2500);
+      return;
+    }
+
     if (!validateForm()) {
       toast.error("Vui lòng điền đầy đủ thông tin bắt buộc.");
       return;
     }
-
     try {
       const token = localStorage.getItem("token");
-
-      // 2. Chuẩn bị dữ liệu giỏ hàng
       const cartData = cartItems.map((item) => ({
         variant_id: item.variantId,
         price: item.price,
         quantity: item.quantity,
       }));
 
-      // 3. Body gửi đi
       const requestBody = {
         cart: cartData,
         coupon_id: couponId,
@@ -106,7 +114,7 @@ export default function PaymentPage() {
             ? "Thanh toán khi nhận hàng"
             : "Thanh toán đơn hàng VNPAY",
         bank_code: "",
-        shipping_fee: shippingFee, //thêm giá tiền ship
+        shipping_fee: shippingFee,
         customer_info: {
           first_name: formData.firstName,
           last_name: formData.lastName,
@@ -120,7 +128,6 @@ export default function PaymentPage() {
         },
       };
 
-      // 4. Gửi đơn hàng tới API phù hợp
       const apiUrl =
         paymentMethod === "cod"
           ? "http://localhost:8000/api/payment/cod"
@@ -132,13 +139,9 @@ export default function PaymentPage() {
         },
       });
 
-      // 5. Xử lý phản hồi
       const order = response.data.order;
-
-      // ✅ Gộp thêm payment_method để lưu vào localStorage
       const orderWithPaymentMethod = {
         ...order,
-        // total_price: response.data.total_price,
         total_price:
           response.data.total_price ?? response.data.order?.total_price ?? 0,
         payment_method: paymentMethod,
@@ -147,7 +150,7 @@ export default function PaymentPage() {
           variant: {
             name: item.name,
             price: item.price,
-            image_url: item.img, // đảm bảo có image
+            image_url: item.img,
           },
         })),
       };
@@ -172,11 +175,10 @@ export default function PaymentPage() {
     }
   };
 
-  //Lấy địa chỉ mặc định
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (!token) return;
 
+    if (!token) return;
     const fetchDefaultAddress = async () => {
       try {
         const res = await fetch("http://localhost:8000/api/addresses", {
@@ -184,14 +186,11 @@ export default function PaymentPage() {
             Authorization: `Bearer ${token}`,
           },
         });
-
         const result = await res.json();
         const addresses = result.data || [];
-
         const defaultAddress = addresses.find(
           (addr: any) => addr.is_default === 1
         );
-
         if (defaultAddress) {
           setFormData((prev) => ({
             ...prev,
@@ -202,15 +201,13 @@ export default function PaymentPage() {
         console.error("Lỗi khi lấy địa chỉ mặc định:", error);
       }
     };
-
     fetchDefaultAddress();
   }, []);
 
-  //Lấy profile cá nhân
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (!token) return;
 
+    if (!token) return;
     const fetchUserInfo = async () => {
       try {
         const res = await fetch("http://localhost:8000/api/user/profile", {
@@ -218,10 +215,8 @@ export default function PaymentPage() {
             Authorization: `Bearer ${token}`,
           },
         });
-
         const result = await res.json();
         const userData = result.data;
-
         if (userData) {
           setFormData((prev) => ({
             ...prev,
@@ -234,7 +229,6 @@ export default function PaymentPage() {
         console.error("Lỗi khi lấy thông tin người dùng:", error);
       }
     };
-
     fetchUserInfo();
   }, []);
 
@@ -244,9 +238,8 @@ export default function PaymentPage() {
       const parsed = JSON.parse(stored);
       const fullName = parsed.name || "";
       const nameParts = fullName.trim().split(" ");
-      const firstName = nameParts.slice(1).join(" ") || ""; // Tên
-      const lastName = nameParts[0] || ""; // Họ
-
+      const firstName = nameParts.slice(1).join(" ") || "";
+      const lastName = nameParts[0] || "";
       setFormData((prev) => ({
         ...prev,
         firstName,
@@ -257,38 +250,14 @@ export default function PaymentPage() {
     }
   }, []);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const reveals = document.querySelectorAll(".reveal");
-      const windowHeight = window.innerHeight;
-      reveals.forEach((el) => {
-        const top = (el as HTMLElement).getBoundingClientRect().top;
-        if (top < windowHeight - 100) {
-          el.classList.add("active");
-        } else {
-          el.classList.remove("active");
-        }
-      });
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    window.addEventListener("load", handleScroll);
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("load", handleScroll);
-    };
-  }, []);
-
   const subtotal = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
   );
   const total = subtotal - discount;
 
-  // tính phí ship
   const calculateShippingFee = (address: string) => {
     const addr = address.toLowerCase();
-
     if (
       addr.includes("quận 1") ||
       addr.includes("quận 3") ||
@@ -306,197 +275,321 @@ export default function PaymentPage() {
 
   return (
     <>
+      <HeaderHome />
       <ToastContainer />
       <CheckoutProgress currentStep="checkout" />
 
-      <div className="wrapper">
+      <div className="flex flex-col md:flex-row gap-10 max-w-[1400px] mx-auto my-10 px-[40px]">
         {/* Thông tin thanh toán */}
-        <div className="container">
-          <h2>THÔNG TIN THANH TOÁN</h2>
-          <hr />
-          <form>
-            <div className="row">
-              <div className="col">
-                <input
-                  type="text"
-                  name="firstName"
-                  placeholder="Tên *"
-                  value={formData.firstName}
-                  onChange={handleChange}
-                />
+        {/* <div className="flex-1 bg-[#fffff]/80 border border-[#ffd6c0] rounded-3xl shadow-2xl p-10 relative overflow-hidden"> */}
+        <div className="flex-1 bg-white border border-gray-200 rounded-3xl shadow-lg p-10 relative overflow-hidden">
+          <div className="flex items-center justify-center gap-4 mb-6 text-center">
+            <span className="bg-gradient-to-br from-[#374151] to-[#111827] text-white rounded-xl p-2 shadow-lg">
+              <FontAwesomeIcon icon={faReceipt} className="text-xl" />
+            </span>
+            <h5 className="text-2xl md:text-3xl font-normal text-[#111827] drop-shadow-sm tracking-tight no-underline">
+              THÔNG TIN THANH TOÁN
+            </h5>
+          </div>
+
+          <hr className="mb-6 border-gray" />
+          <form className="flex flex-col gap-5">
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <div className="w-full rounded-md bg-white border-2 border-gray-300 focus-within:border-gray-800 transition">
+                  <input
+                    type="text"
+                    name="firstName"
+                    value={formData.firstName}
+                    onChange={handleChange}
+                    placeholder="Tên"
+                    className="w-full px-4 py-3 bg-transparent text-base font-normal text-gray-900 focus:outline-none rounded-md"
+                  />
+                </div>
+
                 {errors.firstName && (
-                  <p className="error-text">{errors.firstName}</p>
+                  <p className="text-sm text-rose-500 pl-1 mt-1">
+                    {errors.firstName}
+                  </p>
                 )}
               </div>
-              <div className="col">
-                <input
-                  type="text"
-                  name="lastName"
-                  placeholder="Họ *"
-                  value={formData.lastName}
-                  onChange={handleChange}
-                />
+              <div className="flex-1">
+                <div className="w-full rounded-md bg-white border-2 border-gray-300 focus-within:border-gray-800 transition">
+                  <input
+                    type="text"
+                    name="lastName"
+                    value={formData.lastName}
+                    onChange={handleChange}
+                    placeholder="Họ"
+                    className="w-full px-4 py-3 bg-transparent text-base font-normal text-gray-900 focus:outline-none rounded-md"
+                  />
+                </div>
+
                 {errors.lastName && (
-                  <p className="error-text">{errors.lastName}</p>
+                  <p className="text-sm text-rose-500 pl-1 mt-1">
+                    {errors.lastName}
+                  </p>
                 )}
               </div>
             </div>
 
-            <select
-              name="country"
-              value={formData.country}
-              onChange={handleChange}
-              required
-            >
-              <option value="">Quốc gia/Khu vực *</option>
-              <option value="VN">Việt Nam</option>
-            </select>
-            {errors.country && <p className="error-text">{errors.country}</p>}
+            <div className="flex flex-col gap-4">
+              {/* Quốc gia/Khu vực */}
+              <div>
+                <div className="relative w-full rounded-md bg-white border-2 border-gray-300 focus-within:border-gray-800 transition">
+                  <select
+                    name="country"
+                    value={formData.country}
+                    onChange={handleChange}
+                    required
+                    className="appearance-none w-full px-4 py-3 bg-transparent text-base font-normal text-gray-900 focus:outline-none rounded-md"
+                  >
+                    <option value="">Quốc gia/Khu vực *</option>
+                    <option value="VN">Việt Nam</option>
+                    <option value="TL">Thái Lan</option>
+                    <option value="NB">Nhật Bản</option>
+                    <option value="HQ">Hàn Quốc</option>
+                  </select>
 
-            <input
-              type="text"
-              name="address"
-              placeholder="Địa chỉ *"
-              value={formData.address}
-              onChange={handleChange}
-              required
-            />
-            {errors.address && <p className="error-text">{errors.address}</p>}
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500">
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
 
-            <select
-              name="city"
-              value={formData.city}
-              onChange={handleChange}
-              required
-            >
-              <option value="">Tỉnh / Thành phố *</option>
-              <option value="HCM">TP. Hồ Chí Minh</option>
-              <option value="HN">Hà Nội</option>
-              <option value="DN">Đà Nẵng</option>
-            </select>
-
-            {errors.city && <p className="error-text">{errors.city}</p>}
-
-            <div className="row">
-              <div className="col">
-                <input
-                  type="text"
-                  name="phone"
-                  placeholder="Số điện thoại *"
-                  value={formData.phone}
-                  onChange={handleChange}
-                />
-                {errors.phone && <p className="error-text">{errors.phone}</p>}
+                {errors.country && (
+                  <p className="text-sm text-rose-500 pl-1 mt-1">
+                    {errors.country}
+                  </p>
+                )}
               </div>
-              <div className="col">
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="Địa chỉ email *"
-                  value={formData.email}
+
+              {/* Địa chỉ */}
+              <div>
+                <div className="w-full rounded-md bg-white border-2 border-gray-300 focus-within:border-gray-800 transition">
+                  <input
+                    type="text"
+                    name="address"
+                    value={formData.address}
+                    onChange={handleChange}
+                    required
+                    placeholder="Địa chỉ *"
+                    className="w-full px-4 py-3 bg-transparent text-base font-normal text-gray-900 focus:outline-none rounded-md"
+                  />
+                </div>
+
+                {errors.address && (
+                  <p className="text-sm text-rose-500 pl-1 mt-1">
+                    {errors.address}
+                  </p>
+                )}
+              </div>
+
+              {/* Tỉnh / Thành phố */}
+              <div>
+                <div className="relative w-full rounded-md bg-white border-2 border-gray-300 focus-within:border-gray-800 transition">
+                  <select
+                    name="city"
+                    value={formData.city}
+                    onChange={handleChange}
+                    required
+                    className="appearance-none w-full px-4 py-3 bg-transparent text-base font-normal text-gray-900 focus:outline-none rounded-md"
+                  >
+                    <option value="">Chọn Tỉnh / Thành phố *</option>
+                    <option value="HCM">TP. Hồ Chí Minh</option>
+                    <option value="HN">Hà Nội</option>
+                    <option value="DN">Đà Nẵng</option>
+                  </select>
+
+                  {/* Mũi tên dropdown */}
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500">
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
+
+                {errors.city && (
+                  <p className="text-sm text-rose-500 pl-1 mt-1">
+                    {errors.city}
+                  </p>
+                )}
+              </div>
+
+              {/* Số điện thoại + Email */}
+              <div className="flex gap-4">
+                <div className="flex-1">
+                  <div className="w-full rounded-md bg-white border-2 border-gray-300 focus-within:border-gray-800 transition">
+                    <input
+                      type="text"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      placeholder="Số điện thoại *"
+                      className="w-full px-4 py-3 bg-transparent text-base font-normal text-gray-900 focus:outline-none rounded-md"
+                    />
+                  </div>
+
+                  {errors.phone && (
+                    <p className="text-sm text-rose-500 pl-1 mt-1">
+                      {errors.phone}
+                    </p>
+                  )}
+                </div>
+                <div className="flex-1">
+                  <div className="w-full rounded-md bg-white border-2 border-gray-300 focus-within:border-gray-800 transition">
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      placeholder="Địa chỉ email *"
+                      className="w-full px-4 py-3 bg-transparent text-base font-normal text-gray-900 focus:outline-none rounded-md"
+                    />
+                  </div>
+
+                  {errors.email && (
+                    <p className="text-sm text-rose-500 pl-1 mt-1">
+                      {errors.email}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Ghi chú */}
+              <div>
+                <textarea
+                  name="note"
+                  value={formData.note}
                   onChange={handleChange}
-                />
-                {errors.email && <p className="error-text">{errors.email}</p>}
+                  className="w-full px-4 py-3 bg-white border-2 border-gray-300 focus:border-gray-800 rounded-xl text-base font-normal text-gray-900 focus:outline-none transition h-24 resize-none"
+                  placeholder="Ghi chú về đơn hàng..."
+                ></textarea>
               </div>
             </div>
-
-            <textarea
-              name="note"
-              placeholder="Ghi chú về đơn hàng..."
-              value={formData.note}
-              onChange={handleChange}
-            ></textarea>
           </form>
         </div>
-
         {/* Thông tin đơn hàng */}
-        <div className="order-container">
-          <h2>THÔNG TIN ĐƠN HÀNG</h2>
-          <div className="order-summary">
-            <div className="order-header">
-              <span>SẢN PHẨM</span>
-              <span>TỔNG PHỤ</span>
-            </div>
+        <div className="w-full max-w-lg mx-auto bg-white border border-gray-200 rounded-3xl shadow-xl p-10">
+          {/* Tiêu đề và icon */}
+          <div className="flex items-center justify-center gap-4 mb-4 text-center">
+            <span className="bg-gradient-to-br from-[#374151] to-[#111827] text-white rounded-xl p-2 shadow-lg">
+              <FontAwesomeIcon icon={faBoxOpen} className="text-xl" />
+            </span>
+            <h5 className="text-2xl md:text-3xl font-normal text-[#111827] drop-shadow-sm tracking-tight no-underline">
+              THÔNG TIN ĐƠN HÀNG
+            </h5>
+          </div>
 
+          {/* Đường gạch ngang bên dưới */}
+          <hr className="mb-6 border-t border-gray-300" />
+
+          <div className="mt-7">
+            <div className="flex justify-between font-medium text-gray border-b border-gray pb-2 mb-3 text-gray">
+              <span>SẢN PHẨM</span>
+            </div>
             {cartItems.map((item) => (
               <div
-                className="order-item"
+                className="flex items-center justify-between py-3 border-dashed gap-4  rounded-xl transition"
                 key={`${item.productId}-${item.variantId}`}
               >
-                <div className="item-left">
-                  <img src={item.img} alt={item.name} />
-                  <div className="item-details">
-                    <p>
-                      <strong>{item.name}</strong>
-                    </p>
-                    <p className="small-text">
+                <div className="flex items-center gap-3">
+                  <img
+                    src={item.img}
+                    alt={item.name}
+                    className="w-14 h-14 rounded-xl object-cover border"
+                  />
+                  <div>
+                    <p className="font-normal text-gray">{item.name}</p>
+                    <p className="text-sm text-gray font-normal no-underline">
                       {item.size} / Số lượng: {item.quantity}
                     </p>
                   </div>
                 </div>
-                <p className="price">{item.price.toLocaleString("vi-VN")}đ</p>
+                <p className="font-bold text-black text-lg min-w-[92px] text-right">
+                  {item.price.toLocaleString("vi-VN")}đ
+                </p>
               </div>
             ))}
-
-            <div className="summary-box">
-              <p>
-                Tổng phụ: <span>{subtotal.toLocaleString("vi-VN")}đ</span>
-              </p>
+            <div className="mt-4 pt-3 border-t border-gray">
+              <div className="font-medium flex justify-between mb-2 text-[1.07em] text-gray">
+                <span>Tạm tính:</span>
+                <span className="font-normal">
+                  {subtotal.toLocaleString("vi-VN")}đ
+                </span>
+              </div>
               {discount > 0 && (
-                <p>
-                  Giảm giá: <span>-{discount.toLocaleString("vi-VN")}đ</span>
-                </p>
+                <div className="font-medium flex justify-between mb-2 text-[1.07em] text-gray">
+                  <span>Giảm giá:</span>
+                  <span className="font-normal text-rose-500">
+                    -{discount.toLocaleString("vi-VN")}đ
+                  </span>
+                </div>
               )}
-              <p>
-                Giao hàng:{" "}
-                <span>
+              <div className="font-medium flex justify-between mb-2 text-[1.07em] text-gray">
+                <span>Phí vận chuyển:</span>
+                <span className="font-normal">
                   {shippingFee === 0
-                    ? "Miễn phí"
+                    ? "-"
                     : shippingFee.toLocaleString("vi-VN") + " đ"}
                 </span>
-              </p>
-
-              <div className="total-line">
-                <span>TỔNG</span>
-                <span>{finalTotal.toLocaleString("vi-VN")} đ</span>
+              </div>
+              <div className="flex justify-between items-center mt-4 pt-3 border-t-2 border-gray text-xl font-bold">
+                <span className="text-red-600">TỔNG</span>
+                <span className="text-red-600">
+                  {finalTotal.toLocaleString("vi-VN")} đ
+                </span>
               </div>
             </div>
-
-            <div className="coupon-section">
-              <p>
-                Có mã giảm giá?{" "}
-                <a
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setShowCoupon(!showCoupon);
-                  }}
+            {/* Coupon */}
+            <div className="mt-6 text-[1.05em] text-[#374151]">
+              <div className="flex items-center flex-wrap gap-1">
+                <span>Có mã giảm giá?</span>
+                <button
+                  type="button"
+                  onClick={() => setShowCoupon(!showCoupon)}
+                  className="text-[#111827] font-bold hover:text-[#374151] transition"
                 >
-                  Nhấn vào đây để nhập mã giảm giá{" "}
-                  <FontAwesomeIcon icon={faChevronDown} />
-                </a>
-              </p>
+                  Nhấn vào đây để nhập mã giảm giá
+                  <FontAwesomeIcon icon={faChevronDown} className="ml-1" />
+                </button>
+              </div>
 
               {showCoupon && (
-                <div id="coupon-box">
-                  <p>Nếu bạn có mã giảm giá, vui lòng áp dụng nó bên dưới.</p>
-                  <div className="coupon-container">
+                <div className="mt-3 p-4 rounded-xl border border-dashed border-gray-400 bg-white shadow animate-fadein flex flex-col">
+                  <span className="mb-2 text-gray">
+                    Nếu bạn có mã giảm giá, vui lòng áp dụng nó bên dưới.
+                  </span>
+                  <div className="flex gap-3">
                     <input
                       type="text"
-                      className="coupon-input"
+                      className="flex-1 rounded-lg border border-gray-400 bg-white px-3 py-2 font-normal focus:outline-none focus:ring-0 focus:border-gray-400"
                       placeholder="Mã giảm giá"
                       value={couponCode}
                       onChange={(e) => setCouponCode(e.target.value)}
                     />
+
                     <button
-                      className="apply-btn"
+                      className="px-5 py-2 rounded-lg bg-[#FF5722] text-white font-bold shadow hover:bg-[#ea580c] transition"
                       onClick={async (e) => {
                         e.preventDefault();
                         if (!couponCode.trim()) {
                           toast.error("Vui lòng nhập mã giảm giá.");
                           return;
                         }
-
                         try {
                           const token = localStorage.getItem("token");
                           const response = await axios.post(
@@ -522,9 +615,11 @@ export default function PaymentPage() {
                               data.message || "Mã giảm giá không hợp lệ."
                             );
                           }
-                        } catch (error) {
+                        } catch (err) {
                           setDiscount(0);
                           setCouponId(null);
+
+                          const error = err as AxiosError<{ message: string }>;
                           toast.error(
                             error.response?.data?.message ||
                               "Đã xảy ra lỗi khi kiểm tra mã giảm giá."
@@ -538,48 +633,91 @@ export default function PaymentPage() {
                 </div>
               )}
             </div>
+            {/* Payment method */}
+            <div className="mt-6">
+              <label className="flex items-center gap-3 font-semibold cursor-pointer mb-2">
+                <input
+                  type="radio"
+                  name="payment"
+                  value="bank"
+                  checked={paymentMethod === "bank"}
+                  onChange={() => setPaymentMethod("bank")}
+                  className="accent-[#374151] w-5 h-5"
+                />
+                <span className="flex items-center gap-1">
+                  <FontAwesomeIcon
+                    icon={faCreditCard}
+                    className="text-[#374151]"
+                  />
+                  Thanh toán qua VNPAY
+                </span>
+              </label>
+              {paymentMethod === "bank" && (
+                <div className="ml-7 mt-1 text-[#374151] 	bg-[#fffaf0] border-l-4 border-[#eab308] rounded-r-lg px-4 py-2 shadow animate-fadein">
+                  Thực hiện thanh toán qua cổng VNPAY.
+                </div>
+              )}
+              <label className="flex items-center gap-3 font-semibold cursor-pointer mb-2 mt-3">
+                <input
+                  type="radio"
+                  name="payment"
+                  value="cod"
+                  checked={paymentMethod === "cod"}
+                  onChange={() => setPaymentMethod("cod")}
+                  className="accent-[#111827] w-5 h-5"
+                />
+                <span className="flex items-center gap-1">
+                  <FontAwesomeIcon
+                    icon={faBoxOpen}
+                    className="text-[#111827]"
+                  />
+                  Trả tiền mặt khi nhận hàng
+                </span>
+              </label>
+              {paymentMethod === "cod" && (
+                <div className="ml-7 mt-1 text-[#374151] 	bg-[#fffaf0] border-l-4 border-[#eab308] rounded-r-lg px-4 py-2 shadow animate-fadein">
+                  Bạn sẽ thanh toán bằng tiền mặt khi nhận hàng.
+                </div>
+              )}
+            </div>
+            <button
+              className="mt-10 w-full py-4 rounded-xl bg-[#FF5722] from-[#374151] to-[#111827] text-white font-bold text-xl shadow-xl transition-all hover:scale-105 hover:from-[#111827] hover:to-[#374151] focus:ring-2 focus:ring-[#374151]/50 animate-pulse"
+              onClick={handlePayment}
+            >
+              ĐẶT HÀNG
+            </button>
           </div>
-
-          {/* Phương thức thanh toán */}
-          <div className="payment-method">
-            <label className="payment-option">
-              <input
-                type="radio"
-                name="payment"
-                value="bank"
-                checked={paymentMethod === "bank"}
-                onChange={() => setPaymentMethod("bank")}
-              />
-              <span>Thanh toán qua VNPAY</span>
-            </label>
-            {paymentMethod === "bank" && (
-              <div className="payment-info">
-                <p>Thực hiện thanh toán qua cổng VNPAY.</p>
-              </div>
-            )}
-
-            <label className="payment-option">
-              <input
-                type="radio"
-                name="payment"
-                value="cod"
-                checked={paymentMethod === "cod"}
-                onChange={() => setPaymentMethod("cod")}
-              />
-              <span>Trả tiền mặt khi nhận hàng</span>
-            </label>
-            {paymentMethod === "cod" && (
-              <div className="payment-info">
-                <p>Bạn sẽ thanh toán bằng tiền mặt khi nhận hàng.</p>
-              </div>
-            )}
-          </div>
-
-          <button className="order-btn" onClick={handlePayment}>
-            ĐẶT HÀNG
-          </button>
         </div>
       </div>
+      {/* Animations */}
+      <style jsx>{`
+        .animate-fadein {
+          animation: fadein 0.6s;
+        }
+        @keyframes fadein {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: none;
+          }
+        }
+        .animate-pulse {
+          animation: pulseBtn 1.7s infinite alternate
+            cubic-bezier(0.2, 0.7, 0.4, 1);
+        }
+        @keyframes pulseBtn {
+          0% {
+            box-shadow: 0 4px 22px 0 #ffb28440;
+          }
+          100% {
+            box-shadow: 0 8px 36px 0 #ffb28488;
+          }
+        }
+      `}</style>
+      <Footer />
     </>
   );
 }

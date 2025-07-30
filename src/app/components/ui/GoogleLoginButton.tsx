@@ -46,7 +46,7 @@ export default function GoogleLoginButton({ setLoading }: Props) {
             const data = await res.json();
 
             toast.success("Đăng nhập thành công!");
-            localStorage.setItem("access_token", data.access_token);
+            localStorage.setItem("token", data.access_token);
             localStorage.setItem("user", JSON.stringify(data.user));
             window.location.href = "/account";
           } catch (err) {

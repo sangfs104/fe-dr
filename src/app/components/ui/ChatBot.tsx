@@ -33,7 +33,6 @@ import { useRouter } from "next/navigation";
 
 const aiAvatar = "http://localhost:8000/img/ai-avatar.webp";
 
-
 type ProductVariant = {
   id: number;
   product_id: number;
@@ -201,9 +200,12 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
 
     try {
       setTimeout(async () => {
-        const res = await axios.post("http://127.0.0.1:8000/api/stylist/analyze", {
-          message: input,
-        });
+        const res = await axios.post(
+          "http://127.0.0.1:8000/api/stylist/analyze",
+          {
+            message: input,
+          }
+        );
 
         const reply = res.data.style_name
           ? `🎯 Phong cách phù hợp: ${res.data.style_name}`
@@ -329,11 +331,15 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
         {messages.map((m, i) => (
           <div
             key={i}
-            className={`flex flex-col ${m.type === "bot" ? "items-start" : "items-end"} animate-fadeInUp`}
+            className={`flex flex-col ${
+              m.type === "bot" ? "items-start" : "items-end"
+            } animate-fadeInUp`}
             style={{ animationDelay: `${i * 0.1}s` }}
           >
             <div
-              className={`flex items-start gap-3 max-w-[85%] ${m.type === "bot" ? "" : "flex-row-reverse"}`}
+              className={`flex items-start gap-3 max-w-[85%] ${
+                m.type === "bot" ? "" : "flex-row-reverse"
+              }`}
             >
               {m.type === "bot" ? (
                 <div className="relative">
@@ -351,7 +357,9 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
                   <Image
                     src={
                       user?.avatar
-                        ? `http://127.0.0.1:8000/storage/${encodeURIComponent(user.avatar)}`
+                        ? `http://127.0.0.1:8000/storage/${encodeURIComponent(
+                            user.avatar
+                          )}`
                         : "/img/user-avatar.webp"
                     }
                     width={40}

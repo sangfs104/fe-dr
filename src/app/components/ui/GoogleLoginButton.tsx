@@ -7,6 +7,13 @@ type Props = {
   setLoading: (value: boolean) => void;
 };
 
+// Google Credential Response Type (tối giản theo tài liệu Google)
+type GoogleCredentialResponse = {
+  credential: string;
+  select_by?: string;
+  clientId?: string;
+};
+
 export default function GoogleLoginButton({ setLoading }: Props) {
   useEffect(() => {
     const script = document.createElement("script");
@@ -16,16 +23,16 @@ export default function GoogleLoginButton({ setLoading }: Props) {
     document.body.appendChild(script);
 
     script.onload = () => {
-      // @ts-ignore
+      // @ts-expect-error: google object is injected by Google script
       window.google.accounts.id.initialize({
         client_id:
           "618672128676-6dopq4dgv5p5qgl83mphuppi9vkrmd2k.apps.googleusercontent.com",
-        callback: async (response: any) => {
+        callback: async (response: GoogleCredentialResponse) => {
           const idToken = response.credential;
           console.log("ID Token:", idToken);
           localStorage.setItem("id_token", idToken);
 
-          setLoading(true); // 👉 show loading spinner
+          setLoading(true);
 
           try {
             const res = await fetch("http://localhost:8000/api/auth/google", {
@@ -39,19 +46,19 @@ export default function GoogleLoginButton({ setLoading }: Props) {
             const data = await res.json();
 
             toast.success("Đăng nhập thành công!");
-            localStorage.setItem("access_token", data.access_token);
+            localStorage.setItem("token", data.access_token);
             localStorage.setItem("user", JSON.stringify(data.user));
             window.location.href = "/account";
           } catch (err) {
             console.error("Lỗi login:", err);
             toast.error("Đăng nhập thất bại");
           } finally {
-            setLoading(false); // 👉 hide loading spinner
+            setLoading(false);
           }
         },
       });
 
-      // @ts-ignore
+      // @ts-expect-error: google object is injected by Google script
       window.google.accounts.id.renderButton(
         document.getElementById("googleButton"),
         {

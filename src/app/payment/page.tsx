@@ -28,6 +28,43 @@ export default function PaymentPage() {
   const [couponId, setCouponId] = useState<number | null>(null);
   const [shippingFee, setShippingFee] = useState<number>(0);
 
+  const countryCityMap: {
+    [key: string]: { value: string; label: string }[];
+  } = {
+    VN: [
+      { value: "HCM", label: "TP. Hồ Chí Minh" },
+      { value: "HN", label: "Hà Nội" },
+      { value: "DN", label: "Đà Nẵng" },
+      { value: "CT", label: "Cần Thơ" },
+      { value: "HP", label: "Hải Phòng" },
+      { value: "NT", label: "Nha Trang" },
+    ],
+    TL: [
+      { value: "BKK", label: "Bangkok" },
+      { value: "CNX", label: "Chiang Mai" },
+      { value: "PKT", label: "Phuket" },
+      { value: "PTY", label: "Pattaya" },
+      { value: "UTP", label: "Udon Thani" },
+      { value: "HKT", label: "Hat Yai" },
+    ],
+    NB: [
+      { value: "TOK", label: "Tokyo" },
+      { value: "OSA", label: "Osaka" },
+      { value: "KYT", label: "Kyoto" },
+      { value: "NGY", label: "Nagoya" },
+      { value: "FUK", label: "Fukuoka" },
+      { value: "SAP", label: "Sapporo" },
+    ],
+    HQ: [
+      { value: "SEO", label: "Seoul" },
+      { value: "BSN", label: "Busan" },
+      { value: "INC", label: "Incheon" },
+      { value: "DAE", label: "Daegu" },
+      { value: "GJN", label: "Gwangju" },
+      { value: "USN", label: "Ulsan" },
+    ],
+  };
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -39,6 +76,8 @@ export default function PaymentPage() {
     email: "",
     note: "",
   });
+  const cityOptions = countryCityMap[formData.country] || [];
+
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   const handleChange = (
@@ -91,6 +130,11 @@ export default function PaymentPage() {
       return;
     }
 
+    if (cartItems.length === 0) {
+      toast.error("Giỏ hàng của bạn đang trống.");
+      return;
+    }
+
     if (!validateForm()) {
       toast.error("Vui lòng điền đầy đủ thông tin bắt buộc.");
       return;
@@ -99,7 +143,7 @@ export default function PaymentPage() {
       const token = localStorage.getItem("token");
       const cartData = cartItems.map((item) => ({
         variant_id: item.variantId,
-        price: item.price,
+        // price: item.price, //tiền vnpay lấy đúng
         quantity: item.quantity,
       }));
 
@@ -142,8 +186,7 @@ export default function PaymentPage() {
       const order = response.data.order;
       const orderWithPaymentMethod = {
         ...order,
-        total_price:
-          response.data.total_price ?? response.data.order?.total_price ?? 0,
+        total_price: finalTotal,
         payment_method: paymentMethod,
         items: cartItems.map((item) => ({
           quantity: item.quantity,
@@ -287,7 +330,7 @@ export default function PaymentPage() {
             <span className="bg-gradient-to-br from-[#374151] to-[#111827] text-white rounded-xl p-2 shadow-lg">
               <FontAwesomeIcon icon={faReceipt} className="text-xl" />
             </span>
-            <h5 className="text-2xl md:text-3xl font-normal text-[#111827] drop-shadow-sm tracking-tight no-underline">
+            <h5 className="text-xl md:text-2xl font-normal text-[#111827] drop-shadow-sm tracking-tight no-underline">
               THÔNG TIN THANH TOÁN
             </h5>
           </div>
@@ -401,14 +444,16 @@ export default function PaymentPage() {
                     onChange={handleChange}
                     required
                     className="appearance-none w-full px-4 py-3 bg-transparent text-base font-normal text-gray-900 focus:outline-none rounded-md"
+                    disabled={cityOptions.length === 0}
                   >
                     <option value="">Chọn Tỉnh / Thành phố *</option>
-                    <option value="HCM">TP. Hồ Chí Minh</option>
-                    <option value="HN">Hà Nội</option>
-                    <option value="DN">Đà Nẵng</option>
+                    {cityOptions.map((city) => (
+                      <option key={city.value} value={city.value}>
+                        {city.label}
+                      </option>
+                    ))}
                   </select>
 
-                  {/* Mũi tên dropdown */}
                   <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500">
                     <svg
                       className="w-4 h-4"
@@ -489,7 +534,7 @@ export default function PaymentPage() {
             <span className="bg-gradient-to-br from-[#374151] to-[#111827] text-white rounded-xl p-2 shadow-lg">
               <FontAwesomeIcon icon={faBoxOpen} className="text-xl" />
             </span>
-            <h5 className="text-2xl md:text-3xl font-normal text-[#111827] drop-shadow-sm tracking-tight no-underline">
+            <h5 className="text-xl md:text-2xl font-normal text-[#111827] drop-shadow-sm tracking-tight no-underline">
               THÔNG TIN ĐƠN HÀNG
             </h5>
           </div>

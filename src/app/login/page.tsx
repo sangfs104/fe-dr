@@ -21,21 +21,37 @@ export default function LoginPage() {
   const [forgotMessage, setForgotMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingGoogle, setLoadingGoogle] = useState(false);
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
 
   const togglePassword = () => setShowPassword((prev) => !prev);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!email || !/\S+@\S+\.\S+/.test(email)) {
-      toast.error("❌ Email không hợp lệ");
-      return;
+    // Reset lỗi cũ
+    setEmailError("");
+    setPasswordError("");
+
+    let hasError = false;
+
+    if (!email.trim()) {
+      setEmailError("Vui lòng nhập email");
+      hasError = true;
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      setEmailError("Email không hợp lệ");
+      hasError = true;
     }
 
-    if (!password || password.length < 6) {
-      toast.error("❌ Mật khẩu phải có ít nhất 6 ký tự");
-      return;
+    if (!password) {
+      setPasswordError("Vui lòng nhập mật khẩu");
+      hasError = true;
+    } else if (password.length < 6) {
+      setPasswordError("Mật khẩu phải có ít nhất 6 ký tự");
+      hasError = true;
     }
+
+    if (hasError) return;
 
     setLoading(true);
 
@@ -49,11 +65,8 @@ export default function LoginPage() {
       const data = await res.json();
 
       if (res.ok && data.status === 200) {
-        if (typeof window !== "undefined") {
-          localStorage.setItem("token", data.access_token);
-          localStorage.setItem("user", JSON.stringify(data.user));
-        }
-
+        localStorage.setItem("token", data.access_token);
+        localStorage.setItem("user", JSON.stringify(data.user));
         toast.success("✅ Đăng nhập thành công!");
         setTimeout(() => router.push("/"), 1500);
       } else {
@@ -136,9 +149,13 @@ export default function LoginPage() {
                 id="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                required
-                className="mt-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300"
+                className={`mt-1 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 ${
+                  emailError ? "border-red-500" : "border-gray-300"
+                }`}
               />
+              {emailError && (
+                <p className="text-red-500 text-sm mt-1">{emailError}</p>
+              )}
 
               <label
                 htmlFor="password"
@@ -152,9 +169,14 @@ export default function LoginPage() {
                   id="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="w-full p-3 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300"
+                  className={`w-full p-3 pr-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 ${
+                    passwordError ? "border-red-500" : "border-gray-300"
+                  }`}
                 />
+                {passwordError && (
+                  <p className="text-red-500 text-sm mt-1">{passwordError}</p>
+                )}
+
                 <span
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 cursor-pointer"
                   onClick={togglePassword}

@@ -82,18 +82,13 @@ export default function WishlistModal({ onClose }: { onClose: () => void }) {
                     className="grid grid-cols-[80px_1fr_auto] items-center gap-4 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition"
                   >
                     <Image
-                      src={
-                        item.img &&
-                        typeof item.img === "string" &&
-                        item.img.trim() !== ""
-                          ? `/img/${item.img}`
-                          : "/img/no-image.png"
-                      }
+                      src={item.img || "/img/no-image.png"}
                       alt={item.name}
                       width={80}
                       height={80}
                       className="rounded-lg border border-white/20 object-cover"
                     />
+
                     <div>
                       <div className="text-white font-semibold text-base">
                         {item.name}

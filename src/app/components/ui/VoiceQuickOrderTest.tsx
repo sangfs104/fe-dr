@@ -543,7 +543,7 @@ export default function VoiceQuickOrderFlexible() {
         <div className="relative flex flex-col items-center group">
           {/* Floating message with modern gradient */}
           <div
-            className={`mb-4 px-6 py-3 bg-gradient-to-br from-purple-600 via-pink-500 to-orange-500 text-white text-sm font-bold rounded-full shadow-2xl transform transition-all duration-700 backdrop-blur-sm ${
+            className={`mb-4 px-4 py-2 bg-gradient-to-br from-purple-600 via-pink-500 to-orange-500 text-white text-sm font-bold rounded-full shadow-2xl transform transition-all duration-700 backdrop-blur-sm ${
               pulseAnimation ? "scale-105 shadow-purple-500/50" : "scale-100"
             }`}
             style={{
@@ -561,7 +561,7 @@ export default function VoiceQuickOrderFlexible() {
           {/* Main bot button with modern glassmorphism */}
           <button
             onClick={() => setShowWidget(true)}
-            className={`relative rounded-full p-6 bg-gradient-to-br from-purple-600 via-pink-500 to-orange-500 text-white shadow-2xl transition-all duration-500 hover:scale-110 active:scale-95 backdrop-blur-lg ${
+            className={`relative rounded-full p-4 bg-gradient-to-br from-purple-600 via-pink-500 to-orange-500 text-white shadow-2xl transition-all duration-500 hover:scale-110 active:scale-95 backdrop-blur-lg ${
               pulseAnimation ? "animate-pulse" : ""
             }`}
             style={{
@@ -582,7 +582,7 @@ export default function VoiceQuickOrderFlexible() {
 
       {showWidget && (
         <div
-          className="bg-white/95 backdrop-blur-xl shadow-2xl rounded-3xl w-96 max-h-[80vh] overflow-hidden transform transition-all duration-500 animate-in slide-in-from-bottom-8 border border-white/20"
+          className="bg-white/95 backdrop-blur-xl shadow-2xl rounded-2xl w-96 max-h-[80vh] overflow-hidden transform transition-all duration-500 animate-in slide-in-from-bottom-8 border border-white/20"
           style={{
             boxShadow: "0 25px 80px rgba(102, 126, 234, 0.2)",
           }}
@@ -599,7 +599,7 @@ export default function VoiceQuickOrderFlexible() {
                   <h3 className="text-lg font-bold">{t.quickOrder}</h3>
                   <p className="text-xs opacity-90 flex items-center gap-1">
                     <Sparkles size={12} />
-                    AI Assistant
+                    AI DREAMS
                   </p>
                 </div>
               </div>
@@ -732,7 +732,7 @@ export default function VoiceQuickOrderFlexible() {
                 <button
                   onClick={handleParseClick}
                   disabled={!voiceText.trim()}
-                  className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white py-4 rounded-2xl font-semibold hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 active:scale-95"
+                  className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-orange-400 to-pink-500 text-white py-4 rounded-2xl font-semibold hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 active:scale-95"
                   style={{
                     boxShadow: "0 8px 25px rgba(16, 185, 129, 0.3)",
                   }}

@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import HeaderHome from "../components/ui/Header";
-import Footer from "../components/ui/Footer";
 import { toast } from "react-hot-toast";
 import { DreamToast } from "../components/ui/DreamToast";
 import { motion, AnimatePresence } from "framer-motion";
@@ -111,7 +109,6 @@ export default function LoginPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-[#f9f9fb]">
-      <HeaderHome />
       <main className="flex-grow flex justify-center items-center px-2 pt-2 pb-4 overflow-y-auto">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
@@ -314,7 +311,6 @@ export default function LoginPage() {
       </AnimatePresence>
 
       <DreamToast />
-      <Footer />
     </div>
   );
 }

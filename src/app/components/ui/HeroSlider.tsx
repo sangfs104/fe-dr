@@ -208,7 +208,7 @@ import Image from "next/image";
 const slides = [
   { id: 1, src: "/img/banner1.webp", alt: "Front view" },
   { id: 2, src: "/img/banner2.webp", alt: "Front centered view" },
-  { id: 3, src: "/img/bannerduoi.webp", alt: "Back view" },
+  { id: 3, src: "/img/banner3.webp", alt: "Back view" },
 ];
 
 export default function HeroSlider() {

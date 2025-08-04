@@ -1,9 +1,8 @@
 import BannerCarousel from "./components/ui/BannerCarousel";
-import HeaderHome from "./components/ui/Header";
+
 import ProductTabs from "./components/ui/ProductTabs";
 import ServiceHighlights from "./components/ui/ServiceHighlights";
 import HeroSlider from "./components/ui/HeroSlider";
-import Footer from "./components/ui/Footer";
 import FlashSaleList from "./components/ui/FlashSaleList";
 import CategoryProduct from "./components/ui/CategoryProduct";
 import ShopArticle from "./components/ui/ShopArticle";
@@ -28,7 +27,6 @@ export default async function ProductPage({ searchParams }: ProductPageProps) {
 
   return (
     <>
-      <HeaderHome />
       <BannerCarousel />
       <ServiceHighlights />
       <FlashSaleList />
@@ -39,7 +37,6 @@ export default async function ProductPage({ searchParams }: ProductPageProps) {
       <HeroSlider />
       <ShopArticle />
       <PostList limit={3} showMore={true} />
-      <Footer />
     </>
   );
 }

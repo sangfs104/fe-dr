@@ -3,8 +3,6 @@
 import { useState, useEffect } from "react";
 import ProductCard from "../components/ui/ProductList";
 import BreadcrumbFilter from "../components/ui/Sort";
-import HeaderHome from "../components/ui/Header";
-import Footer from "../components/ui/Footer";
 
 // Custom hook để debounce
 function useDebounce<T>(value: T, delay: number): T {
@@ -23,7 +21,9 @@ export default function ProductPage() {
   const [sortDirection, setSortDirection] = useState<string>("asc");
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [priceRange, setPriceRange] = useState<number>(0);
-  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(
+    null
+  );
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -83,8 +83,6 @@ export default function ProductPage() {
 
   return (
     <>
-      <HeaderHome />
-
       <BreadcrumbFilter
         onSortChange={setSortDirection}
         onSizeChange={setSelectedSize}
@@ -119,8 +117,6 @@ export default function ProductPage() {
           </div>
         )}
       </div>
-
-      <Footer />
     </>
   );
 }

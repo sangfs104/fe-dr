@@ -8,13 +8,18 @@ import {
 } from "@/store/wishlistSlice";
 import Image from "next/image";
 import toast from "react-hot-toast";
-import { X, Trash2, Loader2 } from "lucide-react";
+import { X, Trash2, Loader2, ShoppingCart } from "lucide-react";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function WishlistModal({ onClose }: { onClose: () => void }) {
   const wishlist = useAppSelector((state) => state.wishlist.items);
   const dispatch = useAppDispatch();
   const [removingKey, setRemovingKey] = useState<string | null>(null);
+  const router = useRouter();
+
+  // State lưu sản phẩm đã chọn
+  const [selected, setSelected] = useState<number[]>([]);
 
   const handleRemove = async (productId: number, variantId: number) => {
     const key = `${productId}-${variantId}`;
@@ -49,6 +54,26 @@ export default function WishlistModal({ onClose }: { onClose: () => void }) {
     setRemovingKey(null);
   };
 
+  // Chuyển sang trang thanh toán với sản phẩm đã chọn
+  const handleGoToPayment = () => {
+    if (selected.length === 0) {
+      toast.error("Bạn chưa chọn sản phẩm nào!");
+      return;
+    }
+    // Truyền danh sách sản phẩm đã chọn qua query (hoặc lưu vào store)
+    router.push(`/payment?ids=${selected.join(",")}`);
+    onClose();
+  };
+
+  // Xử lý chọn/tích sản phẩm
+  const handleCheck = (productId: number) => {
+    setSelected((prev) =>
+      prev.includes(productId)
+        ? prev.filter((id) => id !== productId)
+        : [...prev, productId]
+    );
+  };
+
   return (
     <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 font-sans">
       <div className="relative bg-white/10 backdrop-blur-xl rounded-2xl shadow-xl w-full max-w-md p-6 border border-white/20 max-h-[90vh] overflow-y-auto">
@@ -79,15 +104,28 @@ export default function WishlistModal({ onClose }: { onClose: () => void }) {
                 return (
                   <li
                     key={key}
-                    className="grid grid-cols-[80px_1fr_auto] items-center gap-4 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition"
+                    className="grid grid-cols-[32px_80px_1fr_auto] items-center gap-4 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition"
                   >
-                    <Image
-                      src={item.img || "/img/no-image.png"}
-                      alt={item.name}
-                      width={80}
-                      height={80}
-                      className="rounded-lg border border-white/20 object-cover"
+                    {/* Ô tích chọn */}
+                    <input
+                      type="checkbox"
+                      checked={selected.includes(item.productId)}
+                      onChange={() => handleCheck(item.productId)}
+                      className="accent-[#FF5722] w-5 h-5"
                     />
+
+                    <div
+                      className="cursor-pointer"
+                      onClick={() => router.push(`/products/${item.productId}`)}
+                    >
+                      <Image
+                        src={item.img || "/img/no-image.png"}
+                        alt={item.name}
+                        width={80}
+                        height={80}
+                        className="rounded-lg border border-white/20 object-cover"
+                      />
+                    </div>
 
                     <div>
                       <div className="text-white font-semibold text-base">
@@ -96,8 +134,6 @@ export default function WishlistModal({ onClose }: { onClose: () => void }) {
                       <div className="text-sm text-white/60 mt-1">
                         Size: {item.size}
                       </div>
-
-                      {/* Giá hiển thị với salePrice nếu có */}
                       <div className="mt-1 text-white/80 font-bold text-base">
                         {item.salePrice && item.salePrice < item.price ? (
                           <>
@@ -144,6 +180,14 @@ export default function WishlistModal({ onClose }: { onClose: () => void }) {
                 <Trash2 size={20} />
               )}
               Xóa tất cả
+            </button>
+
+            <button
+              className="mt-3 w-full px-4 py-3 bg-[#FF5722] text-white rounded-lg font-semibold hover:brightness-110 transition-all flex items-center justify-center gap-2"
+              onClick={handleGoToPayment}
+            >
+              <ShoppingCart size={20} />
+              Mua sản phẩm đã chọn
             </button>
           </>
         )}

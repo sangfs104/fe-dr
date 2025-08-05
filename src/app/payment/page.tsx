@@ -15,19 +15,26 @@ import CheckoutProgress from "../components/ui/CheckoutProgress";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { RootState } from "@/store/store";
-import HeaderHome from "../components/ui/Header";
-import Footer from "../components/ui/Footer";
-
+import { useSearchParams } from "next/navigation";
 export default function PaymentPage() {
   const [showLogin, setShowLogin] = useState(false);
   const [showCoupon, setShowCoupon] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<"bank" | "cod">("bank");
-  const cartItems = useSelector((state: RootState) => state.cart.items);
+  // const cartItems = useSelector((state: RootState) => state.cart.items);
   const [couponCode, setCouponCode] = useState("");
   const [discount, setDiscount] = useState(0);
   const [couponId, setCouponId] = useState<number | null>(null);
   const [shippingFee, setShippingFee] = useState<number>(0);
+  const searchParams = useSearchParams();
+  const idsParam = searchParams.get("ids");
+  const selectedIds = idsParam ? idsParam.split(",").map(Number) : [];
 
+  const cartItems = useSelector((state: RootState) => state.cart.items);
+  // Lọc lại sản phẩm theo selectedIds
+  const itemsToPay =
+    selectedIds.length > 0
+      ? cartItems.filter((item) => selectedIds.includes(item.productId))
+      : cartItems;
   const countryCityMap: {
     [key: string]: { value: string; label: string }[];
   } = {
@@ -101,7 +108,6 @@ export default function PaymentPage() {
     (sum, item) => sum + item.price * item.quantity,
     0
   );
-  const finalTotal = totalCart + shippingFee - discount;
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
@@ -293,12 +299,16 @@ export default function PaymentPage() {
     }
   }, []);
 
-  const subtotal = cartItems.reduce(
+  // const subtotal = cartItems.reduce(
+  //   (sum, item) => sum + item.price * item.quantity,
+  //   0
+  // );
+  // const total = subtotal - discount;
+  const subtotal = itemsToPay.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
   );
-  const total = subtotal - discount;
-
+  const finalTotal = subtotal + shippingFee - discount;
   const calculateShippingFee = (address: string) => {
     const addr = address.toLowerCase();
     if (
@@ -318,7 +328,6 @@ export default function PaymentPage() {
 
   return (
     <>
-      <HeaderHome />
       <ToastContainer />
       <CheckoutProgress currentStep="checkout" />
 
@@ -546,7 +555,7 @@ export default function PaymentPage() {
             <div className="flex justify-between font-medium text-gray border-b border-gray pb-2 mb-3 text-gray">
               <span>SẢN PHẨM</span>
             </div>
-            {cartItems.map((item) => (
+            {itemsToPay.map((item) => (
               <div
                 className="flex items-center justify-between py-3 border-dashed gap-4  rounded-xl transition"
                 key={`${item.productId}-${item.variantId}`}
@@ -762,7 +771,6 @@ export default function PaymentPage() {
           }
         }
       `}</style>
-      <Footer />
     </>
   );
 }

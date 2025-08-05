@@ -213,7 +213,6 @@ const slides = [
 
 export default function HeroSlider() {
   const [current, setCurrent] = useState(0);
-
   const prevSlide = () =>
     setCurrent((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
   const nextSlide = () =>

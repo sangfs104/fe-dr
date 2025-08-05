@@ -414,7 +414,7 @@ export default function OrderList() {
               <div className="text-sm text-gray-700 space-x-2">
                 <span>Mã đơn:</span>
                 <span className="font-medium text-gray-900">
-                  #{order.vnp_TxnRef}
+                  #{order.order_code ?? order.vnp_TxnRef}
                 </span>
                 <span className="text-gray-400">|</span>
                 <span

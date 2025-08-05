@@ -1,8 +1,7 @@
 "use client";
 
 import { use, useEffect, useState, useRef } from "react";
-import HeaderHome from "../../components/ui/Header";
-import Footer from "../../components/ui/Footer";
+
 import CheckoutProgress from "../../components/ui/CheckoutProgress";
 import ProductDetailClient from "./ProductDetailPage";
 import ProductList1 from "../../components/ui/ProductList1";
@@ -78,7 +77,6 @@ export default function ProductPage({
 
   return (
     <>
-      <HeaderHome />
       <CheckoutProgress currentStep="detail" />
 
       {!product ? (
@@ -94,7 +92,6 @@ export default function ProductPage({
           </div>
         </>
       )}
-      <Footer />
     </>
   );
 }

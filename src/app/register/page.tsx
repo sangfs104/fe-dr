@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import HeaderHome from "../components/ui/Header";
 import Footer from "../components/ui/Footer";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
@@ -100,7 +99,6 @@ const RegisterPage = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-[#f9f9fb] overflow-auto">
-      <HeaderHome />
       <main className="flex-grow flex justify-center items-start px-2 py-2">
         <motion.div
           initial={{ opacity: 0, y: 30 }}

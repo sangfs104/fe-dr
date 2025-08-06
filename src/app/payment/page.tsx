@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { AxiosError } from "axios";
+import Image from "next/image";
 
 import {
   faChevronDown,
@@ -17,7 +18,6 @@ import "react-toastify/dist/ReactToastify.css";
 import { RootState } from "@/store/store";
 import { useSearchParams } from "next/navigation";
 export default function PaymentPage() {
-  const [showLogin, setShowLogin] = useState(false);
   const [showCoupon, setShowCoupon] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<"bank" | "cod">("bank");
   // const cartItems = useSelector((state: RootState) => state.cart.items);
@@ -103,11 +103,6 @@ export default function PaymentPage() {
       return updated;
     });
   };
-
-  const totalCart = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
@@ -237,9 +232,16 @@ export default function PaymentPage() {
         });
         const result = await res.json();
         const addresses = result.data || [];
-        const defaultAddress = addresses.find(
-          (addr: any) => addr.is_default === 1
+        interface Address {
+          is_default: number;
+          adress: string;
+          [key: string]: unknown;
+        }
+
+        const defaultAddress = (addresses as Address[]).find(
+          (addr) => addr.is_default === 1
         );
+
         if (defaultAddress) {
           setFormData((prev) => ({
             ...prev,
@@ -561,11 +563,14 @@ export default function PaymentPage() {
                 key={`${item.productId}-${item.variantId}`}
               >
                 <div className="flex items-center gap-3">
-                  <img
-                    src={item.img}
+                  <Image
+                    src={item.img || "/placeholder.png"}
                     alt={item.name}
-                    className="w-14 h-14 rounded-xl object-cover border"
+                    width={56} // tương đương w-14
+                    height={56} // tương đương h-14
+                    className="rounded-xl object-cover border"
                   />
+
                   <div>
                     <p className="font-normal text-gray">{item.name}</p>
                     <p className="text-sm text-gray font-normal no-underline">

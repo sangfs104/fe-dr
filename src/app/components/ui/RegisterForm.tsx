@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const RegisterForm = () => {
   const router = useRouter();
@@ -17,7 +18,8 @@ const RegisterForm = () => {
   const [message, setMessage] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -39,7 +41,7 @@ const RegisterForm = () => {
       } else {
         setMessage(data.message || "Đăng ký thất bại");
       }
-    } catch (err) {
+    } catch {
       setMessage("Lỗi kết nối tới server");
     }
   };
@@ -56,30 +58,32 @@ const RegisterForm = () => {
       onSubmit={handleSubmit}
       className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in-up transition-transform duration-500 hover:rotate-0 hover:scale-[1.02]"
     >
-      {["name", "email", "phone"].map((field) => (
-        <div key={field} className="relative">
-          <input
-            id={field}
-            name={field}
-            type={field === "email" ? "email" : "text"}
-            placeholder=" "
-            value={(formData as any)[field]}
-            onChange={handleChange}
-            required
-            className="peer w-full px-4 pt-6 pb-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-300"
-          />
-          <label
-            htmlFor={field}
-            className="absolute left-3 top-2 text-gray-500 text-sm peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:top-2 peer-focus:text-sm transition-all"
-          >
-            {field === "name"
-              ? "Họ tên"
-              : field === "email"
-              ? "Email"
-              : "Số điện thoại"}
-          </label>
-        </div>
-      ))}
+      {(["name", "email", "phone"] as Array<keyof typeof formData>).map(
+        (field) => (
+          <div key={field} className="relative">
+            <input
+              id={field}
+              name={field}
+              type={field === "email" ? "email" : "text"}
+              placeholder=" "
+              value={formData[field]}
+              onChange={handleChange}
+              required
+              className="peer w-full px-4 pt-6 pb-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-300"
+            />
+            <label
+              htmlFor={field}
+              className="absolute left-3 top-2 text-gray-500 text-sm peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:top-2 peer-focus:text-sm transition-all"
+            >
+              {field === "name"
+                ? "Họ tên"
+                : field === "email"
+                ? "Email"
+                : "Số điện thoại"}
+            </label>
+          </div>
+        )
+      )}
 
       {/* Password with floating label */}
       <div className="relative">
@@ -158,12 +162,13 @@ const RegisterForm = () => {
           type="button"
           className="flex items-center justify-center gap-3 bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition w-full"
         >
-          <img
+          <Image
             src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
             alt="Google"
-            className="w-5 h-5"
+            width={20}
+            height={20}
           />
-          Đăng nhập bằng Google
+          Đăng ký bằng Google
         </button>
       </div>
     </form>

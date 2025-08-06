@@ -4,12 +4,27 @@ import { useRouter } from "next/router";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { clearCart } from "@/store/cartSlice";
+
+type Order = {
+  id: string;
+  userId: string;
+  items: {
+    productId: string;
+    quantity: number;
+    price: number;
+  }[];
+  total: number;
+  status: string;
+  createdAt: string;
+};
+
 export default function PaymentResultPage() {
   const router = useRouter();
   const dispatch = useDispatch();
+
   const [result, setResult] = useState<{
     message: string;
-    order?: any;
+    order?: Order;
   } | null>(null);
 
   useEffect(() => {
@@ -25,13 +40,15 @@ export default function PaymentResultPage() {
       }
     };
 
-    fetchResult();
+    if (router.isReady) {
+      fetchResult();
+    }
   }, [router.isReady]);
 
   useEffect(() => {
-    // Khi vào trang này (thanh toán thành công), xóa giỏ hàng
     dispatch(clearCart());
   }, [dispatch]);
+
   if (!result) return <div>Đang xử lý...</div>;
 
   return (

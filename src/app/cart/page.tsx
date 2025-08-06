@@ -2,11 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { X } from "lucide-react";
+import { X, ShoppingCart } from "lucide-react";
 import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
 
-import HeaderHome from "../components/ui/Header";
-import Footer from "../components/ui/Footer";
 import CheckoutProgress from "../components/ui/CheckoutProgress";
 
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -30,43 +29,63 @@ export default function CartPage() {
 
   return (
     <>
-      <HeaderHome />
       <CheckoutProgress currentStep="cart" />
 
-      <div className="mt-10 px-4 sm:px-6 md:px-10 lg:px-20 xl:px-40 flex flex-col lg:flex-row gap-5">
+      <div className="mt-10 px-4 sm:px-6 md:px-10 lg:px-20 xl:px-40 flex flex-col lg:flex-row gap-8">
         {/* Cart Items */}
-        <div className="flex-[6] max-h-[500px] overflow-y-auto border border-gray-300 bg-white p-4 rounded-md">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="flex-[6] max-h-[600px] overflow-y-auto border border-gray-200 bg-white p-6 rounded-xl shadow-lg"
+        >
           {isClient && (
-            <p className="text-base mb-4">
-              Bạn đang có <strong>{cartItems.length} sản phẩm</strong> trong giỏ
-              hàng
-            </p>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="text-lg font-semibold mb-6 text-gray-800"
+            >
+              Giỏ hàng của bạn{" "}
+              <span className="text-rose-600 font-bold">
+                ({cartItems.length} sản phẩm)
+              </span>
+            </motion.p>
           )}
 
-          {isClient &&
-            cartItems.map((item: CartItem, i: number) => (
-              <div key={i} className="flex flex-col gap-4 mb-4">
-                <div className="flex flex-col sm:flex-row justify-between items-center gap-4 border-b border-gray-200 pb-4">
+          <AnimatePresence>
+            {isClient &&
+              cartItems.map((item: CartItem, i: number) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  transition={{ duration: 0.3 }}
+                  className="flex flex-col sm:flex-row justify-between items-center gap-4 border-b border-gray-200 py-4 hover:bg-gray-50 transition-colors duration-200"
+                >
                   <Image
                     src={item.img}
                     alt={item.name}
                     width={80}
                     height={80}
-                    className="w-20 h-20 object-cover rounded"
+                    className="w-20 h-20 object-cover rounded-lg shadow-sm"
                   />
                   <div className="flex-1 min-w-0 text-center sm:text-left">
-                    <h2 className="text-base font-bold truncate">
+                    <h2 className="text-lg font-semibold text-gray-800 truncate">
                       {item.name}
                     </h2>
                     <p className="text-sm text-gray-500">Size {item.size}</p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm font-medium text-rose-600">
                       {item.price.toLocaleString("vi-VN")}₫
                     </p>
                   </div>
-                  <div className="flex flex-col sm:flex-row items-center justify-between min-w-[200px] gap-3 w-full sm:w-auto">
-                    <div className="flex items-center">
-                      <button
-                        className="w-8 h-8 bg-gray-100 border border-gray-300 disabled:opacity-50"
+                  <div className="flex flex-col sm:flex-row items-center justify-between min-w-[200px] gap-4 w-full sm:w-auto">
+                    <div className="flex items-center gap-2">
+                      <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        className="w-8 h-8 bg-gray-100 border border-gray-300 rounded-full flex items-center justify-center disabled:opacity-50 hover:bg-gray-200 transition-colors"
                         onClick={() =>
                           dispatch(
                             updateQuantity({
@@ -79,15 +98,17 @@ export default function CartPage() {
                         disabled={item.quantity <= 1}
                       >
                         -
-                      </button>
+                      </motion.button>
                       <input
                         type="number"
                         value={item.quantity}
                         readOnly
-                        className="w-10 h-8 border-t border-b border-gray-300 text-center p-0"
+                        className="w-12 h-8 border border-gray-300 rounded-md text-center text-sm bg-gray-50"
                       />
-                      <button
-                        className="w-8 h-8 bg-gray-100 border border-gray-300"
+                      <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        className="w-8 h-8 bg-gray-100 border border-gray-300 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors"
                         onClick={() =>
                           dispatch(
                             updateQuantity({
@@ -99,13 +120,15 @@ export default function CartPage() {
                         }
                       >
                         +
-                      </button>
+                      </motion.button>
                     </div>
-                    <p className="font-medium text-gray-800 text-right min-w-[100px]">
+                    <p className="font-semibold text-gray-800 min-w-[100px] text-right">
                       {(item.price * item.quantity).toLocaleString("vi-VN")}₫
                     </p>
-                    <button
-                      className="text-red-500 text-lg"
+                    <motion.button
+                      whileHover={{ scale: 1.2, rotate: 90 }}
+                      whileTap={{ scale: 0.9 }}
+                      className="text-red-500 hover:text-red-600 transition-colors"
                       onClick={() =>
                         dispatch(
                           removeFromCart({
@@ -115,64 +138,72 @@ export default function CartPage() {
                         )
                       }
                     >
-                      <X size={18} />
-                    </button>
+                      <X size={20} />
+                    </motion.button>
                   </div>
-                </div>
-              </div>
-            ))}
+                </motion.div>
+              ))}
+          </AnimatePresence>
 
-          {/* Note & Policy */}
-          <div className="flex flex-col md:flex-row justify-between gap-5 mt-5 p-4 bg-gray-100 border border-gray-300 rounded-lg">
-            <div className="flex-1">
-              <label
-                htmlFor="order-note"
-                className="block text-sm font-bold mb-2"
-              >
-                Ghi chú đơn hàng:
-              </label>
-              <textarea
-                id="order-note"
-                placeholder="Nhập ghi chú của bạn..."
-                className="w-full h-24 border border-gray-300 rounded px-3 py-2 text-sm resize-none"
-              ></textarea>
-            </div>
-            <div className="flex-1">
-              <h4 className="text-base font-bold mb-2">Chính sách Đổi/Trả</h4>
-              <ul className="list-disc pl-5 text-sm space-y-1 text-gray-700">
-                <li>Sản phẩm được đổi 1 lần duy nhất, không hỗ trợ trả.</li>
-                <li>Sản phẩm còn đủ tem mác, chưa qua sử dụng.</li>
-                <li>
-                  Sản phẩm nguyên giá được đổi trong 30 ngày trên toàn hệ thống.
-                </li>
-                <li>Sản phẩm sale chỉ hỗ trợ đổi size trong 7 ngày.</li>
-              </ul>
-            </div>
-          </div>
-        </div>
+          {/* Policy Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="mt-6 p-5 bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200 rounded-xl shadow-sm"
+          >
+            <h4 className="text-lg font-semibold text-gray-800 mb-3">
+              Chính sách Đổi/Trả
+            </h4>
+            <ul className="list-disc pl-5 text-sm text-gray-600 space-y-2">
+              <li>Sản phẩm được đổi 1 lần duy nhất, không hỗ trợ trả.</li>
+              <li>Sản phẩm còn đủ tem mác, chưa qua sử dụng.</li>
+              <li>
+                Sản phẩm nguyên giá được đổi trong 30 ngày trên toàn hệ thống.
+              </li>
+              <li>Sản phẩm sale chỉ hỗ trợ đổi size trong 7 ngày.</li>
+            </ul>
+          </motion.div>
+        </motion.div>
 
         {/* Cart Summary */}
-        <div className="flex-[4] p-5 border border-gray-300 bg-white rounded-md h-fit">
-          <h2 className="text-lg font-bold mb-4">Thông tin đơn hàng</h2>
-          <p className="text-sm mb-2">
-            Tổng tiền:{" "}
-            <span className="font-bold text-lg text-rose-600">
-              {isClient ? totalPrice.toLocaleString("vi-VN") : "0"}₫
-            </span>
-          </p>
-          <p className="text-sm mb-4 text-gray-600">
-            Bạn có thể nhập mã giảm giá ở trang thanh toán
-          </p>
-          <button
-            onClick={() => router.push("/payment")}
-            className="w-full bg-[#FF5722] hover:bg-[#F44336] text-white py-2 px-4 text-base rounded-2xl shadow-md"
-          >
-            THANH TOÁN
-          </button>
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="flex-[4] p-6 border border-gray-200 bg-white rounded-xl shadow-lg h-fit"
+        >
+          <h2 className="text-xl font-bold text-gray-800 mb-5 flex items-center gap-2">
+            <ShoppingCart size={24} className="text-rose-600" />
+            Thông tin đơn hàng
+          </h2>
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <p className="text-sm text-gray-600">Tổng tiền:</p>
+              <motion.span
+                key={totalPrice}
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.3 }}
+                className="text-xl font-bold text-rose-600"
+              >
+                {isClient ? totalPrice.toLocaleString("vi-VN") : "0"}₫
+              </motion.span>
+            </div>
+            <p className="text-sm text-gray-500 italic">
+              Bạn có thể nhập mã giảm giá ở trang thanh toán
+            </p>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => router.push("/payment")}
+              className="w-full bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white py-3 px-4 text-base font-semibold rounded-xl shadow-md transition-all duration-300"
+            >
+              THANH TOÁN
+            </motion.button>
+          </div>
+        </motion.div>
       </div>
-
-      <Footer />
     </>
   );
 }

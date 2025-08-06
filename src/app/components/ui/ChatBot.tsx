@@ -203,14 +203,26 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
         const res = await axios.post(
           "http://127.0.0.1:8000/api/stylist/analyze",
           {
-            message: input,
+            answers: [input], // Sử dụng 'answers' thay vì 'message' để khớp với API
           }
         );
 
-        const reply = res.data.style_name
-          ? `🎯 Phong cách phù hợp: ${res.data.style_name}`
-          : "🤖 Xin lỗi, mình chưa rõ gu bạn. Hỏi lại nhé?";
-        const products = res.data.products || [];
+        let reply = res.data.message || "🤖 Xin lỗi, mình chưa rõ gu bạn. Hỏi lại nhé?";
+        let products = [];
+
+        // Nếu chỉ hỏi tên sản phẩm (không chứa từ khóa mix and match), lấy sản phẩm đầu tiên
+        if (!input.match(/(phối đồ|set đồ|đi chơi|du lịch|outfit|mix and match)/iu)) {
+          products = res.data.products ? [res.data.products[0]] : [];
+          reply = res.data.products && res.data.products.length > 0
+            ? `Tìm thấy sản phẩm ${res.data.products[0].name}!`
+            : reply;
+        } else {
+          // Nếu có yêu cầu mix and match, giữ nguyên danh sách sản phẩm
+          products = res.data.products || [];
+          if (res.data.style_name) {
+            reply = `🎯 Phong cách phù hợp: ${res.data.style_name}`;
+          }
+        }
 
         setMessages((prev) => [
           ...prev,

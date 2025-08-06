@@ -96,7 +96,7 @@ const OrderSuccess = () => {
   if (!order) return <p className="text-center mt-20">Đang xử lý...</p>;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white px-4 relative">
+    <div className="min-h-[calc(100vh-120px)] flex flex-col items-center bg-gray-100 py-8">
       <div className="relative z-10 w-full max-w-xl p-8 bg-white rounded-2xl shadow-xl text-center">
         <h2 className="text-2xl sm:text-3xl font-bold text-[#ff5722] mb-2">
           Cảm ơn bạn! 🎉

@@ -316,7 +316,7 @@ function PostItem({ post, token }: PostItemProps) {
         )}
 
         {/* Reactions */}
-        <div className="flex gap-1 flex-wrap justify-start items-center border-t pt-4 mb-1">
+  <div className="flex gap-1 justify-start items-center border-t pt-4 mb-1">
           {Object.keys(reactionIcons).map((r) => {
             const isActive = myReaction === r;
             const colorClass = reactionColors[r];

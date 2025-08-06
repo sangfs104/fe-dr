@@ -58,7 +58,7 @@ export default function PostList({ limit, showMore }: PostListProps) {
 
   const displayPosts = limit ? posts.slice(0, limit) : posts;
   return (
-    <section className="bg-whitemin-h-screen py-8 px-3 sm:px-8 md:px-20 lg:px-32 xl:px-40">
+    <section className="bg-white py-12 px-4 md:px-20 lg:px-40 my-12 rounded-3xl shadow-sm">
       <DreamToast />
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-10">
@@ -316,7 +316,7 @@ function PostItem({ post, token }: PostItemProps) {
         )}
 
         {/* Reactions */}
-        <div className="flex gap-1 flex-wrap justify-start items-center border-t pt-4 mb-1">
+     <div className="flex gap-1 justify-start items-center border-t pt-4 mb-1">
           {Object.keys(reactionIcons).map((r) => {
             const isActive = myReaction === r;
             const colorClass = reactionColors[r];

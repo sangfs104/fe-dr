@@ -16,16 +16,12 @@
 //     </>
 //   );
 // }
-import HeaderHome from "../components/ui/Header";
-import Footer from "../components/ui/Footer";
 import LuckyWheel from "../components/ui/LuckyWheel";
 
 export default function ProductPage() {
   return (
     <>
-      <HeaderHome />
       <LuckyWheel />
-      <Footer />
     </>
   );
 }

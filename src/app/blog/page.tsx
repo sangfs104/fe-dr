@@ -17,17 +17,14 @@
 // pages/posts/page.tsx
 "use client";
 import PostList from "../components/post/PostList";
-import Header from "../components/ui/Header";
-import Footer from "../components/ui/Footer";
+
 
 export default function PostsPage() {
   return (
     <>
-      <Header />
       <main>
         <PostList />
       </main>
-      <Footer />
     </>
   );
 }

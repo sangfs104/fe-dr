@@ -1,5 +1,5 @@
 "use client";
-
+import { useCallback } from "react";
 import { useState, useRef, useEffect } from "react";
 import {
   Bot,
@@ -240,6 +240,23 @@ export default function VoiceQuickOrderFlexible() {
   //     speak(t.hello);
   //   }
   // }, [showWidget, step, language]);
+
+  const speak = useCallback(
+    (text: string, callback?: () => void): void => {
+      if ("speechSynthesis" in window && !isMuted) {
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = currentLangOption?.speechLang || "vi-VN";
+        setAiSpeechText(text);
+        utter.onend = () => {
+          setAiSpeechText("");
+          if (callback) callback();
+        };
+        window.speechSynthesis.speak(utter);
+      }
+    },
+    [isMuted, currentLangOption]
+  );
+
   useEffect(() => {
     if (showWidget && step === "idle") {
       speak(t.hello);

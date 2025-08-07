@@ -105,6 +105,6 @@ export interface Product {
   images: string[]; // Đảm bảo images là string[], không cho phép undefined
   variant: ProductVariant[];
   category_id: number;
-  category?: Category;
+category: { id: number; name: string; }; // Bắt buộc category
   hot?: boolean; // Thêm hot để tương thích nếu cần
 }

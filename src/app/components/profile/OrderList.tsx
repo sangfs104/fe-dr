@@ -48,6 +48,7 @@ type Order = {
   status: string;
   order_items: OrderItem[];
   vnp_TxnRef: string;
+  order_code?: string;
 };
 
 export default function OrderList() {

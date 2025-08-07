@@ -333,7 +333,7 @@ export default function FlashSaleProductList() {
                       category: {
                         id: variant.category_id,
                         name: sale.flash_sale_name,
-                        image_url: "",
+                        // image_url: "",
                       },
                     }}
                   />

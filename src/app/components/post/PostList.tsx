@@ -671,7 +671,7 @@ function PostItem({ post, token }: PostItemProps) {
   };
 
   // Modern Reaction Icons
-const reactionIcons: { [key: string]: JSX.Element } = {
+const reactionIcons: { [key: string]: React.ReactNode } = {
   like: <ThumbsUp size={18} />,
   love: <Heart size={18} />,
   haha: <Laugh size={18} />,

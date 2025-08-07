@@ -10,7 +10,6 @@ import {
   Zap,
   Shield,
   Truck,
-  Eye,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";

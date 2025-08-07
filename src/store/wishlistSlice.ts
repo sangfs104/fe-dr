@@ -11,6 +11,19 @@
 //   userId?: number;
 // }
 
+// interface RawWishlistItem {
+//   id: number;
+//   name: string;
+//   price: string | number;
+//   size?: string;
+//   image_url?: string;
+//   img?: { name: string }[];
+//   pivot?: {
+//     variant_id?: number;
+//     user_id?: number;
+//   };
+// }
+
 // interface WishlistState {
 //   items: WishlistItem[];
 //   loading: boolean;
@@ -38,7 +51,7 @@
 
 //       const baseImgUrl = "http://127.0.0.1:8000/img/";
 
-//       return data.map((item: any) => {
+//       return data.map((item: RawWishlistItem) => {
 //         const fallbackImg =
 //           Array.isArray(item.img) && item.img.length > 0
 //             ? `${baseImgUrl}${item.img[0].name}`
@@ -54,8 +67,9 @@
 //           userId: item.pivot?.user_id,
 //         };
 //       });
-//     } catch (err: any) {
-//       return rejectWithValue(err.message);
+//     } catch (err: unknown) {
+//       const errorMessage = err instanceof Error ? err.message : "Lỗi không xác định";
+//       return rejectWithValue(errorMessage);
 //     }
 //   }
 // );
@@ -79,8 +93,9 @@
 //     const data = await res.json().catch(() => ({}));
 //     if (!res.ok) throw new Error(data.message || "Lỗi thêm vào wishlist");
 //     return item;
-//   } catch (err: any) {
-//     return rejectWithValue(err.message);
+//   } catch (err: unknown) {
+//     const errorMessage = err instanceof Error ? err.message : "Lỗi không xác định";
+//     return rejectWithValue(errorMessage);
 //   }
 // });
 
@@ -102,8 +117,9 @@
 //     }
 
 //     return { productId, variantId };
-//   } catch (err: any) {
-//     return rejectWithValue(err.message);
+//   } catch (err: unknown) {
+//     const errorMessage = err instanceof Error ? err.message : "Lỗi không xác định";
+//     return rejectWithValue(errorMessage);
 //   }
 // });
 
@@ -190,20 +206,27 @@ const initialState: WishlistState = {
   error: null,
 };
 
+// ⚠️ Bắt buộc có NEXT_PUBLIC_API_URL trong `.env.local`
+const API_BASE = process.env.NEXT_PUBLIC_API_URL;
+
+if (!API_BASE) {
+  throw new Error("Thiếu biến môi trường NEXT_PUBLIC_API_URL");
+}
+
 // GET Wishlist
 export const fetchWishlist = createAsyncThunk<WishlistItem[]>(
   "wishlist/fetchWishlist",
   async (_, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://127.0.0.1:8000/api/wishlist", {
+      const res = await fetch(`${API_BASE}/api/wishlist`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       if (!res.ok) throw new Error("Lỗi lấy wishlist");
       const data = await res.json();
 
-      const baseImgUrl = "http://127.0.0.1:8000/img/";
+      const baseImgUrl = `${API_BASE}/img/`;
 
       return data.map((item: RawWishlistItem) => {
         const fallbackImg =
@@ -222,7 +245,8 @@ export const fetchWishlist = createAsyncThunk<WishlistItem[]>(
         };
       });
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : "Lỗi không xác định";
+      const errorMessage =
+        err instanceof Error ? err.message : "Lỗi không xác định";
       return rejectWithValue(errorMessage);
     }
   }
@@ -235,11 +259,13 @@ export const addToWishlistAPI = createAsyncThunk<
 >("wishlist/addToWishlistAPI", async (item, { rejectWithValue }) => {
   const token = localStorage.getItem("token");
   if (!token) {
-    return rejectWithValue("Bạn cần đăng nhập để thêm vào danh sách yêu thích.");
+    return rejectWithValue(
+      "Bạn cần đăng nhập để thêm vào danh sách yêu thích."
+    );
   }
 
   try {
-    const res = await fetch(`http://127.0.0.1:8000/api/wishlist/${item.productId}`, {
+    const res = await fetch(`${API_BASE}/api/wishlist/${item.productId}`, {
       method: "POST",
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -248,19 +274,20 @@ export const addToWishlistAPI = createAsyncThunk<
     if (!res.ok) throw new Error(data.message || "Lỗi thêm vào wishlist");
     return item;
   } catch (err: unknown) {
-    const errorMessage = err instanceof Error ? err.message : "Lỗi không xác định";
+    const errorMessage =
+      err instanceof Error ? err.message : "Lỗi không xác định";
     return rejectWithValue(errorMessage);
   }
 });
 
-// REMOVE Wishlist (theo productId + variantId)
+// REMOVE Wishlist
 export const removeFromWishlistAPI = createAsyncThunk<
   { productId: number; variantId: number },
   { productId: number; variantId: number }
 >("wishlist/removeFromWishlistAPI", async ({ productId, variantId }, { rejectWithValue }) => {
   try {
     const token = localStorage.getItem("token");
-    const res = await fetch(`http://127.0.0.1:8000/api/wishlist/${productId}`, {
+    const res = await fetch(`${API_BASE}/api/wishlist/${productId}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -272,7 +299,8 @@ export const removeFromWishlistAPI = createAsyncThunk<
 
     return { productId, variantId };
   } catch (err: unknown) {
-    const errorMessage = err instanceof Error ? err.message : "Lỗi không xác định";
+    const errorMessage =
+      err instanceof Error ? err.message : "Lỗi không xác định";
     return rejectWithValue(errorMessage);
   }
 });
@@ -312,7 +340,11 @@ const wishlistSlice = createSlice({
       .addCase(removeFromWishlistAPI.fulfilled, (state, action) => {
         const { productId, variantId } = action.payload;
         state.items = state.items.filter(
-          (item) => !(item.productId === productId && item.variantId === variantId)
+          (item) =>
+            !(
+              item.productId === productId &&
+              item.variantId === variantId
+            )
         );
       })
       .addCase(removeFromWishlistAPI.rejected, (state, action) => {

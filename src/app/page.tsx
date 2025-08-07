@@ -6,7 +6,7 @@ import HeroSlider from "./components/ui/HeroSlider";
 import FlashSaleList from "./components/ui/FlashSaleList";
 import CategoryProduct from "./components/ui/CategoryProduct";
 import ShopArticle from "./components/ui/ShopArticle";
-import VoiceQuickOrderTest from "./components/ui/VoiceQuickOrderTest";
+// import VoiceQuickOrderTest from "./components/ui/VoiceQuickOrderTest";
 import AIRecommendedProducts from "./components/ui/AIRecommendedProducts";
 import PostList from "./components/post/PostList";
 
@@ -33,7 +33,7 @@ export default async function ProductPage({ searchParams }: ProductPageProps) {
       <CategoryProduct />
       <AIRecommendedProducts />
       <ProductTabs type={type} />
-      <VoiceQuickOrderTest />
+      {/* <VoiceQuickOrderTest /> */}
       <HeroSlider />
       <ShopArticle />
       <PostList limit={3} showMore={true} />

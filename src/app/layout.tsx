@@ -46,6 +46,7 @@ import CartModal from "./components/ui/CartModal";
 import { useState } from "react";
 import ChatToggle from "./components/ui/ChatToggle";
 import Footer from "./components/ui/Footer";
+import VoiceQuickOrderTest from "./components/ui/VoiceQuickOrderTest";
 export default function RootLayout({
   children,
 }: {
@@ -63,14 +64,15 @@ export default function RootLayout({
             <Header setShowCartModal={setShowCartModal} />
             {children}
             <DreamToast />
+
             <ChatToggle />
           </Provider>
-          {/* CartModal nằm ngoài Provider, cuối cùng trong DOM để đảm bảo đè lên mọi thứ */}
           {showCartModal && (
             <div style={{ zIndex: 9999, position: "fixed", inset: 0 }}>
               <CartModal onClose={() => setShowCartModal(false)} />
             </div>
           )}
+          <VoiceQuickOrderTest />
           <Footer />
         </GoogleOAuthProvider>
       </body>

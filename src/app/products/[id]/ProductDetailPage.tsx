@@ -168,7 +168,7 @@ export default function ProductDetailClient({
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const reviewRef = useRef(null);
   const isInViewRef = useInView(reviewRef);
-
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   // Auto-cycle through images with smooth transitions
   const nextImage = useCallback(() => {
     if (product.images && product.images.length > 1) {
@@ -299,7 +299,7 @@ export default function ProductDetailClient({
       return;
     }
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/review", {
+      const res = await fetch(`${apiUrl}/api/review`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -333,7 +333,7 @@ export default function ProductDetailClient({
   };
 
   const fetchReviews = async () => {
-    const res = await fetch(`http://127.0.0.1:8000/api/review/${product.id}`);
+    const res = await fetch(`${apiUrl}/api/review/${product.id}`);
     const data = await res.json();
     setReviews(data.data);
   };

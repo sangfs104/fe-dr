@@ -256,7 +256,7 @@ import { addToCart } from "@/store/cartSlice";
 import { addToWishlistAPI, fetchWishlist } from "@/store/wishlistSlice";
 import { useAppDispatch } from "@/store/hooks";
 import { useRouter } from "next/navigation";
-import { Product } from "../../types/Product";
+import { Product, Category } from "../../types/Product"; // Nhập cả Category
 
 export default function ProductCard({ product }: { product: Product }) {
   const dispatch = useAppDispatch();
@@ -341,6 +341,16 @@ export default function ProductCard({ product }: { product: Product }) {
             100
         )
       : 0;
+
+  // Đảm bảo category luôn tồn tại khi truyền vào ProductModal
+  const safeProduct = {
+    ...product,
+    images: imageList,
+    category: product.category || {
+      id: product.category_id,
+      name: `Category ${product.category_id}`,
+    }, // Giá trị mặc định
+  };
 
   return (
     <>
@@ -442,7 +452,7 @@ export default function ProductCard({ product }: { product: Product }) {
 
       {showModal && (
         <ProductModal
-          product={{ ...product, images: imageList }} // Đảm bảo images là string[]
+          product={safeProduct} // Sử dụng safeProduct với images và category được đảm bảo
           onClose={() => setShowModal(false)}
         />
       )}

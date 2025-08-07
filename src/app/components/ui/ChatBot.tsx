@@ -61,6 +61,10 @@ type Message = {
   type: "user" | "bot";
   text: string;
   products?: Product[];
+  style_name?: string;
+  description?: string;
+  keywords?: string[];
+  mix_and_match?: string[];
   timestamp?: Date;
 };
 
@@ -203,25 +207,37 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
         const res = await axios.post(
           "http://127.0.0.1:8000/api/stylist/analyze",
           {
-            answers: [input], // Sử dụng 'answers' thay vì 'message' để khớp với API
+            answers: [input],
           }
         );
 
         let reply = res.data.message || "🤖 Xin lỗi, mình chưa rõ gu bạn. Hỏi lại nhé?";
-        let products = [];
+        let products = res.data.products || [];
+        let style_name = res.data.style_name;
+        let description = res.data.description;
+        let keywords = res.data.keywords;
+        let mix_and_match = res.data.mix_and_match;
 
-        // Nếu chỉ hỏi tên sản phẩm (không chứa từ khóa mix and match), lấy sản phẩm đầu tiên
-        if (!input.match(/(phối đồ|set đồ|đi chơi|du lịch|outfit|mix and match)/iu)) {
-          products = res.data.products ? [res.data.products[0]] : [];
-          reply = res.data.products && res.data.products.length > 0
-            ? `Tìm thấy sản phẩm ${res.data.products[0].name}!`
-            : reply;
-        } else {
-          // Nếu có yêu cầu mix and match, giữ nguyên danh sách sản phẩm
-          products = res.data.products || [];
-          if (res.data.style_name) {
-            reply = `🎯 Phong cách phù hợp: ${res.data.style_name}`;
+        // Xử lý câu hỏi về size
+        if (input.match(/size\s+\w+|cỡ\s+\w+/iu)) {
+          if (products.length > 0) {
+            reply = res.data.message || `Tìm thấy sản phẩm ${products[0].name}!`;
+          } else {
+            reply = res.data.message || "Không tìm thấy sản phẩm hoặc size yêu cầu!";
           }
+        }
+        // Xử lý câu hỏi về phối đồ
+        else if (input.match(/(phối đồ|set đồ|đi chơi|du lịch|outfit|mix and match)/iu)) {
+          reply = style_name
+            ? `🎯 Phong cách phù hợp: ${style_name}\n${description || ""}`
+            : res.data.message;
+          if (mix_and_match && mix_and_match.length > 0) {
+            reply += `\nGợi ý phối đồ: ${mix_and_match.join(", ")}`;
+          }
+        }
+        // Xử lý câu hỏi về giảm giá/flash sale
+        else if (input.match(/(giảm giá|flash sale|ưu đãi)/iu)) {
+          reply = res.data.message;
         }
 
         setMessages((prev) => [
@@ -230,6 +246,10 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
             type: "bot",
             text: reply,
             products,
+            style_name,
+            description,
+            keywords,
+            mix_and_match,
             timestamp: new Date(),
           },
         ]);
@@ -264,7 +284,7 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
     { text: "Phong cách nữ tính" },
     { text: "Trang phục công sở", icon: <Briefcase size={16} /> },
     { text: "Outfit đi biển", icon: <Waves size={16} /> },
-    { text: "Màu sắc hợp da trắng", icon: <Palette size={16} /> },
+    { text: "Phối đồ đi học giúp tôi", icon: <Palette size={16} /> },
   ];
 
   const formatTime = (date: Date) => {
@@ -344,7 +364,7 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
           <div
             key={i}
             className={`flex flex-col ${
-              m.type === "bot" ? "items-start" : "items-end"
+              m.type === "user" ? "items-end" : "items-start"
             } animate-fadeInUp`}
             style={{ animationDelay: `${i * 0.1}s` }}
           >
@@ -392,6 +412,26 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
                   }`}
                 >
                   {m.text}
+                  {m.style_name && (
+                    <div className="mt-2 text-xs text-gray-600 dark:text-gray-300">
+                      <strong>Phong cách:</strong> {m.style_name}
+                    </div>
+                  )}
+                  {m.description && (
+                    <div className="mt-1 text-xs text-gray-600 dark:text-gray-300">
+                      <strong>Mô tả:</strong> {m.description}
+                    </div>
+                  )}
+                  {m.keywords && m.keywords.length > 0 && (
+                    <div className="mt-1 text-xs text-gray-600 dark:text-gray-300">
+                      <strong>Từ khóa:</strong> {m.keywords.join(", ")}
+                    </div>
+                  )}
+                  {m.mix_and_match && m.mix_and_match.length > 0 && (
+                    <div className="mt-1 text-xs text-gray-600 dark:text-gray-300">
+                      <strong>Gợi ý phối đồ:</strong> {m.mix_and_match.join(", ")}
+                    </div>
+                  )}
                   <div
                     className={`text-xs mt-2 opacity-70 ${
                       m.type === "bot" ? "text-gray-500" : "text-orange-100"
@@ -425,6 +465,12 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
                             <div className="text-gray-600 dark:text-gray-300 text-xs mt-1 line-clamp-2">
                               {p.description}
                             </div>
+                            {p.variant && p.variant.length > 0 && (
+                              <div className="text-gray-600 dark:text-gray-300 text-xs mt-1">
+                                <strong>Size:</strong> {p.variant[0].size} (
+                                {p.variant[0].stock_quantity} sản phẩm)
+                              </div>
+                            )}
                             <div className="mt-2 text-xs text-orange-600 dark:text-orange-400 font-medium">
                               Xem chi tiết →
                             </div>

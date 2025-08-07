@@ -86,8 +86,8 @@ export default function ProductPage({
       ) : (
         <>
           <ProductDetailClient product={product} reviews={reviews} />
-          <div className="max-w-7xl mx-auto px-4 py-10">
-            <h2 className="text-2xl font-bold mb-6">Sản phẩm cùng danh mục</h2>
+          <div className="max-w-7xl mx-auto px-12 py-10">
+            <h2 className="text-2xl font-bold ">Sản phẩm cùng danh mục</h2>
             <ProductList1 products={sameCategoryProducts} />
           </div>
         </>

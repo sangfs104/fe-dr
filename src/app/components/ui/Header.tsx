@@ -278,7 +278,7 @@ export default function Header() {
           isScrolled ? "shadow-lg backdrop-blur-sm bg-white/95" : ""
         }`}
       >
-        <header className="flex items-center justify-between px-4 sm:px-6 md:px-10 lg:px-20 py-2 border-b bg-white">
+        <header className="flex items-center justify-between px-4 sm:px-10 md:px-20 lg:px-40 py-2 border-b bg-white">
           {/* Left: Language Selector */}
           <div className="flex-1">
             <div className="relative w-fit group">
@@ -329,7 +329,7 @@ export default function Header() {
                   }}
                   className="w-full pl-4 pr-10 py-1.5 sm:py-2 border border-gray-200 rounded-full text-xs sm:text-sm focus:outline-none focus:border-[tomato] focus:ring-2 focus:ring-orange-200 transition-all duration-300"
                 />
-                <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-[tomato] transition-colors" />
+                {/* <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-[tomato] transition-colors" /> */}
               </div>
 
               {/* Search Suggestions */}

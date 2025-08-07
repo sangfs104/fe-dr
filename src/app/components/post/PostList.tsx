@@ -537,7 +537,7 @@ export default function PostList({ limit, showMore }: PostListProps) {
 
   const displayPosts = limit ? posts.slice(0, limit) : posts;
   return (
-    <section className="bg-white py-12 px-4 md:px-20 lg:px-40 my-12 rounded-3xl shadow-sm">
+    <section className="bg-white px-4 sm:px-10 md:px-20 lg:px-40 py-12 mt-6 rounded-3xl shadow-sm">
       <DreamToast />
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-10">

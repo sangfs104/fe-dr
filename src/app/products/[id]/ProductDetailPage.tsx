@@ -355,30 +355,30 @@ export default function ProductDetailClient({
   return (
     <>
       <motion.div
-        className="w-full sm:px-6  lg:px-20  py-8 max-w-7xl mx-auto"
+        className="w-full px-3 sm:px-4 md:px-6 lg:px-8 xl:px-12 2xl:px-20 py-4 sm:py-6 lg:py-8 max-w-7xl mx-auto"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
       >
-        <div className="grid md:grid-cols-2 gap-12 lg:gap-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 xl:gap-16">
           {/* Image Section */}
           <motion.div
             variants={itemVariants}
-            className="flex flex-col md:flex-row gap-6"
+            className="flex flex-col lg:flex-row gap-4 sm:gap-6 order-1 lg:order-1"
           >
             {/* Thumbnails */}
-            <div className="flex md:flex-col gap-3 overflow-x-auto md:overflow-visible md:max-h-[600px] scrollbar-thin pr-1">
+            <div className="flex lg:flex-col gap-2 sm:gap-3 overflow-x-auto lg:overflow-visible lg:max-h-[500px] xl:max-h-[600px] scrollbar-thin pr-1 order-2 lg:order-1">
               {(product.images || []).map((imgUrl, idx) => {
                 const isActive = currentImageIndex === idx;
                 return (
                   <motion.div
                     key={imgUrl}
-                    whileHover={{ scale: 1.1, y: -4 }}
+                    whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className={`relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-500 ${
+                    className={`relative rounded-xl lg:rounded-2xl overflow-hidden cursor-pointer transition-all duration-500 flex-shrink-0 ${
                       isActive
-                        ? "ring-4 ring-blue-500/50 shadow-xl shadow-blue-200/50"
-                        : "ring-2 ring-gray-200 hover:ring-gray-300 shadow-md hover:shadow-lg"
+                        ? "ring-2 sm:ring-4 ring-blue-500/50 shadow-lg sm:shadow-xl shadow-blue-200/50"
+                        : "ring-1 sm:ring-2 ring-gray-200 hover:ring-gray-300 shadow-sm sm:shadow-md hover:shadow-lg"
                     }`}
                     onClick={() => handleImageClick(imgUrl, idx)}
                     layout
@@ -386,15 +386,15 @@ export default function ProductDetailClient({
                     <Image
                       src={imgUrl}
                       alt={`Thumbnail ${idx}`}
-                      width={90}
-                      height={90}
-                      className="object-cover w-[90px] h-[90px] rounded-2xl"
+                      width={70}
+                      height={70}
+                      className="object-cover w-[60px] h-[60px] sm:w-[70px] sm:h-[70px] lg:w-[80px] lg:h-[80px] xl:w-[90px] xl:h-[90px] rounded-xl lg:rounded-2xl"
                       unoptimized
                     />
                     {isActive && (
                       <motion.div
                         layoutId="activeIndicator"
-                        className="absolute inset-0 bg-gradient-to-t from-blue-500/30 to-transparent rounded-2xl"
+                        className="absolute inset-0 bg-gradient-to-t from-blue-500/30 to-transparent rounded-xl lg:rounded-2xl"
                         initial={false}
                         transition={{
                           type: "spring",
@@ -405,7 +405,7 @@ export default function ProductDetailClient({
                     )}
                     <div className="absolute bottom-1 right-1">
                       <div
-                        className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                        className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full transition-all duration-300 ${
                           isActive ? "bg-blue-500 shadow-lg" : "bg-gray-300"
                         }`}
                       />
@@ -418,7 +418,7 @@ export default function ProductDetailClient({
             {/* Main image */}
             <motion.div
               variants={imageVariants}
-              className="relative w-full bg-gradient-to-br from-gray-50 via-white to-gray-100 rounded-3xl overflow-hidden shadow-2xl"
+              className="relative w-full bg-gradient-to-br from-gray-50 via-white to-gray-100 rounded-2xl lg:rounded-3xl overflow-hidden shadow-lg sm:shadow-xl lg:shadow-2xl order-1 lg:order-2"
             >
               {/* Image navigation */}
               {product.images && product.images.length > 1 && (
@@ -427,32 +427,38 @@ export default function ProductDetailClient({
                     whileHover={{ scale: 1.1, x: -2 }}
                     whileTap={{ scale: 0.9 }}
                     onClick={prevImage}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 z-20 p-3 bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
+                    className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-20 p-2 sm:p-3 bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
                   >
-                    <ChevronLeft size={20} className="text-gray-700" />
+                    <ChevronLeft
+                      size={16}
+                      className="sm:w-5 sm:h-5 text-gray-700"
+                    />
                   </motion.button>
                   <motion.button
                     whileHover={{ scale: 1.1, x: 2 }}
                     whileTap={{ scale: 0.9 }}
                     onClick={nextImage}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 z-20 p-3 bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
+                    className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-20 p-2 sm:p-3 bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
                   >
-                    <ChevronRight size={20} className="text-gray-700" />
+                    <ChevronRight
+                      size={16}
+                      className="sm:w-5 sm:h-5 text-gray-700"
+                    />
                   </motion.button>
                 </>
               )}
 
               {/* Action buttons */}
-              <div className="absolute top-4 right-4 z-10 flex gap-2">
+              <div className="absolute top-2 sm:top-4 right-2 sm:right-4 z-10 flex gap-1 sm:gap-2">
                 <motion.button
                   whileHover={{ scale: 1.1, rotate: 5 }}
                   whileTap={{ scale: 0.9 }}
                   onClick={() => setIsLiked(!isLiked)}
-                  className="p-3 bg-white/90 backdrop-blur-sm rounded-full shadow-lg transition-all duration-300"
+                  className="p-2 sm:p-3 bg-white/90 backdrop-blur-sm rounded-full shadow-lg transition-all duration-300"
                 >
                   <Heart
-                    size={20}
-                    className={`transition-all duration-300 ${
+                    size={16}
+                    className={`sm:w-5 sm:h-5 transition-all duration-300 ${
                       isLiked
                         ? "text-red-500 fill-red-500 animate-pulse"
                         : "text-gray-600 hover:text-red-400"
@@ -462,11 +468,11 @@ export default function ProductDetailClient({
                 <motion.button
                   whileHover={{ scale: 1.1, rotate: -5 }}
                   whileTap={{ scale: 0.9 }}
-                  className="p-3 bg-white/90 backdrop-blur-sm rounded-full shadow-lg"
+                  className="p-2 sm:p-3 bg-white/90 backdrop-blur-sm rounded-full shadow-lg"
                 >
                   <Share2
-                    size={20}
-                    className="text-gray-600 hover:text-blue-500 transition-colors"
+                    size={16}
+                    className="sm:w-5 sm:h-5 text-gray-600 hover:text-blue-500 transition-colors"
                   />
                 </motion.button>
               </div>
@@ -474,12 +480,12 @@ export default function ProductDetailClient({
               {/* Auto-play indicator */}
               {product.images && product.images.length > 1 && (
                 <motion.div
-                  className="absolute bottom-4 left-4 z-10"
+                  className="absolute bottom-2 sm:bottom-4 left-2 sm:left-4 z-10"
                   animate={isAutoPlay ? { scale: [1, 1.05, 1] } : {}}
                   transition={{ repeat: Infinity, duration: 2 }}
                 >
                   <div
-                    className={`flex items-center gap-2 px-3 py-2 rounded-full text-xs font-medium transition-all duration-300 ${
+                    className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 sm:py-2 rounded-full text-xs font-medium transition-all duration-300 ${
                       isAutoPlay
                         ? "bg-green-500/90 text-white shadow-lg"
                         : "bg-gray-500/90 text-white"
@@ -487,13 +493,13 @@ export default function ProductDetailClient({
                   >
                     {isAutoPlay ? (
                       <>
-                        <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
-                        <span>Auto Play</span>
+                        <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white rounded-full animate-pulse" />
+                        <span className="hidden sm:inline">Auto Play</span>
                       </>
                     ) : (
                       <>
-                        <div className="w-2 h-2 bg-white rounded-full" />
-                        <span>Paused</span>
+                        <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white rounded-full" />
+                        <span className="hidden sm:inline">Paused</span>
                       </>
                     )}
                   </div>
@@ -502,15 +508,15 @@ export default function ProductDetailClient({
 
               {/* Progress indicator */}
               {product.images && product.images.length > 1 && (
-                <div className="absolute bottom-4 right-4 z-10">
+                <div className="absolute bottom-2 sm:bottom-4 right-2 sm:right-4 z-10">
                   <div className="flex gap-1">
                     {product.images.map((_, idx) => (
                       <motion.div
                         key={idx}
-                        className={`h-1 rounded-full transition-all duration-300 ${
+                        className={`h-1 rounded-full transition-all duration-300 cursor-pointer ${
                           idx === currentImageIndex
-                            ? "w-8 bg-white shadow-lg"
-                            : "w-2 bg-white/50"
+                            ? "w-6 sm:w-8 bg-white shadow-lg"
+                            : "w-1.5 sm:w-2 bg-white/50"
                         }`}
                         whileHover={{ scale: 1.2 }}
                         onClick={() =>
@@ -553,15 +559,15 @@ export default function ProductDetailClient({
                         }}
                       />
                       {isImageLoading && (
-                        <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-pulse rounded-3xl" />
+                        <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-pulse rounded-2xl lg:rounded-3xl" />
                       )}
                     </motion.div>
                   </AnimatePresence>
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 rounded-3xl flex items-center justify-center">
+                  <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl lg:rounded-3xl flex items-center justify-center">
                     <div className="text-center">
                       <motion.div
-                        className="w-16 h-16 bg-gray-300 rounded-full mx-auto mb-4"
+                        className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-300 rounded-full mx-auto mb-4"
                         animate={{ rotate: 360 }}
                         transition={{
                           repeat: Infinity,
@@ -569,7 +575,9 @@ export default function ProductDetailClient({
                           ease: "linear",
                         }}
                       />
-                      <p className="text-gray-500 font-medium">Loading...</p>
+                      <p className="text-gray-500 font-medium text-sm sm:text-base">
+                        Loading...
+                      </p>
                     </div>
                   </div>
                 )}
@@ -578,12 +586,14 @@ export default function ProductDetailClient({
           </motion.div>
 
           {/* Product Info */}
-          <motion.div variants={itemVariants} className="flex flex-col gap-6">
+          <motion.div
+            variants={itemVariants}
+            className="flex flex-col gap-4 sm:gap-6 order-2 lg:order-2"
+          >
             {/* Header */}
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               <motion.h1
-                className="text-2xl lg:text-3xl
-font-bold tracking-tight bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent leading-tight"
+                className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent leading-tight"
                 initial={{ opacity: 0, x: -30 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.3, duration: 0.8 }}
@@ -592,7 +602,7 @@ font-bold tracking-tight bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900
               </motion.h1>
 
               <motion.div
-                className="flex items-center gap-6"
+                className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.4 }}
@@ -602,8 +612,8 @@ font-bold tracking-tight bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900
                     {[...Array(5)].map((_, i) => (
                       <Star
                         key={i}
-                        size={18}
-                        className={`transition-all duration-300 ${
+                        size={16}
+                        className={`sm:w-[18px] sm:h-[18px] transition-all duration-300 ${
                           i < Math.floor(Number(calculateAverageRating()))
                             ? "text-yellow-400 fill-yellow-400 drop-shadow-sm"
                             : "text-gray-300"
@@ -615,9 +625,9 @@ font-bold tracking-tight bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900
                     {calculateAverageRating()} ({reviews.length} đánh giá)
                   </span>
                 </div>
-                <div className="h-4 w-px bg-gray-300"></div>
+                <div className="hidden sm:block h-4 w-px bg-gray-300"></div>
                 <motion.span
-                  className="px-4 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 rounded-full text-sm font-semibold border border-blue-200"
+                  className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 rounded-full text-sm font-semibold border border-blue-200 inline-block w-fit"
                   whileHover={{ scale: 1.05 }}
                 >
                   {product.category.name}
@@ -625,7 +635,7 @@ font-bold tracking-tight bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900
               </motion.div>
 
               <motion.p
-                className="text-gray-600 leading-relaxed text-base"
+                className="text-gray-600 leading-relaxed text-sm sm:text-base"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5 }}
@@ -636,58 +646,52 @@ font-bold tracking-tight bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900
 
             {/* Trust Badges */}
             <motion.div
-              className="flex flex-wrap gap-4"
+              className="flex flex-wrap gap-2 sm:gap-4"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
             >
               <motion.div
-                className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl border border-green-200"
+                className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl sm:rounded-2xl border border-green-200"
                 whileHover={{
                   scale: 1.05,
                   boxShadow: "0 8px 25px rgba(34, 197, 94, 0.15)",
                 }}
               >
-                <Shield size={18} className="text-green-600" />
-                <span className="text-sm text-green-700 font-semibold">
+                <Shield
+                  size={14}
+                  className="sm:w-[18px] sm:h-[18px] text-green-600"
+                />
+                <span className="text-xs sm:text-sm text-green-700 font-semibold">
                   Bảo hành 12 tháng
                 </span>
               </motion.div>
               <motion.div
-                className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-2xl border border-blue-200"
+                className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-3 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl sm:rounded-2xl border border-blue-200"
                 whileHover={{
                   scale: 1.05,
                   boxShadow: "0 8px 25px rgba(59, 130, 246, 0.15)",
                 }}
               >
-                <Truck size={18} className="text-blue-600" />
-                <span className="text-sm text-blue-700 font-semibold">
+                <Truck
+                  size={14}
+                  className="sm:w-[18px] sm:h-[18px] text-blue-600"
+                />
+                <span className="text-xs sm:text-sm text-blue-700 font-semibold">
                   Giao hàng miễn phí
                 </span>
               </motion.div>
-              {/* <motion.div
-                className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-purple-50 to-violet-50 rounded-2xl border border-purple-200"
-                whileHover={{
-                  scale: 1.05,
-                  boxShadow: "0 8px 25px rgba(147, 51, 234, 0.15)",
-                }}
-              >
-                <Eye size={18} className="text-purple-600" />
-                <span className="text-sm text-purple-700 font-semibold">
-                  Đã xem: {Math.floor(Math.random() * 100) + 50}
-                </span>
-              </motion.div> */}
             </motion.div>
 
             {/* Size Selection */}
             <motion.div
-              className="space-y-4"
+              className="space-y-3 sm:space-y-4"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.7 }}
             >
               <div className="flex items-center justify-between">
-                <p className="text-xl font-bold text-gray-900">
+                <p className="text-lg sm:text-xl font-bold text-gray-900">
                   Chọn kích thước:
                 </p>
                 <Dialog.Root>
@@ -697,12 +701,12 @@ font-bold tracking-tight bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900
                       whileHover={{ scale: 1.05 }}
                     >
                       <span>Bảng Size</span>
-                      <ChevronRight size={16} />
+                      <ChevronRight size={14} className="sm:w-4 sm:h-4" />
                     </motion.button>
                   </Dialog.Trigger>
                   <Dialog.Portal>
                     <Dialog.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40" />
-                    <Dialog.Content className="fixed z-50 top-1/2 left-1/2 w-[90vw] max-w-5xl -translate-x-1/2 -translate-y-1/2 bg-white px-8 py-6 rounded-3xl shadow-2xl">
+                    <Dialog.Content className="fixed z-50 top-1/2 left-1/2 w-[95vw] sm:w-[90vw] max-w-5xl -translate-x-1/2 -translate-y-1/2 bg-white px-4 sm:px-8 py-4 sm:py-6 rounded-2xl sm:rounded-3xl shadow-2xl max-h-[90vh] overflow-auto">
                       <motion.div
                         initial={{ scale: 0.9, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
@@ -712,8 +716,8 @@ font-bold tracking-tight bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900
                           damping: 30,
                         }}
                       >
-                        <div className="flex justify-between items-center border-b pb-4 mb-6">
-                          <Dialog.Title className="text-2xl font-bold text-gray-900">
+                        <div className="flex justify-between items-center border-b pb-3 sm:pb-4 mb-4 sm:mb-6">
+                          <Dialog.Title className="text-lg sm:text-2xl font-bold text-gray-900">
                             Bảng thông tin chi tiết
                           </Dialog.Title>
                           <Dialog.Close asChild>
@@ -722,28 +726,28 @@ font-bold tracking-tight bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900
                               whileHover={{ scale: 1.1, rotate: 90 }}
                               whileTap={{ scale: 0.9 }}
                             >
-                              <X size={24} />
+                              <X size={20} className="sm:w-6 sm:h-6" />
                             </motion.button>
                           </Dialog.Close>
                         </div>
 
-                        <div className="overflow-auto rounded-2xl border border-gray-200 shadow-lg max-h-[60vh]">
-                          <table className="min-w-full text-sm">
+                        <div className="overflow-auto rounded-xl sm:rounded-2xl border border-gray-200 shadow-lg max-h-[60vh]">
+                          <table className="min-w-full text-xs sm:text-sm">
                             <thead className="bg-gradient-to-r from-gray-50 via-white to-gray-50">
                               <tr>
-                                <th className="px-6 py-4 text-left font-bold text-gray-900 border-b-2 border-gray-200">
+                                <th className="px-3 sm:px-6 py-3 sm:py-4 text-left font-bold text-gray-900 border-b-2 border-gray-200">
                                   Size
                                 </th>
-                                <th className="px-6 py-4 text-right font-bold text-gray-900 border-b-2 border-gray-200">
+                                <th className="px-3 sm:px-6 py-3 sm:py-4 text-right font-bold text-gray-900 border-b-2 border-gray-200">
                                   Giá gốc
                                 </th>
-                                <th className="px-6 py-4 text-right font-bold text-gray-900 border-b-2 border-gray-200">
+                                <th className="px-3 sm:px-6 py-3 sm:py-4 text-right font-bold text-gray-900 border-b-2 border-gray-200 hidden sm:table-cell">
                                   Giá khuyến mãi
                                 </th>
-                                <th className="px-6 py-4 text-center font-bold text-gray-900 border-b-2 border-gray-200">
+                                <th className="px-3 sm:px-6 py-3 sm:py-4 text-center font-bold text-gray-900 border-b-2 border-gray-200">
                                   Số lượng
                                 </th>
-                                <th className="px-6 py-4 text-center font-bold text-gray-900 border-b-2 border-gray-200">
+                                <th className="px-3 sm:px-6 py-3 sm:py-4 text-center font-bold text-gray-900 border-b-2 border-gray-200 hidden md:table-cell">
                                   Trạng thái
                                 </th>
                               </tr>
@@ -758,15 +762,27 @@ font-bold tracking-tight bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900
                                   transition={{ delay: index * 0.1 }}
                                   whileHover={{ scale: 1.01 }}
                                 >
-                                  <td className="px-6 py-4 border-b border-gray-100">
-                                    <span className="px-3 py-1 bg-gradient-to-r from-gray-100 to-gray-200 rounded-full font-semibold text-gray-800">
+                                  <td className="px-3 sm:px-6 py-3 sm:py-4 border-b border-gray-100">
+                                    <span className="px-2 sm:px-3 py-1 bg-gradient-to-r from-gray-100 to-gray-200 rounded-full font-semibold text-gray-800 text-xs sm:text-sm">
                                       Size {v.size}
                                     </span>
                                   </td>
-                                  <td className="px-6 py-4 text-right border-b border-gray-100 font-semibold">
-                                    {v.price.toLocaleString("vi-VN")} ₫
+                                  <td className="px-3 sm:px-6 py-3 sm:py-4 text-right border-b border-gray-100 font-semibold">
+                                    <div className="flex flex-col sm:block">
+                                      <span>
+                                        {v.price.toLocaleString("vi-VN")} ₫
+                                      </span>
+                                      {v.sale_price && (
+                                        <span className="text-red-600 font-bold text-xs sm:hidden">
+                                          {parseInt(
+                                            v.sale_price
+                                          ).toLocaleString("vi-VN")}{" "}
+                                          ₫
+                                        </span>
+                                      )}
+                                    </div>
                                   </td>
-                                  <td className="px-6 py-4 text-right border-b border-gray-100">
+                                  <td className="px-3 sm:px-6 py-3 sm:py-4 text-right border-b border-gray-100 hidden sm:table-cell">
                                     {v.sale_price ? (
                                       <span className="text-red-600 font-bold">
                                         {parseInt(v.sale_price).toLocaleString(
@@ -778,9 +794,9 @@ font-bold tracking-tight bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900
                                       <span className="text-gray-400">-</span>
                                     )}
                                   </td>
-                                  <td className="px-6 py-4 text-center border-b border-gray-100">
+                                  <td className="px-3 sm:px-6 py-3 sm:py-4 text-center border-b border-gray-100">
                                     <span
-                                      className={`px-3 py-1 rounded-full text-xs font-bold ${
+                                      className={`px-2 sm:px-3 py-1 rounded-full text-xs font-bold ${
                                         v.stock_quantity > 10
                                           ? "bg-green-100 text-green-700"
                                           : v.stock_quantity > 0
@@ -791,9 +807,9 @@ font-bold tracking-tight bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900
                                       {v.stock_quantity}
                                     </span>
                                   </td>
-                                  <td className="px-6 py-4 text-center border-b border-gray-100">
+                                  <td className="px-3 sm:px-6 py-3 sm:py-4 text-center border-b border-gray-100 hidden md:table-cell">
                                     <span
-                                      className={`px-3 py-1 rounded-full text-xs font-bold ${
+                                      className={`px-2 sm:px-3 py-1 rounded-full text-xs font-bold ${
                                         v.status === "còn hàng"
                                           ? "bg-green-100 text-green-700"
                                           : "bg-red-100 text-red-700"
@@ -813,7 +829,7 @@ font-bold tracking-tight bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900
                 </Dialog.Root>
               </div>
 
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-2 sm:gap-3">
                 {product.variant.map((v, index) => {
                   const isSelected = selectedVariant?.size === v.size;
                   const isOutOfStock = v.stock_quantity === 0;
@@ -844,7 +860,7 @@ font-bold tracking-tight bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900
                           handleVariantSelect(v);
                         }
                       }}
-                      className={`relative px-6 py-4 rounded-2xl text-sm font-bold border-2 transition-all duration-300 ${
+                      className={`relative px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl text-sm font-bold border-2 transition-all duration-300 ${
                         isSelected
                           ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white border-blue-500 shadow-lg shadow-blue-200"
                           : isOutOfStock
@@ -856,7 +872,7 @@ font-bold tracking-tight bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900
                       <span>Size {v.size}</span>
                       {isOutOfStock && (
                         <motion.div
-                          className="absolute inset-0 bg-gray-200/80 rounded-2xl flex items-center justify-center"
+                          className="absolute inset-0 bg-gray-200/80 rounded-xl sm:rounded-2xl flex items-center justify-center"
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                           transition={{ delay: 0.2 }}
@@ -868,14 +884,14 @@ font-bold tracking-tight bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900
                       )}
                       {isLowStock && !isSelected && (
                         <motion.div
-                          className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"
+                          className="absolute -top-1 -right-1 w-2.5 h-2.5 sm:w-3 sm:h-3 bg-red-500 rounded-full"
                           animate={{ scale: [1, 1.3, 1] }}
                           transition={{ repeat: Infinity, duration: 1.5 }}
                         />
                       )}
                       {getDiscountPercentage(v) > 0 && (
                         <motion.div
-                          className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full"
+                          className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full"
                           initial={{ scale: 0, rotate: -12 }}
                           animate={{ scale: 1, rotate: -12 }}
                           transition={{
@@ -897,17 +913,17 @@ font-bold tracking-tight bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900
             <AnimatePresence>
               {selectedVariant && (
                 <motion.div
-                  className="p-6 bg-gradient-to-br from-white via-blue-50/30 to-indigo-50/30 rounded-3xl border-2 border-blue-100 shadow-lg"
+                  className="p-4 sm:p-6 bg-gradient-to-br from-white via-blue-50/30 to-indigo-50/30 rounded-2xl sm:rounded-3xl border-2 border-blue-100 shadow-lg"
                   variants={priceAnimationVariants}
                   initial="hidden"
                   animate="visible"
                   exit="hidden"
                   layout
                 >
-                  <div className="flex items-center justify-between mb-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 gap-4 sm:gap-0">
                     <div>
                       <motion.p
-                        className="text-3xl font-bold text-gray-900"
+                        className="text-2xl sm:text-3xl font-bold text-gray-900"
                         key={selectedVariant.id}
                         initial={{ scale: 0.8, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
@@ -926,7 +942,7 @@ font-bold tracking-tight bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900
                         {selectedVariant.sale_price &&
                           Number(selectedVariant.sale_price) > 0 && (
                             <motion.div
-                              className="flex items-center gap-3 mt-2"
+                              className="flex items-center gap-2 sm:gap-3 mt-2"
                               initial={{ opacity: 0, y: 10 }}
                               animate={{ opacity: 1, y: 0 }}
                               exit={{ opacity: 0, y: -10 }}
@@ -936,7 +952,7 @@ font-bold tracking-tight bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900
                                 ₫
                               </span>
                               <motion.span
-                                className="px-3 py-1 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-full text-sm font-bold shadow-lg"
+                                className="px-2 sm:px-3 py-1 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-full text-xs sm:text-sm font-bold shadow-lg"
                                 animate={{ scale: [1, 1.05, 1] }}
                                 transition={{ repeat: Infinity, duration: 2 }}
                               >
@@ -946,12 +962,12 @@ font-bold tracking-tight bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900
                           )}
                       </AnimatePresence>
                     </div>
-                    <div className="text-right">
+                    <div className="text-left sm:text-right">
                       <p className="text-sm text-gray-600 font-medium">
                         Còn lại
                       </p>
                       <motion.p
-                        className={`text-xl font-bold ${
+                        className={`text-lg sm:text-xl font-bold ${
                           selectedVariant.stock_quantity > 10
                             ? "text-green-600"
                             : selectedVariant.stock_quantity > 0
@@ -970,12 +986,12 @@ font-bold tracking-tight bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between pt-6 border-t border-blue-200">
-                    <div className="flex items-center gap-4">
-                      <span className="text-gray-700 font-semibold text-lg">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pt-4 sm:pt-6 border-t border-blue-200 gap-4 sm:gap-0">
+                    <div className="flex items-center gap-3 sm:gap-4">
+                      <span className="text-gray-700 font-semibold text-base sm:text-lg">
                         Số lượng:
                       </span>
-                      <div className="flex items-center bg-white border-2 border-blue-200 rounded-2xl overflow-hidden shadow-md">
+                      <div className="flex items-center bg-white border-2 border-blue-200 rounded-xl sm:rounded-2xl overflow-hidden shadow-md">
                         <motion.button
                           whileHover={{
                             scale: 1.1,
@@ -983,13 +999,13 @@ font-bold tracking-tight bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900
                           }}
                           whileTap={{ scale: 0.9 }}
                           onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                          className="px-5 py-3 hover:bg-blue-50 text-gray-700 font-bold transition-all duration-200"
+                          className="px-4 sm:px-5 py-2 sm:py-3 hover:bg-blue-50 text-gray-700 font-bold transition-all duration-200"
                           disabled={quantity <= 1}
                         >
                           -
                         </motion.button>
                         <motion.span
-                          className="px-8 py-3 font-bold text-gray-900 text-lg min-w-[80px] text-center bg-gradient-to-r from-blue-50 to-indigo-50"
+                          className="px-6 sm:px-8 py-2 sm:py-3 font-bold text-gray-900 text-base sm:text-lg min-w-[60px] sm:min-w-[80px] text-center bg-gradient-to-r from-blue-50 to-indigo-50"
                           key={quantity}
                           animate={{ scale: [1, 1.2, 1] }}
                           transition={{ duration: 0.2 }}
@@ -1007,19 +1023,19 @@ font-bold tracking-tight bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900
                               Math.min(selectedVariant.stock_quantity, q + 1)
                             )
                           }
-                          className="px-5 py-3 hover:bg-blue-50 text-gray-700 font-bold transition-all duration-200"
+                          className="px-4 sm:px-5 py-2 sm:py-3 hover:bg-blue-50 text-gray-700 font-bold transition-all duration-200"
                           disabled={quantity >= selectedVariant.stock_quantity}
                         >
                           +
                         </motion.button>
                       </div>
                     </div>
-                    <div className="text-right">
+                    <div className="text-left sm:text-right">
                       <p className="text-sm text-gray-600 font-medium">
                         Tổng cộng
                       </p>
                       <motion.p
-                        className="text-2xl font-bold text-blue-600"
+                        className="text-xl sm:text-2xl font-bold text-blue-600"
                         key={quantity * getEffectivePrice(selectedVariant)}
                         animate={{ scale: [1, 1.1, 1] }}
                         transition={{ duration: 0.3 }}
@@ -1037,7 +1053,7 @@ font-bold tracking-tight bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900
 
             {/* Action Buttons */}
             <motion.div
-              className="flex flex-col sm:flex-row gap-4 pt-6"
+              className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4 sm:pt-6"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.8 }}
@@ -1050,10 +1066,10 @@ font-bold tracking-tight bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900
                 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={handleAddToCart}
-                className="flex-1 relative bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 hover:from-blue-700 hover:via-blue-600 hover:to-blue-700 text-white px-8 py-5 rounded-2xl font-bold text-lg shadow-xl transition-all duration-300 overflow-hidden group"
+                className="flex-1 relative bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 hover:from-blue-700 hover:via-blue-600 hover:to-blue-700 text-white px-6 sm:px-8 py-4 sm:py-5 rounded-xl sm:rounded-2xl font-bold text-base sm:text-lg shadow-xl transition-all duration-300 overflow-hidden group"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
-                <div className="relative flex items-center justify-center gap-3">
+                <div className="relative flex items-center justify-center gap-2 sm:gap-3">
                   <motion.div
                     animate={{ rotate: [0, 15, -15, 0] }}
                     transition={{
@@ -1062,14 +1078,14 @@ font-bold tracking-tight bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900
                       ease: "easeInOut",
                     }}
                   >
-                    <ShoppingCart size={24} />
+                    <ShoppingCart size={20} className="sm:w-6 sm:h-6" />
                   </motion.div>
                   <span>Thêm vào giỏ hàng</span>
                   <motion.div
                     animate={{ scale: [1, 1.2, 1] }}
                     transition={{ repeat: Infinity, duration: 1.5 }}
                   >
-                    <Zap size={20} />
+                    <Zap size={16} className="sm:w-5 sm:h-5" />
                   </motion.div>
                 </div>
               </motion.button>
@@ -1082,7 +1098,7 @@ font-bold tracking-tight bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900
                   backgroundColor: "#F3F4F6",
                 }}
                 whileTap={{ scale: 0.98 }}
-                className="px-8 py-5 bg-white border-2 border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900 rounded-2xl font-bold text-lg transition-all duration-300 shadow-lg"
+                className="px-6 sm:px-8 py-4 sm:py-5 bg-white border-2 border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900 rounded-xl sm:rounded-2xl font-bold text-base sm:text-lg transition-all duration-300 shadow-lg"
               >
                 Mua ngay
               </motion.button>
@@ -1096,43 +1112,46 @@ font-bold tracking-tight bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900
           initial={{ opacity: 0, y: 60 }}
           animate={isInViewRef ? { opacity: 1, y: 0 } : { opacity: 0, y: 60 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="mt-20 space-y-10"
+          className="mt-12 sm:mt-16 lg:mt-20 space-y-6 sm:space-y-8 lg:space-y-10"
         >
           {/* Write Review */}
-          <div className="bg-gradient-to-br from-white via-blue-50/50 to-indigo-50/50 rounded-3xl p-8 border-2 border-blue-100 shadow-xl">
+          <div className="bg-gradient-to-br from-white via-blue-50/50 to-indigo-50/50 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 border-2 border-blue-100 shadow-xl">
             <motion.h2
-              className="text-2xl font-bold mb-8 text-gray-900 flex items-center gap-4"
+              className="text-xl sm:text-2xl font-bold mb-6 sm:mb-8 text-gray-900 flex items-center gap-3 sm:gap-4"
               initial={{ opacity: 0, x: -20 }}
               animate={
                 isInViewRef ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }
               }
               transition={{ delay: 0.3 }}
             >
-              <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <Star size={24} className="text-white fill-white" />
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg">
+                <Star
+                  size={20}
+                  className="sm:w-6 sm:h-6 text-white fill-white"
+                />
               </div>
               Viết đánh giá của bạn
             </motion.h2>
 
-            <div className="space-y-8">
+            <div className="space-y-6 sm:space-y-8">
               <div>
-                <label className="block text-lg font-semibold text-gray-700 mb-4">
+                <label className="block text-base sm:text-lg font-semibold text-gray-700 mb-3 sm:mb-4">
                   Đánh giá của bạn:
                 </label>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 sm:gap-2">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <motion.button
                       key={star}
-                      whileHover={{ scale: 1.3, rotate: 15 }}
-                      whileTap={{ scale: 1.5, rotate: -15 }}
+                      whileHover={{ scale: 1.2, rotate: 15 }}
+                      whileTap={{ scale: 1.4, rotate: -15 }}
                       onClick={() => setRating(star)}
                       onMouseEnter={() => setHoveredStars(star)}
                       onMouseLeave={() => setHoveredStars(0)}
-                      className="p-2 rounded-full hover:bg-yellow-50 transition-all duration-200"
+                      className="p-1.5 sm:p-2 rounded-full hover:bg-yellow-50 transition-all duration-200"
                     >
                       <Star
-                        size={36}
-                        className={`transition-all duration-300 ${
+                        size={28}
+                        className={`sm:w-9 sm:h-9 transition-all duration-300 ${
                           (hoveredStars > 0
                           ? star <= hoveredStars
                           : rating >= star)
@@ -1142,14 +1161,14 @@ font-bold tracking-tight bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900
                       />
                     </motion.button>
                   ))}
-                  <span className="ml-4 text-lg text-gray-600 font-semibold">
+                  <span className="ml-3 sm:ml-4 text-base sm:text-lg text-gray-600 font-semibold">
                     ({hoveredStars > 0 ? hoveredStars : rating} sao)
                   </span>
                 </div>
               </div>
 
               <div>
-                <label className="block text-lg font-semibold text-gray-700 mb-4">
+                <label className="block text-base sm:text-lg font-semibold text-gray-700 mb-3 sm:mb-4">
                   Nhận xét của bạn:
                 </label>
                 <motion.textarea
@@ -1157,8 +1176,8 @@ font-bold tracking-tight bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900
                   animate={{ scale: 1, opacity: 1 }}
                   whileFocus={{ scale: 1.02 }}
                   transition={{ duration: 0.3 }}
-                  className="w-full border-2 border-blue-200 rounded-2xl p-6 text-base focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-500 transition-all duration-300 resize-none shadow-lg hover:shadow-xl bg-white"
-                  rows={5}
+                  className="w-full border-2 border-blue-200 rounded-xl sm:rounded-2xl p-4 sm:p-6 text-sm sm:text-base focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-500 transition-all duration-300 resize-none shadow-lg hover:shadow-xl bg-white"
+                  rows={4}
                   placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm này..."
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
@@ -1173,7 +1192,7 @@ font-bold tracking-tight bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900
                 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={handleSubmitReview}
-                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-10 py-4 rounded-2xl font-bold text-lg shadow-xl transition-all duration-300"
+                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-8 sm:px-10 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-bold text-base sm:text-lg shadow-xl transition-all duration-300"
               >
                 Gửi đánh giá
               </motion.button>
@@ -1181,24 +1200,24 @@ font-bold tracking-tight bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900
           </div>
 
           {/* Reviews Display */}
-          <div className="bg-white rounded-3xl p-8 border-2 border-gray-200 shadow-xl">
-            <div className="flex items-center justify-between mb-10">
+          <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 border-2 border-gray-200 shadow-xl">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-10 gap-4 sm:gap-0">
               <motion.h2
-                className="text-2xl font-bold text-gray-900 flex items-center gap-4"
+                className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center gap-3 sm:gap-4"
                 initial={{ opacity: 0, x: -20 }}
                 animate={
                   isInViewRef ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }
                 }
                 transition={{ delay: 0.4 }}
               >
-                <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-purple-500 to-pink-600 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg">
                   💬
                 </div>
                 Đánh giá từ khách hàng
               </motion.h2>
               {reviews.length > 0 && (
                 <motion.div
-                  className="text-right"
+                  className="text-left sm:text-right"
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={
                     isInViewRef
@@ -1207,16 +1226,16 @@ font-bold tracking-tight bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900
                   }
                   transition={{ delay: 0.5 }}
                 >
-                  <div className="flex items-center gap-3 justify-end">
+                  <div className="flex items-center gap-2 sm:gap-3 justify-start sm:justify-end">
                     <Star
-                      size={24}
-                      className="text-yellow-400 fill-yellow-400"
+                      size={20}
+                      className="sm:w-6 sm:h-6 text-yellow-400 fill-yellow-400"
                     />
-                    <span className="text-3xl font-bold text-gray-900">
+                    <span className="text-2xl sm:text-3xl font-bold text-gray-900">
                       {calculateAverageRating()}
                     </span>
                   </div>
-                  <p className="text-lg text-gray-600 font-medium">
+                  <p className="text-base sm:text-lg text-gray-600 font-medium">
                     {reviews.length} đánh giá
                   </p>
                 </motion.div>
@@ -1225,7 +1244,7 @@ font-bold tracking-tight bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900
 
             {reviews.length === 0 ? (
               <motion.div
-                className="text-center py-20"
+                className="text-center py-12 sm:py-16 lg:py-20"
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={
                   isInViewRef
@@ -1235,7 +1254,7 @@ font-bold tracking-tight bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900
                 transition={{ duration: 0.6 }}
               >
                 <motion.div
-                  className="w-32 h-32 bg-gradient-to-br from-gray-100 via-gray-200 to-gray-300 rounded-full mx-auto mb-6 flex items-center justify-center shadow-lg"
+                  className="w-24 h-24 sm:w-32 sm:h-32 bg-gradient-to-br from-gray-100 via-gray-200 to-gray-300 rounded-full mx-auto mb-4 sm:mb-6 flex items-center justify-center shadow-lg"
                   animate={{ rotate: 360 }}
                   transition={{
                     repeat: Infinity,
@@ -1243,17 +1262,17 @@ font-bold tracking-tight bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900
                     ease: "linear",
                   }}
                 >
-                  <Star size={48} className="text-gray-400" />
+                  <Star size={32} className="sm:w-12 sm:h-12 text-gray-400" />
                 </motion.div>
-                <p className="text-gray-500 text-2xl font-semibold mb-2">
+                <p className="text-gray-500 text-xl sm:text-2xl font-semibold mb-2">
                   Chưa có đánh giá nào...
                 </p>
-                <p className="text-gray-400 text-lg">
+                <p className="text-gray-400 text-base sm:text-lg">
                   Hãy là người đầu tiên đánh giá sản phẩm này!
                 </p>
               </motion.div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
                 {reviews.map((review, index) => (
                   <motion.div
                     key={review.id}
@@ -1269,23 +1288,23 @@ font-bold tracking-tight bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900
                       boxShadow: "0 20px 40px rgba(0,0,0,0.15)",
                       scale: 1.02,
                     }}
-                    className="bg-gradient-to-br from-white to-gray-50 border-2 border-gray-200 rounded-3xl p-6 shadow-lg transition-all duration-500 hover:border-blue-200"
+                    className="bg-gradient-to-br from-white to-gray-50 border-2 border-gray-200 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-lg transition-all duration-500 hover:border-blue-200"
                   >
-                    <div className="flex items-center gap-4 mb-6">
+                    <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
                       <motion.div
-                        className={`w-14 h-14 rounded-2xl ${getColorByName(
+                        className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl ${getColorByName(
                           review.user.name
-                        )} text-white flex items-center justify-center font-bold text-xl shadow-xl`}
+                        )} text-white flex items-center justify-center font-bold text-lg sm:text-xl shadow-xl`}
                         whileHover={{ scale: 1.1, rotate: 10 }}
                         transition={{ type: "spring", stiffness: 300 }}
                       >
                         {review.user.name.charAt(0)}
                       </motion.div>
                       <div className="flex-1">
-                        <p className="font-bold text-gray-800 text-lg">
+                        <p className="font-bold text-gray-800 text-base sm:text-lg">
                           {review.user.name}
                         </p>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-xs sm:text-sm text-gray-500">
                           {new Date(review.created_at).toLocaleDateString(
                             "vi-VN"
                           )}
@@ -1293,7 +1312,7 @@ font-bold tracking-tight bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-1 mb-6">
+                    <div className="flex items-center gap-1 mb-4 sm:mb-6">
                       {Array.from({ length: review.rating }).map((_, i) => (
                         <motion.div
                           key={i}
@@ -1306,17 +1325,21 @@ font-bold tracking-tight bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900
                           }}
                         >
                           <Star
-                            size={20}
-                            className="text-yellow-400 fill-yellow-400 drop-shadow-sm"
+                            size={16}
+                            className="sm:w-5 sm:h-5 text-yellow-400 fill-yellow-400 drop-shadow-sm"
                           />
                         </motion.div>
                       ))}
                       {Array.from({ length: 5 - review.rating }).map((_, i) => (
-                        <Star key={i} size={20} className="text-gray-300" />
+                        <Star
+                          key={i}
+                          size={16}
+                          className="sm:w-5 sm:h-5 text-gray-300"
+                        />
                       ))}
                     </div>
 
-                    <p className="text-gray-700 leading-relaxed text-base line-clamp-4">
+                    <p className="text-gray-700 leading-relaxed text-sm sm:text-base line-clamp-4">
                       {review.comment}
                     </p>
                   </motion.div>
@@ -1355,7 +1378,7 @@ font-bold tracking-tight bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900
           scrollbar-color: #cbd5e0 #f7fafc;
         }
         .scrollbar-thin::-webkit-scrollbar {
-          width: 6px;
+          width: 4px;
         }
         .scrollbar-thin::-webkit-scrollbar-track {
           background: #f7fafc;
@@ -1373,6 +1396,121 @@ font-bold tracking-tight bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900
           -webkit-line-clamp: 4;
           -webkit-box-orient: vertical;
           overflow: hidden;
+        }
+
+        /* Responsive breakpoints */
+        @media (max-width: 640px) {
+          .scrollbar-thin::-webkit-scrollbar {
+            width: 2px;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .line-clamp-4 {
+            -webkit-line-clamp: 3;
+          }
+        }
+
+        /* Custom responsive utilities */
+        @media (max-width: 375px) {
+          .text-responsive {
+            font-size: 0.875rem;
+          }
+          .gap-responsive {
+            gap: 0.5rem;
+          }
+          .p-responsive {
+            padding: 0.75rem;
+          }
+        }
+
+        /* Ensure touch targets are accessible on mobile */
+        @media (max-width: 640px) {
+          button {
+            min-height: 44px;
+            min-width: 44px;
+          }
+
+          .touch-target {
+            padding: 12px;
+          }
+        }
+
+        /* Optimize text readability on small screens */
+        @media (max-width: 480px) {
+          .text-balance {
+            text-wrap: balance;
+          }
+
+          .leading-relaxed {
+            line-height: 1.6;
+          }
+        }
+
+        /* Handle very small screens */
+        @media (max-width: 320px) {
+          .container-sm {
+            padding-left: 0.5rem;
+            padding-right: 0.5rem;
+          }
+
+          .text-xs-responsive {
+            font-size: 0.75rem;
+          }
+
+          .gap-xs-responsive {
+            gap: 0.25rem;
+          }
+        }
+
+        /* Landscape orientation for mobile */
+        @media (max-height: 500px) and (orientation: landscape) {
+          .mobile-landscape-optimize {
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+          }
+
+          .mobile-landscape-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+          }
+        }
+
+        /* High DPI displays */
+        @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+          .high-dpi-shadow {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+          }
+        }
+
+        /* Dark mode support for system preference */
+        @media (prefers-color-scheme: dark) {
+          .dark-mode-support {
+            /* Add dark mode styles if needed */
+          }
+        }
+
+        /* Reduced motion for accessibility */
+        @media (prefers-reduced-motion: reduce) {
+          * {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+          }
+        }
+
+        /* Focus styles for keyboard navigation */
+        .focus-visible:focus-visible {
+          outline: 2px solid #3b82f6;
+          outline-offset: 2px;
+        }
+
+        /* Improved contrast for accessibility */
+        @media (prefers-contrast: high) {
+          .high-contrast {
+            border-width: 2px;
+            font-weight: 600;
+          }
         }
       `}</style>
     </>

@@ -13,40 +13,7 @@ import { addToCart } from "@/store/cartSlice";
 import { addToWishlistAPI, fetchWishlist } from "@/store/wishlistSlice";
 import { useAppDispatch } from "@/store/hooks";
 import { useRouter } from "next/navigation";
-
-interface ProductImage {
-  id: number;
-  product_id: number;
-  name: string;
-  color?: string;
-}
-
-interface ProductVariant {
-  id: number;
-  product_id: number;
-  img_id: number;
-  size: string;
-  color?: string;
-  price: number;
-  sale_price: string | null;
-  stock_quantity: number;
-  status: string;
-}
-
-interface Product {
-  id: number;
-  name: string;
-  description: string;
-  status: string;
-  img: ProductImage[];
-  images?: string[];
-  variant: ProductVariant[];
-  category_id: number;
-  category?: {
-    id: number;
-    name: string;
-  };
-}
+import { Product } from "../../types/Product";
 
 export default function ProductCard({ product }: { product: Product }) {
   const dispatch = useAppDispatch();
@@ -61,7 +28,6 @@ export default function ProductCard({ product }: { product: Product }) {
   const [mainImage, setMainImage] = useState<string | undefined>(
     imageList?.[0]
   );
-
   const selectedVariant = product.variant?.[0];
   const [showModal, setShowModal] = useState(false);
 
@@ -236,7 +202,10 @@ export default function ProductCard({ product }: { product: Product }) {
       </div>
 
       {showModal && (
-        <ProductModal product={product} onClose={() => setShowModal(false)} />
+        <ProductModal
+          product={{ ...product, images: imageList }} // Đảm bảo images là string[]
+          onClose={() => setShowModal(false)}
+        />
       )}
     </>
   );

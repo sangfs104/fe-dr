@@ -240,7 +240,6 @@ export default function VoiceQuickOrderFlexible() {
   //     speak(t.hello);
   //   }
   // }, [showWidget, step, language]);
-
   const speak = useCallback(
     (text: string, callback?: () => void): void => {
       if ("speechSynthesis" in window && !isMuted) {
@@ -256,7 +255,6 @@ export default function VoiceQuickOrderFlexible() {
     },
     [isMuted, currentLangOption]
   );
-
   useEffect(() => {
     if (showWidget && step === "idle") {
       speak(t.hello);
@@ -315,19 +313,6 @@ export default function VoiceQuickOrderFlexible() {
         top: scrollContainerRef.current.scrollHeight,
         behavior: "smooth",
       });
-    }
-  };
-
-  const speak = (text: string, callback?: () => void): void => {
-    if ("speechSynthesis" in window && !isMuted) {
-      const utter = new SpeechSynthesisUtterance(text);
-      utter.lang = currentLangOption?.speechLang || "vi-VN";
-      setAiSpeechText(text);
-      utter.onend = () => {
-        setAiSpeechText("");
-        if (callback) callback();
-      };
-      window.speechSynthesis.speak(utter);
     }
   };
 

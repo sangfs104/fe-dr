@@ -1,5 +1,8 @@
+// "use client"; // đảm bảo chạy client-side cho animation
+
 // import { FC } from "react";
 // import { Truck, Gift, BadgeCheck, Headphones } from "lucide-react";
+// import { motion } from "framer-motion";
 
 // const items = [
 //   {
@@ -24,23 +27,39 @@
 //   },
 // ];
 
+// const cardVariants = {
+//   hidden: { opacity: 0, y: 40 },
+//   visible: (i: number) => ({
+//     opacity: 1,
+//     y: 0,
+//     transition: {
+//       delay: i * 0.15, // mỗi item xuất hiện trễ hơn chút
+//       duration: 0.6,
+//       ease: "easeOut",
+//     },
+//   }),
+// };
+
 // const ServiceHighlights: FC = () => {
 //   return (
-//     // <div className="bg-white px-4 sm:px-6 md:px-10 lg:px-20 xl:px-40 pt-12 pb-16">
-//     // <div className="bg-white px-4 sm:px-10 md:px-20 lg:px-40 py-12 mt-6">
 //     <div className="bg-white px-4 sm:px-10 md:px-20 lg:px-40 py-12 mt-6">
 //       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
 //         {items.map((item, index) => (
-//           <div
+//           <motion.div
 //             key={index}
-//             className="border border-gray-200 rounded-xl p-6 text-center hover:shadow-md transition"
+//             custom={index}
+//             initial="hidden"
+//             whileInView="visible"
+//             viewport={{ once: true, amount: 0.3 }}
+//             variants={cardVariants}
+//             className="border border-gray-200 rounded-xl p-6 text-center transition hover:shadow-lg hover:scale-105 bg-white"
 //           >
 //             <div className="flex justify-center mb-4">{item.icon}</div>
 //             <h3 className="text-base md:text-lg font-semibold text-gray-800">
 //               {item.title}
 //             </h3>
 //             <p className="text-sm text-gray-500 mt-1">{item.description}</p>
-//           </div>
+//           </motion.div>
 //         ))}
 //       </div>
 //     </div>
@@ -52,7 +71,7 @@
 
 import { FC } from "react";
 import { Truck, Gift, BadgeCheck, Headphones } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, easeOut } from "framer-motion"; // Import easeOut
 
 const items = [
   {
@@ -85,7 +104,7 @@ const cardVariants = {
     transition: {
       delay: i * 0.15, // mỗi item xuất hiện trễ hơn chút
       duration: 0.6,
-      ease: "easeOut",
+      ease: easeOut, // Sử dụng easeOut từ framer-motion
     },
   }),
 };

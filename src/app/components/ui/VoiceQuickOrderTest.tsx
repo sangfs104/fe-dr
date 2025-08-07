@@ -235,12 +235,16 @@ export default function VoiceQuickOrderFlexible() {
     (lang) => lang.code === language
   );
 
+  // useEffect(() => {
+  //   if (showWidget && step === "idle") {
+  //     speak(t.hello);
+  //   }
+  // }, [showWidget, step, language]);
   useEffect(() => {
     if (showWidget && step === "idle") {
       speak(t.hello);
     }
-  }, [showWidget, step, language]);
-
+  }, [showWidget, step, language, speak, t.hello]);
   // Auto-scroll to bottom when new content appears
   useEffect(() => {
     if (

@@ -6,7 +6,6 @@ import {
   Mic,
   Send,
   X,
-  Globe,
   Volume2,
   VolumeX,
   ShoppingBag,

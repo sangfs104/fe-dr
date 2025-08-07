@@ -679,14 +679,14 @@ function PostItem({ post, token }: PostItemProps) {
     sad: <Frown size={18} />,
     angry: <Angry size={18} />,
   };
-  const reactionColors = {
-    like: "text-blue-600",
-    love: "text-pink-500",
-    haha: "text-yellow-500",
-    wow: "text-orange-400",
-    sad: "text-gray-500",
-    angry: "text-red-600",
-  };
+const reactionColors: { [key: string]: string } = {
+  like: "text-blue-600",
+  love: "text-pink-500",
+  haha: "text-yellow-500",
+  wow: "text-orange-400",
+  sad: "text-gray-500",
+  angry: "text-red-600",
+};
 
   return (
     <motion.article

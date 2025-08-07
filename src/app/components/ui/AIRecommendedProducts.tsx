@@ -38,8 +38,10 @@
 //   description: string;
 //   status: string;
 //   img: ProductImage[];
+//   images?: string[]; // Thêm field images từ API
 //   variant: ProductVariant[];
 //   category: Category;
+//   category_id?: number; // Thêm category_id nếu cần
 // }
 
 // // Fetcher with token
@@ -59,12 +61,12 @@
 //   const [animateProducts, setAnimateProducts] = useState(false);
 
 //   const { data: aiData, isLoading: aiLoading } = useSWR(
-//     "http://localhost:8000/api/user/ai-recommend",
+//     "http://127.0.0.1:8000/api/user/ai-recommend",
 //     fetcher
 //   );
 
 //   const { data: viewedData, isLoading: viewedLoading } = useSWR(
-//     "http://localhost:8000/api/user/viewed-products",
+//     "http://127.0.0.1:8000/api/user/viewed-products",
 //     fetcher
 //   );
 
@@ -200,9 +202,23 @@
 //           </div>
 
 //           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-//             {products.map((product) => (
-//               <ProductCard key={product.id} product={product} />
-//             ))}
+//             {products.map((product) => {
+//               // Transform dữ liệu để đảm bảo ProductCard nhận được đúng format
+//               const transformedProduct = {
+//                 ...product,
+//                 category_id: product.category?.id || 0, // Đảm bảo có category_id
+//                 category: product.category
+//                   ? {
+//                       id: product.category.id,
+//                       name: product.category.name,
+//                     }
+//                   : undefined,
+//               };
+
+//               return (
+//                 <ProductCard key={product.id} product={transformedProduct} />
+//               );
+//             })}
 //           </div>
 //         </div>
 
@@ -231,6 +247,7 @@
 //     </div>
 //   );
 // }
+
 "use client";
 
 import useSWR from "swr";
@@ -271,10 +288,10 @@ interface Product {
   description: string;
   status: string;
   img: ProductImage[];
-  images?: string[]; // Thêm field images từ API
+  images?: string[];
   variant: ProductVariant[];
   category: Category;
-  category_id?: number; // Thêm category_id nếu cần
+  category_id?: number;
 }
 
 // Fetcher with token
@@ -294,12 +311,12 @@ export default function AIRecommendedProducts() {
   const [animateProducts, setAnimateProducts] = useState(false);
 
   const { data: aiData, isLoading: aiLoading } = useSWR(
-    "http://127.0.0.1:8000/api/user/ai-recommend",
+    `${process.env.NEXT_PUBLIC_API_URL}/api/user/ai-recommend`,
     fetcher
   );
 
   const { data: viewedData, isLoading: viewedLoading } = useSWR(
-    "http://127.0.0.1:8000/api/user/viewed-products",
+    `${process.env.NEXT_PUBLIC_API_URL}/api/user/viewed-products`,
     fetcher
   );
 
@@ -351,12 +368,6 @@ export default function AIRecommendedProducts() {
 
   return (
     <div className="relative overflow-hidden ">
-      {/* Animated Background */}
-      {/* <div className="absolute inset-0 bg-gradient-to-br from-pink-50/50 via-purple-50/30 to-blue-50/40">
-        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_30%_20%,rgba(255,182,193,0.1),transparent)] animate-pulse"></div>
-        <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_70%_80%,rgba(147,51,234,0.05),transparent)] animate-pulse delay-1000"></div>
-      </div> */}
-
       <div className="relative px-4 xl:px-40 pt-8 pb-16">
         {/* Enhanced Header Section */}
         <div
@@ -439,7 +450,7 @@ export default function AIRecommendedProducts() {
               // Transform dữ liệu để đảm bảo ProductCard nhận được đúng format
               const transformedProduct = {
                 ...product,
-                category_id: product.category?.id || 0, // Đảm bảo có category_id
+                category_id: product.category?.id || 0,
                 category: product.category
                   ? {
                       id: product.category.id,

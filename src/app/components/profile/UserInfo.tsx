@@ -15,7 +15,7 @@ type UserInfo = {
   created_at?: string;
   updated_at?: string;
 };
-
+const API_BASE = process.env.NEXT_PUBLIC_API_URL;
 export default function UserInfo() {
   const [user, setUser] = useState<UserInfo | null>(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -65,22 +65,18 @@ export default function UserInfo() {
         formData.append("avatar", avatarFile);
       }
 
-      const res = await axios.post(
-        "http://127.0.0.1:8000/api/user/profile",
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
+      const res = await axios.post(`${API_BASE}/api/user/profile`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+        transformResponse: [
+          (data) => {
+            const jsonStart = data.indexOf("{");
+            return JSON.parse(data.slice(jsonStart));
           },
-          transformResponse: [
-            (data) => {
-              const jsonStart = data.indexOf("{");
-              return JSON.parse(data.slice(jsonStart));
-            },
-          ],
-        }
-      );
+        ],
+      });
 
       toast.success("Cập nhật thông tin thành công!");
       setUser(res.data.data);
@@ -97,16 +93,12 @@ export default function UserInfo() {
   const handleChangePassword = async () => {
     try {
       const token = localStorage.getItem("token");
-      await axios.post(
-        "http://127.0.0.1:8000/api/change-password",
-        passwordForm,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      await axios.post(`${API_BASE}/api/change-password`, passwordForm, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
       toast.success("Đổi mật khẩu thành công!");
       setPasswordForm({ old_password: "", new_password: "" });
     } catch (error) {
@@ -176,9 +168,7 @@ export default function UserInfo() {
           // />
           <div className="relative group w-20 h-20 sm:w-24 sm:h-24">
             <Image
-              src={
-                avatarPreview || `http://127.0.0.1:8000/storage/${user.avatar}`
-              }
+              src={avatarPreview || `${API_BASE}/storage/${user.avatar}`}
               alt="Avatar"
               fill
               className="rounded-full object-cover border"

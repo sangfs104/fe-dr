@@ -1,21 +1,17 @@
 "use client";
 
 import { use, useEffect, useState, useRef } from "react";
-
 import CheckoutProgress from "../../components/ui/CheckoutProgress";
 import ProductDetailClient from "./ProductDetailPage";
 import ProductList1 from "../../components/ui/ProductList1";
-import type { Product } from "../../types/Product"; // đường dẫn có thể cần chỉnh lại
+import type { Product } from "../../types/Product"; 
 
 export default function ProductPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  // unwrap `params` using `use()`
   const { id: productId } = use(params);
-
-  // const [product, setProduct] = useState<any>(null);
   const [product, setProduct] = useState<Product | null>(null);
   const [reviews, setReviews] = useState([]);
   const [sameCategoryProducts, setSameCategoryProducts] = useState([]);
@@ -29,27 +25,18 @@ export default function ProductPage({
     const fetchData = async () => {
       const token = localStorage.getItem("token");
       const headers = { Authorization: token ? `Bearer ${token}` : "" };
-
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
       try {
-        const productRes = await fetch(
-          `http://localhost:8000/api/product/${productId}`,
-          { headers }
-        );
+     const productRes = await fetch(`${apiUrl}/api/product/${productId}`, { headers });
         const productData = await productRes.json();
         const rawProduct = productData.data;
 
         const categoryId =
           rawProduct.category_id ?? rawProduct.category?.id ?? null;
-
-        const [reviewsRes, productsByCatRes] = await Promise.all([
-          fetch(`http://localhost:8000/api/review/${rawProduct.id}`, {
-            headers,
-          }),
-          fetch(
-            `http://localhost:8000/api/products-by-category?category_id=${categoryId}`,
-            { headers }
-          ),
-        ]);
+const [reviewsRes, productsByCatRes] = await Promise.all([
+  fetch(`${apiUrl}/api/review/${rawProduct.id}`, { headers }),
+  fetch(`${apiUrl}/api/products-by-category?category_id=${categoryId}`, { headers }),
+]);
 
         const reviewsData = await reviewsRes.json();
         const productsData = await productsByCatRes.json();

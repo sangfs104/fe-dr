@@ -31,4 +31,5 @@ export type Product = {
   img: ImageType[];
   variant: Variant[];
   category: Category;
+   category_id: number;
 };

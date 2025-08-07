@@ -256,7 +256,7 @@ import { addToCart } from "@/store/cartSlice";
 import { addToWishlistAPI, fetchWishlist } from "@/store/wishlistSlice";
 import { useAppDispatch } from "@/store/hooks";
 import { useRouter } from "next/navigation";
-import { Product, Category } from "../../types/Product"; // Nhập cả Category
+import { Product } from "../../types/Product"; // Nhập cả Category
 
 export default function ProductCard({ product }: { product: Product }) {
   const dispatch = useAppDispatch();

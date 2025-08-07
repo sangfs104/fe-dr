@@ -61,10 +61,8 @@ type Message = {
   type: "user" | "bot";
   text: string;
   products?: Product[];
-  style_name?: string;
-  description?: string;
   keywords?: string[];
-  mix_and_match?: string[];
+  mix_and_match?: string | null;
   timestamp?: Date;
 };
 
@@ -86,7 +84,7 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
       : [
           {
             type: "bot",
-            text: "🎉 Xin chào! Mình là stylist AI. Bạn cần tư vấn gì hôm nay?",
+            text: "🎉 Chào bạn! Mình là stylist AI, rất vui được giúp bạn chọn trang phục hôm nay. Bạn cần tư vấn gì ạ?",
             timestamp: new Date(),
           },
         ];
@@ -121,7 +119,7 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
       try {
         setUser(JSON.parse(storedUser));
       } catch (err) {
-        console.error("Failed to parse user from localStorage", err);
+        console.error("Không thể phân tích user từ localStorage", err);
       }
     }
   }, []);
@@ -151,7 +149,7 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
       })
     );
 
-    toast.success("Đã thêm vào giỏ hàng");
+    toast.success("Đã thêm vào giỏ hàng thành công!");
   };
 
   const handleAddToWishlist = async (product: Product) => {
@@ -182,10 +180,10 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
 
     const result = await dispatch(addToWishlistAPI(wishlistItem));
     if (addToWishlistAPI.fulfilled.match(result)) {
-      toast.success("Đã thêm vào wishlist 💖");
+      toast.success("Đã thêm vào wishlist thành công 💖");
       await dispatch(fetchWishlist());
     } else {
-      toast.error((result.payload as string) || "Có lỗi khi thêm vào wishlist");
+      toast.error((result.payload as string) || "Có lỗi khi thêm vào wishlist!");
     }
   };
 
@@ -211,33 +209,29 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
           }
         );
 
-        let reply = res.data.message || "🤖 Xin lỗi, mình chưa rõ gu bạn. Hỏi lại nhé?";
-        let products = res.data.products || [];
-        let style_name = res.data.style_name;
-        let description = res.data.description;
-        let keywords = res.data.keywords;
-        let mix_and_match = res.data.mix_and_match;
+        const { message, style_name, description, keywords, products, mix_and_match } = res.data;
 
-        // Xử lý câu hỏi về size
-        if (input.match(/size\s+\w+|cỡ\s+\w+/iu)) {
-          if (products.length > 0) {
-            reply = res.data.message || `Tìm thấy sản phẩm ${products[0].name}!`;
-          } else {
-            reply = res.data.message || "Không tìm thấy sản phẩm hoặc size yêu cầu!";
+        let reply = message || "Chào bạn! Mình chưa hiểu rõ gu của bạn lắm. Bạn có thể mô tả thêm một chút không ạ?";
+        let productList = products || [];
+
+        if (!input.match(/(phối đồ|set đồ|đi chơi|du lịch|outfit|mix and match)/iu)) {
+          productList = products && products.length > 0 ? [products[0]] : [];
+          reply = products && products.length > 0
+            ? `Chào bạn! Mình đã tìm thấy một sản phẩm rất phù hợp cho bạn là ${products[0].name}. Bạn thấy thế nào ạ?`
+            : reply;
+        } else {
+          if (style_name || description) {
+            reply = `Chào bạn! Mình thấy phong cách ${style_name || "của bạn"} rất thú vị!`;
+            if (description) {
+              reply += `\n${description}`;
+            }
           }
-        }
-        // Xử lý câu hỏi về phối đồ
-        else if (input.match(/(phối đồ|set đồ|đi chơi|du lịch|outfit|mix and match)/iu)) {
-          reply = style_name
-            ? `🎯 Phong cách phù hợp: ${style_name}\n${description || ""}`
-            : res.data.message;
-          if (mix_and_match && mix_and_match.length > 0) {
-            reply += `\nGợi ý phối đồ: ${mix_and_match.join(", ")}`;
+          if (mix_and_match) {
+            reply += `\nMình có gợi ý phối đồ cho bạn đây: ${mix_and_match}. Bạn có thích không ạ?`;
           }
-        }
-        // Xử lý câu hỏi về giảm giá/flash sale
-        else if (input.match(/(giảm giá|flash sale|ưu đãi)/iu)) {
-          reply = res.data.message;
+          if (products && products.length > 0) {
+            reply += `\nMình cũng tìm thấy một số sản phẩm phù hợp, bạn có muốn xem không ạ?`;
+          }
         }
 
         setMessages((prev) => [
@@ -245,23 +239,21 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
           {
             type: "bot",
             text: reply,
-            products,
-            style_name,
-            description,
-            keywords,
-            mix_and_match,
+            products: productList,
+            keywords: keywords || [],
+            mix_and_match: mix_and_match || null,
             timestamp: new Date(),
           },
         ]);
         setIsTyping(false);
         setLoading(false);
       }, 1000);
-    } catch (error) {
+    } catch  {
       setMessages((prev) => [
         ...prev,
         {
           type: "bot",
-          text: "❌ Không thể kết nối đến hệ thống. Vui lòng thử lại.",
+          text: "Rất tiếc, mình không thể kết nối đến hệ thống ngay bây giờ. Bạn vui lòng thử lại sau nhé!",
           timestamp: new Date(),
         },
       ]);
@@ -274,7 +266,7 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
     setMessages([
       {
         type: "bot",
-        text: "🎉 Xin chào! Mình là stylist AI. Bạn cần tư vấn gì hôm nay?",
+        text: "🎉 Chào bạn! Mình là stylist AI, rất vui được giúp bạn chọn trang phục hôm nay. Bạn cần tư vấn gì ạ?",
         timestamp: new Date(),
       },
     ]);
@@ -284,7 +276,7 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
     { text: "Phong cách nữ tính" },
     { text: "Trang phục công sở", icon: <Briefcase size={16} /> },
     { text: "Outfit đi biển", icon: <Waves size={16} /> },
-    { text: "Phối đồ đi học giúp tôi", icon: <Palette size={16} /> },
+    { text: "Màu sắc hợp da trắng", icon: <Palette size={16} /> },
   ];
 
   const formatTime = (date: Date) => {
@@ -364,7 +356,7 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
           <div
             key={i}
             className={`flex flex-col ${
-              m.type === "user" ? "items-end" : "items-start"
+              m.type === "bot" ? "items-start" : "items-end"
             } animate-fadeInUp`}
             style={{ animationDelay: `${i * 0.1}s` }}
           >
@@ -375,11 +367,14 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
             >
               {m.type === "bot" ? (
                 <div className="relative">
-                  <img
-                    src={aiAvatar}
-                    alt="AI Avatar"
-                    className="w-10 h-10 rounded-full shadow-md object-cover border-2 border-orange-200"
-                  />
+                 <Image
+  src={aiAvatar}
+  alt="AI Avatar"
+  width={40}
+  height={40}
+  className="w-10 h-10 rounded-full shadow-md object-cover border-2 border-orange-200"
+/>
+
                   <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white flex items-center justify-center">
                     <Bot size={10} />
                   </div>
@@ -398,7 +393,7 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
                     height={40}
                     alt="User Avatar"
                     className="rounded-full shadow-md object-cover border-2 border-orange-200"
-                    onError={(e) => console.log("Image load error:", e)}
+                    onError={(e) => console.log("Lỗi tải ảnh:", e)}
                   />
                 </div>
               )}
@@ -412,24 +407,9 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
                   }`}
                 >
                   {m.text}
-                  {m.style_name && (
-                    <div className="mt-2 text-xs text-gray-600 dark:text-gray-300">
-                      <strong>Phong cách:</strong> {m.style_name}
-                    </div>
-                  )}
-                  {m.description && (
-                    <div className="mt-1 text-xs text-gray-600 dark:text-gray-300">
-                      <strong>Mô tả:</strong> {m.description}
-                    </div>
-                  )}
                   {m.keywords && m.keywords.length > 0 && (
-                    <div className="mt-1 text-xs text-gray-600 dark:text-gray-300">
-                      <strong>Từ khóa:</strong> {m.keywords.join(", ")}
-                    </div>
-                  )}
-                  {m.mix_and_match && m.mix_and_match.length > 0 && (
-                    <div className="mt-1 text-xs text-gray-600 dark:text-gray-300">
-                      <strong>Gợi ý phối đồ:</strong> {m.mix_and_match.join(", ")}
+                    <div className="mt-2 text-xs text-gray-500 dark:text-gray-300">
+                      Từ khóa: {m.keywords.join(", ")}
                     </div>
                   )}
                   <div
@@ -441,7 +421,6 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
                   </div>
                 </div>
 
-                {/* Products Grid */}
                 {m.products && m.products.length > 0 && (
                   <div className="mt-3 grid grid-cols-1 gap-3">
                     {m.products.map((p) => (
@@ -451,8 +430,11 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
                       >
                         <Link href={`/products/${p.id}`}>
                           <div className="relative overflow-hidden">
-                            <img
+                            <Image
                               src={p.images?.[0] || "/img/no-image.jpg"}
+                                width={400}
+  height={144}
+   unoptimized
                               alt={p.name}
                               className="w-full h-36 object-cover group-hover:scale-110 transition-transform duration-300"
                             />
@@ -465,12 +447,6 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
                             <div className="text-gray-600 dark:text-gray-300 text-xs mt-1 line-clamp-2">
                               {p.description}
                             </div>
-                            {p.variant && p.variant.length > 0 && (
-                              <div className="text-gray-600 dark:text-gray-300 text-xs mt-1">
-                                <strong>Size:</strong> {p.variant[0].size} (
-                                {p.variant[0].stock_quantity} sản phẩm)
-                              </div>
-                            )}
                             <div className="mt-2 text-xs text-orange-600 dark:text-orange-400 font-medium">
                               Xem chi tiết →
                             </div>
@@ -510,10 +486,15 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
 
         {isTyping && (
           <div className="flex items-center gap-3 animate-fadeInUp">
-            <img
-              src={aiAvatar}
-              className="w-10 h-10 rounded-full shadow-md border-2 border-orange-200"
-            />
+            <Image
+  src={aiAvatar}
+  alt="AI Avatar"
+  width={40}
+  height={40}
+   unoptimized
+  className="w-10 h-10 rounded-full shadow-md object-cover border-2 border-orange-200"
+/>
+
             <div className="bg-white dark:bg-gray-700 border border-orange-200 dark:border-gray-600 px-4 py-3 rounded-2xl rounded-tl-md flex items-center gap-2">
               <div className="flex space-x-1">
                 <div className="w-2 h-2 bg-orange-500 rounded-full animate-bounce"></div>
@@ -535,7 +516,6 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
         <div ref={chatEndRef}></div>
       </div>
 
-      {/* Quick Replies */}
       {!loading && (
         <div className="px-4 py-3 bg-gradient-to-r from-orange-50 to-pink-50 dark:from-gray-800 dark:to-gray-900 border-t border-orange-100 dark:border-gray-700">
           <div className="text-xs font-medium text-orange-700 dark:text-orange-300 mb-2 flex items-center gap-2">
@@ -557,7 +537,6 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
         </div>
       )}
 
-      {/* Input Area */}
       <div className="flex items-center border-t border-orange-200 dark:border-gray-700 px-3 py-3 bg-white dark:bg-gray-900 gap-3">
         <div className="flex gap-1">
           <button
@@ -616,7 +595,7 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
         </button>
       </div>
 
-      <style >{`
+      <style jsx>{`
         @keyframes slideIn {
           from {
             opacity: 0;

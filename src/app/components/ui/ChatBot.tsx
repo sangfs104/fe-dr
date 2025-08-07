@@ -570,7 +570,7 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
         </button>
       </div>
 
-      <style jsx>{`
+      <style >{`
         @keyframes slideIn {
           from {
             opacity: 0;

@@ -671,14 +671,14 @@ function PostItem({ post, token }: PostItemProps) {
   };
 
   // Modern Reaction Icons
-  const reactionIcons = {
-    like: <ThumbsUp size={18} />,
-    love: <Heart size={18} />,
-    haha: <Laugh size={18} />,
-    wow: <Smile size={18} />,
-    sad: <Frown size={18} />,
-    angry: <Angry size={18} />,
-  };
+const reactionIcons: { [key: string]: JSX.Element } = {
+  like: <ThumbsUp size={18} />,
+  love: <Heart size={18} />,
+  haha: <Laugh size={18} />,
+  wow: <Smile size={18} />,
+  sad: <Frown size={18} />,
+  angry: <Angry size={18} />,
+};
 const reactionColors: { [key: string]: string } = {
   like: "text-blue-600",
   love: "text-pink-500",

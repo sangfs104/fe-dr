@@ -11,7 +11,7 @@ import { addToCart } from "@/store/cartSlice";
 interface ProductImage {
   id: number;
   product_id: number;
-  name: string; // Tên file hoặc URL đầy đủ
+  name: string;
 }
 
 interface ProductVariant {
@@ -32,7 +32,7 @@ interface Product {
   description: string;
   status: string;
   img: ProductImage[];
-  images: string[]; // Thêm trường images từ JSON
+  images: string[];
   variant: ProductVariant[];
   category: {
     id: number;
@@ -48,7 +48,6 @@ interface ProductModalProps {
 export default function ProductModal({ product, onClose }: ProductModalProps) {
   const dispatch = useAppDispatch();
 
-  // Sử dụng images[0] nếu có, nếu không thì fallback về img[0]?.name
   const [mainImage, setMainImage] = useState(
     product.images[0] || product.img[0]?.name || ""
   );
@@ -58,8 +57,6 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
   >(product.variant[0]);
 
   const getImageSrc = (image: string) => {
-    // Nếu image đã là URL đầy đủ (bắt đầu bằng http), trả về nguyên vẹn
-    // Nếu không, thêm tiền tố /img/
     return image.startsWith("http") ? image : `/img/${image}`;
   };
 
@@ -93,14 +90,14 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center px-4"
+        className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center px-2 sm:px-4"
         onClick={onClose}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
       >
         <motion.div
-          className="bg-white p-6 rounded-2xl w-full max-w-4xl max-h-[85vh] overflow-y-auto relative shadow-2xl"
+          className="bg-white p-4 sm:p-6 rounded-2xl w-full max-w-[95vw] sm:max-w-4xl max-h-[90vh] overflow-y-auto relative shadow-2xl"
           onClick={(e) => e.stopPropagation()}
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -108,18 +105,20 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
           transition={{ type: "spring", stiffness: 100, damping: 20 }}
         >
           <button
-            className="absolute top-3 right-3 text-gray-500 hover:text-black text-2xl"
+            className="absolute top-2 sm:top-3 right-2 sm:right-3 text-gray-500 hover:text-black text-xl sm:text-2xl"
             onClick={onClose}
           >
             &times;
           </button>
 
-          <h2 className="text-2xl font-bold mb-4">{product.name}</h2>
+          <h2 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">
+            {product.name}
+          </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             {/* LEFT IMAGE */}
             <div>
-              <div className="w-full aspect-square relative mb-3 rounded-lg overflow-hidden shadow">
+              <div className="w-full aspect-square relative mb-2 sm:mb-3 rounded-lg overflow-hidden shadow">
                 {mainImage && (
                   <ReactImageMagnify
                     {...{
@@ -133,27 +132,35 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
                         width: 1200,
                         height: 1200,
                       },
-                      enlargedImageContainerStyle: { zIndex: 9999 },
+                      enlargedImageContainerStyle: {
+                        zIndex: 9999,
+                        display: "block",
+                      },
+                      isActivatedOnTouch: true,
+                      enlargedImagePosition: "beside",
+                      enlargedImageContainerDimensions: {
+                        width: "150%",
+                        height: "100%",
+                      },
                     }}
                   />
                 )}
               </div>
-              <div className="flex gap-2 overflow-x-auto">
+              <div className="flex gap-2 overflow-x-auto py-2">
                 {product.images.map((image, index) => (
                   <Image
                     key={index}
                     src={getImageSrc(image)}
                     alt={`Product image ${index + 1}`}
-                    width={80}
-                    height={80}
-                    className={`rounded-lg object-cover border cursor-pointer transition-transform duration-200 hover:scale-105 ${
+                    width={60}
+                    height={60}
+                    className={`rounded-lg object-cover border cursor-pointer transition-transform duration-200 hover:scale-105 sm:w-20 sm:h-20 ${
                       image === mainImage
                         ? "border-blue-500"
                         : "border-gray-300"
                     }`}
                     onClick={() => {
                       setMainImage(image);
-                      // Tìm variant tương ứng với img_id nếu có
                       const imgObj = product.img.find(
                         (img) => img.name === image.split("/").pop()
                       );
@@ -168,24 +175,24 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
             </div>
 
             {/* RIGHT INFO */}
-            <div className="text-sm space-y-3">
-              <p className="font-semibold text-base">
+            <div className="text-xs sm:text-sm space-y-2 sm:space-y-3">
+              <p className="font-semibold text-sm sm:text-base">
                 <strong>Danh mục:</strong> {product.category.name}
               </p>
-              <p className="font-semibold text-base">
+              <p className="font-semibold text-sm sm:text-base">
                 <strong>Mô tả:</strong> {product.description}
               </p>
-              <p className="font-semibold text-base">
+              <p className="font-semibold text-sm sm:text-base">
                 <strong>Trạng thái sản phẩm:</strong> {product.status}
               </p>
 
               {selectedVariant ? (
                 <>
-                  <div className="mt-4">
-                    <label className="block mb-2 font-semibold text-base">
+                  <div className="mt-3 sm:mt-4">
+                    <label className="block mb-1 sm:mb-2 font-semibold text-sm sm:text-base">
                       Chọn size:
                     </label>
-                    <div className="flex flex-wrap gap-3">
+                    <div className="flex flex-wrap gap-2 sm:gap-3">
                       {product.variant.map((v) => {
                         const isSelected = selectedVariant?.id === v.id;
                         const isOutOfStock = v.stock_quantity === 0;
@@ -208,7 +215,6 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
                                   (img) => img.id === v.img_id
                                 );
                                 if (imgForVariant) {
-                                  // Tìm URL đầy đủ từ images dựa trên tên file
                                   const fullImageUrl = product.images.find(
                                     (img) => img.includes(imgForVariant.name)
                                   );
@@ -217,7 +223,7 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
                               }
                             }}
                             disabled={isOutOfStock}
-                            className={`relative px-5 py-2 rounded-full border text-sm font-semibold transition-all duration-200 
+                            className={`relative px-3 sm:px-5 py-1 sm:py-2 rounded-full border text-xs sm:text-sm font-semibold transition-all duration-200 
                 ${
                   isSelected
                     ? "bg-[#FF5722] text-white border-[#FF5722] shadow-md"
@@ -237,7 +243,7 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
                                   stiffness: 400,
                                   damping: 10,
                                 }}
-                                className="absolute -top-1.5 -right-1.5 bg-white rounded-full p-1 shadow text-green-500 text-xs"
+                                className="absolute -top-1 -right-1 sm:-top-1.5 sm:-right-1.5 bg-white rounded-full p-1 shadow text-green-500 text-[8px] sm:text-xs"
                               >
                                 ✅
                               </motion.span>
@@ -252,7 +258,7 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
                     </div>
                   </div>
 
-                  <div className="mt-4 space-y-2 text-base font-semibold">
+                  <div className="mt-3 sm:mt-4 space-y-1 sm:space-y-2 text-sm sm:text-base font-semibold">
                     <p>Size: {selectedVariant.size}</p>
                     <p>
                       Giá gốc: {selectedVariant.price.toLocaleString("vi-VN")} ₫
@@ -281,14 +287,14 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
                     <p>Trạng thái: {selectedVariant.status}</p>
 
                     {selectedVariant.stock_quantity === 0 ? (
-                      <div className="text-red-600 font-medium mt-2">
+                      <div className="text-red-600 font-medium mt-2 text-sm sm:text-base">
                         ⚠️ Sản phẩm này hiện đã hết hàng.
                       </div>
                     ) : (
                       <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        className="mt-3 px-6 py-3 bg-[#FF5722] hover:bg-[#F44336] text-white rounded-2xl shadow-md transition-colors duration-200"
+                        className="mt-2 sm:mt-3 px-4 sm:px-6 py-2 sm:py-3 bg-[#FF5722] hover:bg-[#F44336] text-white rounded-2xl shadow-md transition-colors duration-200 text-sm sm:text-base"
                         onClick={handleAddToCart}
                       >
                         Thêm vào giỏ hàng
@@ -297,7 +303,7 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
                   </div>
                 </>
               ) : (
-                <p className="mt-4 text-red-500 font-medium">
+                <p className="mt-3 sm:mt-4 text-red-500 font-medium text-sm sm:text-base">
                   Không có biến thể.
                 </p>
               )}
@@ -305,43 +311,59 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
           </div>
 
           {/* TABLE */}
-          <div className="mt-6">
-            <strong className="text-base font-semibold">
+          <div className="mt-4 sm:mt-6">
+            <strong className="text-sm sm:text-base font-semibold">
               Tất cả bảng size:
             </strong>
-            <table className="w-full mt-2 text-sm border-collapse">
-              <thead>
-                <tr className="border-b bg-gray-100 text-base font-semibold">
-                  <th className="py-2 px-3 text-left">Size</th>
-                  <th className="py-2 px-3 text-left">Giá</th>
-                  <th className="py-2 px-3 text-left">Giá KM</th>
-                  <th className="py-2 px-3 text-left">Tồn kho</th>
-                  <th className="py-2 px-3 text-left">Trạng thái</th>
-                </tr>
-              </thead>
-              <tbody>
-                {product.variant.map((variant) => (
-                  <tr
-                    key={variant.id}
-                    className="border-b hover:bg-gray-50 transition-all"
-                  >
-                    <td className="py-2 px-3">{variant.size}</td>
-                    <td className="py-2 px-3">
-                      {variant.price.toLocaleString("vi-VN")} ₫
-                    </td>
-                    <td className="py-2 px-3">
-                      {variant.sale_price
-                        ? `${parseInt(variant.sale_price).toLocaleString(
-                            "vi-VN"
-                          )} ₫`
-                        : "—"}
-                    </td>
-                    <td className="py-2 px-3">{variant.stock_quantity}</td>
-                    <td className="py-2 px-3">{variant.status}</td>
+            <div className="overflow-x-auto">
+              <table className="w-full mt-2 text-xs sm:text-sm border-collapse">
+                <thead>
+                  <tr className="border-b bg-gray-100 text-sm sm:text-base font-semibold">
+                    <th className="py-1 sm:py-2 px-2 sm:px-3 text-left">
+                      Size
+                    </th>
+                    <th className="py-1 sm:py-2 px-2 sm:px-3 text-left">Giá</th>
+                    <th className="py-1 sm:py-2 px-2 sm:px-3 text-left">
+                      Giá KM
+                    </th>
+                    <th className="py-1 sm:py-2 px-2 sm:px-3 text-left">
+                      Tồn kho
+                    </th>
+                    <th className="py-1 sm:py-2 px-2 sm:px-3 text-left">
+                      Trạng thái
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {product.variant.map((variant) => (
+                    <tr
+                      key={variant.id}
+                      className="border-b hover:bg-gray-50 transition-all"
+                    >
+                      <td className="py-1 sm:py-2 px-2 sm:px-3">
+                        {variant.size}
+                      </td>
+                      <td className="py-1 sm:py-2 px-2 sm:px-3">
+                        {variant.price.toLocaleString("vi-VN")} ₫
+                      </td>
+                      <td className="py-1 sm:py-2 px-2 sm:px-3">
+                        {variant.sale_price
+                          ? `${parseInt(variant.sale_price).toLocaleString(
+                              "vi-VN"
+                            )} ₫`
+                          : "—"}
+                      </td>
+                      <td className="py-1 sm:py-2 px-2 sm:px-3">
+                        {variant.stock_quantity}
+                      </td>
+                      <td className="py-1 sm:py-2 px-2 sm:px-3">
+                        {variant.status}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </motion.div>
       </motion.div>

@@ -70,7 +70,7 @@ export default function ProductPage() {
           setError("Không lấy được sản phẩm từ máy chủ.");
           setProducts([]);
         }
-      } catch (err) {
+      } catch {
         setError("Đã xảy ra lỗi kết nối đến máy chủ.");
         setProducts([]);
       } finally {

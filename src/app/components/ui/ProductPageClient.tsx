@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import ProductCard from "../components/ProductList";
+import ProductCard from "../../components/ui/ProductCard";
 import BreadcrumbFilter from "./Sort";
 import HeaderHome from "./Header";
 import Footer from "./Footer";

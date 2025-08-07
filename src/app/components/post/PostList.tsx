@@ -146,8 +146,8 @@ function PostItem({ post, token }: PostItemProps) {
   }, [comments, showComments]);
 
   // Handle comment post
-  const handleComment = async (e) => {
-    e.preventDefault();
+ const handleComment = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
     if (!token) {
       toast.error("Bạn cần đăng nhập để bình luận nha!");
       return;

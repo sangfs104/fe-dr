@@ -186,6 +186,7 @@
 //     </div>
 //   );
 // }
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -304,11 +305,17 @@ export default function FlashSaleProductList() {
                       description: variant.description,
                       status: variant.status,
                       images: variant.images,
-                      img: variant.images.map((imgName) => ({
-                        id: `${variant.product_id}-${imgName}`,
+                      // img: variant.images.map((imgName) => ({
+                      //   id: `${variant.product_id}-${imgName}`,
+                      //   product_id: variant.product_id,
+                      //   name: imgName,
+                      // })),
+                      img: variant.images.map((imgName, index) => ({
+                        id: index, // dùng index hoặc sinh số tùy ý
                         product_id: variant.product_id,
                         name: imgName,
                       })),
+
                       variant: [
                         {
                           id: variant.variant_id,

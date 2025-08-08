@@ -5,6 +5,7 @@ import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { AxiosError } from "axios";
 import Image from "next/image";
+import { Suspense } from "react";
 
 import {
   faChevronDown,
@@ -17,7 +18,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { RootState } from "@/store/store";
 import { useSearchParams } from "next/navigation";
-export default function PaymentPage() {
+function PaymentPage() {
   const [showCoupon, setShowCoupon] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<"bank" | "cod">("bank");
   // const cartItems = useSelector((state: RootState) => state.cart.items);
@@ -777,5 +778,13 @@ export default function PaymentPage() {
         }
       `}</style>
     </>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div>Đang tải...</div>}>
+      <PaymentPage />
+    </Suspense>
   );
 }

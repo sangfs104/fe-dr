@@ -131,7 +131,7 @@ const itemVariants: Variants = {
     },
   },
 };
-const imageVariants = {
+const imageVariants: Variants = {
   hidden: { opacity: 0, scale: 0.8, rotateY: -15 },
   visible: {
     opacity: 1,
@@ -141,12 +141,11 @@ const imageVariants = {
       type: "spring",
       stiffness: 100,
       damping: 20,
-      duration: 0.8,
     },
   },
 };
 
-const priceAnimationVariants = {
+const priceAnimationVariants: Variants = {
   hidden: { scale: 0, opacity: 0 },
   visible: {
     scale: 1,
@@ -926,7 +925,7 @@ export default function ProductDetailClient({
               {selectedVariant && (
                 <motion.div
                   className="p-4 sm:p-6 bg-gradient-to-br from-white via-blue-50/30 to-indigo-50/30 rounded-2xl sm:rounded-3xl border-2 border-blue-100 shadow-lg"
-                  variants={itemVariants}
+                  variants={priceAnimationVariants}
                   initial="hidden"
                   animate="visible"
                   exit="hidden"

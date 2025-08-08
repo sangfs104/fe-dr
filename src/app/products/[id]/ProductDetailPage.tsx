@@ -124,9 +124,7 @@ const itemVariants = {
     y: 0,
     scale: 1,
     transition: {
-      type: "spring",
-      stiffness: 100,
-      damping: 15,
+      type: "tween",
       duration: 0.6,
     },
   },

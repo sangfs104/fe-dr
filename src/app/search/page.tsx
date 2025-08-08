@@ -988,7 +988,7 @@ import ProductCard from "../components/ui/ProductCard";
 import HeaderHome from "../components/ui/Header";
 import Footer from "../components/ui/Footer";
 import ProductModal from "../components/ui/ProductModal";
-
+import { Suspense } from "react";
 // Interfaces
 interface ProductImage {
   id: number;
@@ -1270,4 +1270,11 @@ const SearchPage = () => {
   );
 };
 
-export default SearchPage;
+// export default SearchPage;
+export default function Page() {
+  return (
+    <Suspense fallback={<div>Đang tải...</div>}>
+      <SearchPage />
+    </Suspense>
+  );
+}

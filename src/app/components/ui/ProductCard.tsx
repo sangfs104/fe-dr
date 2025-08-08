@@ -284,19 +284,31 @@ export default function ProductCard({ product }: { product: Product }) {
         ? Number(selectedVariant.sale_price)
         : selectedVariant.price;
 
+    // dispatch(
+    //   addToCart({
+    //     productId: product.id,
+    //     variantId: selectedVariant.id,
+    //     name: product.name,
+    //     img: mainImage,
+    //     price: priceToUse,
+    //     size: selectedVariant.size,
+    //     quantity: 1,
+    //     variantList: product.variant,
+    //   })
+    // );
     dispatch(
       addToCart({
         productId: product.id,
         variantId: selectedVariant.id,
-        name: product.name,
-        img: mainImage,
+        name: `${product.name} - Size ${selectedVariant.size}`,
+        img: product.images?.[0] || "/img/no-image.jpg",
         price: priceToUse,
+        sale_price: selectedVariant.sale_price, // Add this line
         size: selectedVariant.size,
         quantity: 1,
         variantList: product.variant,
       })
     );
-
     toast.success("Đã thêm vào giỏ hàng");
   };
 

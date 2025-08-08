@@ -1,3 +1,4 @@
+// components/LuckyWheelClient.jsx
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -73,7 +74,6 @@ const LuckyWheelClient = () => {
 
   return (
     <div className="flex flex-col items-center gap-6">
-      {/* Vòng quay có nút ở giữa */}
       <div className="relative w-[300px] h-[300px] md:w-[400px] md:h-[400px]">
         <Wheel
           mustStartSpinning={mustSpin}
@@ -87,7 +87,6 @@ const LuckyWheelClient = () => {
           innerBorderColor="#000"
         />
 
-        {/* Nút nằm chính giữa vòng quay */}
         <button
           onClick={handleSpinClick}
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-4 py-2 bg-[#FF9731] text-white rounded-full shadow hover:bg-[#e87e12] transition text-sm md:text-base"

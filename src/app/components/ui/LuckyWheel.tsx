@@ -1,6 +1,12 @@
+// pages/lucky/page.jsx
 "use client";
 
-import LuckyWheelClient from "./LuckyWheelClient";
+import dynamic from "next/dynamic";
+
+// Import động LuckyWheelClient với SSR bị vô hiệu hóa
+const LuckyWheelClient = dynamic(() => import("./LuckyWheelClient"), {
+  ssr: false, // Vô hiệu hóa server-side rendering cho component này
+});
 
 export default function LuckyWheelPage() {
   return (

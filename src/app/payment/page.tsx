@@ -174,11 +174,14 @@ function PaymentPage() {
         },
       };
 
+      // const apiUrl =
+      //   paymentMethod === "cod"
+      //     ? "http://localhost:8000/api/payment/cod"
+      //     : "http://localhost:8000/api/payment/vnpay";
       const apiUrl =
         paymentMethod === "cod"
-          ? "http://localhost:8000/api/payment/cod"
-          : "http://localhost:8000/api/payment/vnpay";
-
+          ? `${process.env.NEXT_PUBLIC_API_URL}/api/payment/cod`
+          : `${process.env.NEXT_PUBLIC_API_URL}/api/payment/vnpay`;
       const response = await axios.post(apiUrl, requestBody, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -226,11 +229,14 @@ function PaymentPage() {
     if (!token) return;
     const fetchDefaultAddress = async () => {
       try {
-        const res = await fetch("http://localhost:8000/api/addresses", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/addresses`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         const result = await res.json();
         const addresses = result.data || [];
         interface Address {
@@ -262,11 +268,14 @@ function PaymentPage() {
     if (!token) return;
     const fetchUserInfo = async () => {
       try {
-        const res = await fetch("http://localhost:8000/api/user/profile", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/user/profile`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         const result = await res.json();
         const userData = result.data;
         if (userData) {

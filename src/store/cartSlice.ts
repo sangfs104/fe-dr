@@ -142,6 +142,7 @@ export interface CartItem {
   name: string;
   img: string; // Full URL từ product.images[0]
   price: number;
+  sale_price: string | null;
   size: string;
   color?: string;
   variantList: ProductVariant[];

@@ -62,7 +62,7 @@ export default function RootLayout({
           clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}
         >
           <Provider store={store}>
-            <Header setShowCartModal={setShowCartModal} />
+            <Header />
             {children}
             <DreamToast />
 

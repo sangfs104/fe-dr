@@ -201,7 +201,6 @@
 import { useEffect, useState } from "react";
 import { Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-
 import axios from "axios";
 import confetti from "canvas-confetti";
 import {

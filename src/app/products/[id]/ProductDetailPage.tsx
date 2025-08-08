@@ -926,7 +926,7 @@ export default function ProductDetailClient({
               {selectedVariant && (
                 <motion.div
                   className="p-4 sm:p-6 bg-gradient-to-br from-white via-blue-50/30 to-indigo-50/30 rounded-2xl sm:rounded-3xl border-2 border-blue-100 shadow-lg"
-                  variants={priceAnimationVariants}
+                  variants={itemVariants}
                   initial="hidden"
                   animate="visible"
                   exit="hidden"

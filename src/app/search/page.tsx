@@ -978,7 +978,8 @@
 // };
 
 // export default SearchPage;
-import { GetServerSideProps } from "next";
+"use client";
+
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import axios from "axios";
@@ -1048,34 +1049,19 @@ const debounce = <T extends (...args: unknown[]) => void>(
   };
 };
 
-interface SearchPageProps {
-  initialProducts: Product[];
-  initialError: string;
-  keyword: string;
-}
-
-const SearchPage = ({
-  initialProducts,
-  initialError,
-  keyword: initialKeyword,
-}: SearchPageProps) => {
+const SearchPage = () => {
   const searchParams = useSearchParams();
-  const [keyword, setKeyword] = useState<string>(initialKeyword);
-  const [products, setProducts] = useState<Product[]>(initialProducts);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(initialError);
+  const [keyword] = useState<string>(
+    searchParams.get("keyword") || searchParams.get("query") || ""
+  );
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [skeletonCount, setSkeletonCount] = useState(4);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const cache = useRef<Map<string, Product[]>>(new Map());
 
-  // Update keyword when searchParams change
-  useEffect(() => {
-    const queryKeyword =
-      searchParams.get("keyword") || searchParams.get("query") || "";
-    setKeyword(queryKeyword);
-  }, [searchParams]);
-
-  // Handle skeleton count based on window size
+  // Cập nhật số lượng skeleton dựa trên kích thước cửa sổ
   useEffect(() => {
     const updateSkeletonCount = () => {
       if (typeof window !== "undefined") {
@@ -1089,7 +1075,7 @@ const SearchPage = ({
     return () => window.removeEventListener("resize", updateSkeletonCount);
   }, []);
 
-  // Fetch products for client-side updates
+  // Fetch sản phẩm
   const fetchProducts = useCallback(async (searchKeyword: string) => {
     if (!searchKeyword) {
       setProducts([]);
@@ -1139,7 +1125,7 @@ const SearchPage = ({
         setError(message || "Không tìm thấy sản phẩm nào phù hợp.");
       }
     } catch (err) {
-      console.error("Fetch error:", err);
+      console.error("Lỗi fetch:", err);
       setError(
         axios.isAxiosError(err)
           ? err.response?.data?.message || "Không tìm thấy sản phẩm."
@@ -1152,11 +1138,9 @@ const SearchPage = ({
   }, []);
 
   const debouncedFetchProducts = useCallback(() => {
-    if (keyword && keyword !== initialKeyword) {
-      const handler = debounce(() => fetchProducts(keyword), 300);
-      handler();
-    }
-  }, [keyword, fetchProducts, initialKeyword]);
+    const handler = debounce(() => fetchProducts(keyword), 300);
+    handler();
+  }, [keyword, fetchProducts]);
 
   useEffect(() => {
     cache.current.clear();
@@ -1284,75 +1268,6 @@ const SearchPage = ({
       `}</style>
     </>
   );
-};
-
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const { query } = context;
-  const keyword = (query.keyword || query.query || "") as string;
-
-  if (!keyword) {
-    return {
-      props: {
-        initialProducts: [],
-        initialError: "",
-        keyword: "",
-      },
-    };
-  }
-
-  try {
-    const res = await axios.get(
-      `${API_BASE}/api/search?${new URLSearchParams({ search: keyword })}`,
-      { timeout: 5000 }
-    );
-    const { status, data, message } = res.data;
-
-    if (status === 200 && Array.isArray(data)) {
-      const sanitizedData = data.map((item: RawProduct) => ({
-        id: item.id,
-        name: item.name,
-        description: item.description || "",
-        status: item.status || "",
-        img: Array.isArray(item.img) ? item.img : [],
-        images: Array.isArray(item.img)
-          ? item.img.map((img: ProductImage) => `${API_BASE}/img/${img.name}`)
-          : [],
-        variant: Array.isArray(item.variant) ? item.variant : [],
-        category_id: item.category_id || 0,
-        category: item.category || { id: 0, name: "" },
-        hot: item.hot || false,
-        slug: item.slug || undefined,
-      }));
-
-      return {
-        props: {
-          initialProducts: sanitizedData,
-          initialError: "",
-          keyword,
-        },
-      };
-    } else {
-      return {
-        props: {
-          initialProducts: [],
-          initialError: message || "Không tìm thấy sản phẩm nào phù hợp.",
-          keyword,
-        },
-      };
-    }
-  } catch (err) {
-    console.error("Server-side fetch error:", err);
-    return {
-      props: {
-        initialProducts: [],
-        initialError:
-          axios.isAxiosError(err) && err.response?.data?.message
-            ? err.response.data.message
-            : "Lỗi kết nối đến server.",
-        keyword,
-      },
-    };
-  }
 };
 
 export default SearchPage;

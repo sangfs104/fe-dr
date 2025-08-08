@@ -72,13 +72,26 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
     if (!selectedVariant) return;
 
     const priceToUse = getPriceToUse(selectedVariant);
+    // dispatch(
+    //   addToCart({
+    //     productId: product.id,
+    //     variantId: selectedVariant.id,
+    //     name: product.name,
+    //     img: getImageSrc(mainImage),
+    //     price: priceToUse,
+    //     size: selectedVariant.size,
+    //     quantity: 1,
+    //     variantList: product.variant,
+    //   })
+    // );
     dispatch(
       addToCart({
         productId: product.id,
         variantId: selectedVariant.id,
-        name: product.name,
-        img: getImageSrc(mainImage),
+        name: `${product.name} - Size ${selectedVariant.size}`,
+        img: product.images?.[0] || "/img/no-image.jpg",
         price: priceToUse,
+        sale_price: selectedVariant.sale_price, // Add this line
         size: selectedVariant.size,
         quantity: 1,
         variantList: product.variant,

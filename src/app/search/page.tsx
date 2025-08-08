@@ -15,13 +15,16 @@
 //   description: string;
 //   slug?: string;
 //   img: { name: string }[];
-//   images: string[]; // Thêm trường images
+//   images: string[];
 //   variant?: Record<string, unknown>;
 // };
 
 // const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
-// const debounce = <T extends (...args: any[]) => void>(func: T, wait: number) => {
+// const debounce = <T extends (...args: unknown[]) => void>(
+//   func: T,
+//   wait: number
+// ) => {
 //   let timeout: NodeJS.Timeout | null = null;
 //   return (...args: Parameters<T>) => {
 //     if (timeout) clearTimeout(timeout);
@@ -31,7 +34,8 @@
 
 // const SearchPage = () => {
 //   const searchParams = useSearchParams();
-//   const keyword = searchParams.get("keyword") || searchParams.get("query") || "";
+//   const keyword =
+//     searchParams.get("keyword") || searchParams.get("query") || "";
 
 //   const [products, setProducts] = useState<Product[]>([]);
 //   const [loading, setLoading] = useState(true);
@@ -44,7 +48,9 @@
 //   useEffect(() => {
 //     const updateSkeletonCount = () => {
 //       if (typeof window !== "undefined") {
-//         setSkeletonCount(window.innerWidth >= 1024 ? 8 : window.innerWidth >= 768 ? 6 : 4);
+//         setSkeletonCount(
+//           window.innerWidth >= 1024 ? 8 : window.innerWidth >= 768 ? 6 : 4
+//         );
 //       }
 //     };
 //     updateSkeletonCount();
@@ -65,19 +71,20 @@
 //     }
 
 //     try {
-//       const res = await axios.get(`${API_BASE}/api/search?${new URLSearchParams({ search: keyword })}`);
+//       const res = await axios.get(
+//         `${API_BASE}/api/search?${new URLSearchParams({ search: keyword })}`
+//       );
 //       const { status, data, message } = res.data;
-//       console.log("SearchPage API response:", data); // Debug dữ liệu gốc
+
 //       if (status === 200 && Array.isArray(data)) {
 //         const sanitizedData = data.map((item: Product) => ({
 //           ...item,
 //           img: Array.isArray(item.img) ? item.img : [],
 //           variant: Array.isArray(item.variant) ? item.variant : [],
 //           images: Array.isArray(item.img)
-//             ? item.img.map(img => `${API_BASE}/img/${img.name}`)
+//             ? item.img.map((img) => `${API_BASE}/img/${img.name}`)
 //             : [],
 //         }));
-//         console.log("Sanitized data:", sanitizedData); // Debug dữ liệu sau xử lý
 //         cache.current.set(cacheKey, sanitizedData);
 //         setProducts(sanitizedData);
 //         setError("");
@@ -85,10 +92,10 @@
 //         setProducts([]);
 //         setError(message || "Không tìm thấy sản phẩm nào phù hợp.");
 //       }
-//     } catch (err: any) {
+//     } catch (err) {
 //       console.error("Fetch error:", err);
-//       if (err.response && err.response.data) {
-//         const { message } = err.response.data;
+//       if (axios.isAxiosError(err)) {
+//         const { message } = err.response?.data || {};
 //         setError(message || "Không tìm thấy sản phẩm.");
 //       } else {
 //         setError("Lỗi kết nối đến server.");
@@ -99,7 +106,10 @@
 //     }
 //   }, [keyword]);
 
-//   const debouncedFetchProducts = useCallback(debounce(fetchProducts, 300), [fetchProducts]);
+//   const debouncedFetchProducts = useCallback(() => {
+//     const handler = debounce(fetchProducts, 300);
+//     handler();
+//   }, [fetchProducts]);
 
 //   useEffect(() => {
 //     cache.current.clear();
@@ -135,7 +145,8 @@
 //       <section className="px-6 md:px-20 lg:px-40 py-6 min-h-[70vh]">
 //         <div className="flex justify-between items-center mb-4">
 //           <h2 className="text-3xl font-bold dark:text-white hidden md:block">
-//             Kết quả tìm kiếm cho: <span className="text-orange-500">{keyword}</span>
+//             Kết quả tìm kiếm cho:{" "}
+//             <span className="text-orange-500">{keyword}</span>
 //           </h2>
 //         </div>
 
@@ -143,14 +154,18 @@
 //           <>
 //             <div className="flex justify-center items-center py-4">
 //               <FaSpinner className="animate-spin text-2xl text-orange-500 mr-2" />
-//               <span className="text-gray-600 dark:text-zinc-400">Đang tìm kiếm sản phẩm...</span>
+//               <span className="text-gray-600 dark:text-zinc-400">
+//                 Đang tìm kiếm sản phẩm...
+//               </span>
 //             </div>
 //             {renderSkeleton()}
 //           </>
 //         )}
 
 //         {error && (
-//           <div className="text-center py-16 text-red-500 font-semibold text-lg">{error}</div>
+//           <div className="text-center py-16 text-red-500 font-semibold text-lg">
+//             {error}
+//           </div>
 //         )}
 
 //         {!loading && !error && products.length === 0 && (
@@ -158,8 +173,14 @@
 //             Không có sản phẩm nào phù hợp với từ khóa bạn đã nhập.
 //             <span className="block mt-2">
 //               Hãy thử các từ khóa khác như{" "}
-//               <span className="text-orange-500 cursor-pointer hover:underline">áo thun</span> hoặc{" "}
-//               <span className="text-orange-500 cursor-pointer hover:underline">quần jeans</span>.
+//               <span className="text-orange-500 cursor-pointer hover:underline">
+//                 áo thun
+//               </span>{" "}
+//               hoặc{" "}
+//               <span className="text-orange-500 cursor-pointer hover:underline">
+//                 quần jeans
+//               </span>
+//               .
 //             </span>
 //           </div>
 //         )}
@@ -216,15 +237,8 @@ import HeaderHome from "../components/ui/Header";
 import Footer from "../components/ui/Footer";
 import ProductModal from "../components/ui/ProductModal";
 
-type Product = {
-  id: number;
-  name: string;
-  description: string;
-  slug?: string;
-  img: { name: string }[];
-  images: string[];
-  variant?: Record<string, unknown>;
-};
+// Import the provided interfaces
+import { Product, ProductImage } from "../../app/types/Product"; // Adjust the import path as needed
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -284,13 +298,19 @@ const SearchPage = () => {
       const { status, data, message } = res.data;
 
       if (status === 200 && Array.isArray(data)) {
-        const sanitizedData = data.map((item: Product) => ({
-          ...item,
+        const sanitizedData = data.map((item: any) => ({
+          id: item.id,
+          name: item.name,
+          description: item.description || "",
+          status: item.status || "",
           img: Array.isArray(item.img) ? item.img : [],
-          variant: Array.isArray(item.variant) ? item.variant : [],
           images: Array.isArray(item.img)
-            ? item.img.map((img) => `${API_BASE}/img/${img.name}`)
+            ? item.img.map((img: ProductImage) => `${API_BASE}/img/${img.name}`)
             : [],
+          variant: Array.isArray(item.variant) ? item.variant : [],
+          category_id: item.category_id || 0,
+          category: item.category || { id: 0, name: "" },
+          hot: item.hot || false,
         }));
         cache.current.set(cacheKey, sanitizedData);
         setProducts(sanitizedData);

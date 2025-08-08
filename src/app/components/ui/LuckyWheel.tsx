@@ -15,7 +15,7 @@ const Wheel = dynamic(
 );
 
 // Định nghĩa các loại icon
-const icons = ["truck", "ticket", "percent"];
+const icons = ["truck", "ticket", "percent"] as const; // Sử dụng as const để tạo literal union
 type IconType = typeof icons[number];
 
 // Chuẩn hóa hàm random icon
@@ -36,7 +36,7 @@ interface Promo {
   code: string;
   expiry: string;
   expired: boolean;
-  icon: IconType;
+  icon: IconType; // Đảm bảo icon sử dụng IconType
 }
 
 export default function LuckyWheel() {

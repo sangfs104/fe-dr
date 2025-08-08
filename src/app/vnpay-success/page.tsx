@@ -256,7 +256,7 @@ function VnpaySuccessContent() {
       try {
         const token = localStorage.getItem("token");
         const res = await axios.post(
-          "http://localhost:8000/api/payment/vnpay/return",
+          `${process.env.NEXT_PUBLIC_API_URL}/api/payment/vnpay/return`,
           params,
           {
             headers: {

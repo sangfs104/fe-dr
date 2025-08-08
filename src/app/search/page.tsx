@@ -433,6 +433,7 @@
 // };
 
 // export default SearchPage;
+
 "use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";

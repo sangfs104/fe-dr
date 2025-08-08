@@ -405,7 +405,7 @@ export default function ProductPage() {
   }, [debouncedSort, debouncedSize, debouncedPrice, debouncedCategory]);
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="">
       <BreadcrumbFilter
         onSortChange={setSortDirection}
         onSizeChange={setSelectedSize}

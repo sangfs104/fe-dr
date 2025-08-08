@@ -103,20 +103,6 @@ const containerVariants = {
   },
 };
 
-// const itemVariants = {
-//   hidden: { opacity: 0, y: 30, scale: 0.95 },
-//   visible: {
-//     opacity: 1,
-//     y: 0,
-//     scale: 1,
-//     transition: {
-//       type: "spring",
-//       stiffness: 100,
-//       damping: 15,
-//       duration: 0.6,
-//     },
-//   },
-// };
 const itemVariants = {
   hidden: { opacity: 0, y: 30, scale: 0.95 },
   visible: {
@@ -124,11 +110,14 @@ const itemVariants = {
     y: 0,
     scale: 1,
     transition: {
-      type: "tween",
+      type: "spring",
+      stiffness: 100,
+      damping: 15,
       duration: 0.6,
     },
   },
 };
+
 const imageVariants = {
   hidden: { opacity: 0, scale: 0.8, rotateY: -15 },
   visible: {

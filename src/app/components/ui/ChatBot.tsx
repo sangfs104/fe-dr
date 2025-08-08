@@ -84,7 +84,8 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
       : [
           {
             type: "bot",
-            text: "🎉 Chào bạn! Mình là stylist AI, rất vui được giúp bạn chọn trang phục hôm nay. Bạn cần tư vấn gì ạ?",
+            text:
+              "🎉 Chào bạn! Mình là stylist AI, rất vui được giúp bạn chọn trang phục hôm nay. Bạn cần tư vấn gì ạ?",
             timestamp: new Date(),
           },
         ];
@@ -143,6 +144,7 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
         name: `${product.name} - Size ${selectedVariant.size}`,
         img: product.images?.[0] || "/img/no-image.jpg",
         price: priceToUse,
+        sale_price: selectedVariant.sale_price, // Add this line
         size: selectedVariant.size,
         quantity: 1,
         variantList: product.variant,
@@ -183,7 +185,9 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
       toast.success("Đã thêm vào wishlist thành công 💖");
       await dispatch(fetchWishlist());
     } else {
-      toast.error((result.payload as string) || "Có lỗi khi thêm vào wishlist!");
+      toast.error(
+        (result.payload as string) || "Có lỗi khi thêm vào wishlist!"
+      );
     }
   };
 
@@ -209,19 +213,34 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
           }
         );
 
-        const { message, style_name, description, keywords, products, mix_and_match } = res.data;
+        const {
+          message,
+          style_name,
+          description,
+          keywords,
+          products,
+          mix_and_match,
+        } = res.data;
 
-        let reply = message || "Chào bạn! Mình chưa hiểu rõ gu của bạn lắm. Bạn có thể mô tả thêm một chút không ạ?";
+        let reply =
+          message ||
+          "Chào bạn! Mình chưa hiểu rõ gu của bạn lắm. Bạn có thể mô tả thêm một chút không ạ?";
         let productList = products || [];
 
-        if (!input.match(/(phối đồ|set đồ|đi chơi|du lịch|outfit|mix and match)/iu)) {
+        if (
+          !input.match(
+            /(phối đồ|set đồ|đi chơi|du lịch|outfit|mix and match)/iu
+          )
+        ) {
           productList = products && products.length > 0 ? [products[0]] : [];
-          reply = products && products.length > 0
-            ? `Chào bạn! Mình đã tìm thấy một sản phẩm rất phù hợp cho bạn là ${products[0].name}. Bạn thấy thế nào ạ?`
-            : reply;
+          reply =
+            products && products.length > 0
+              ? `Chào bạn! Mình đã tìm thấy một sản phẩm rất phù hợp cho bạn là ${products[0].name}. Bạn thấy thế nào ạ?`
+              : reply;
         } else {
           if (style_name || description) {
-            reply = `Chào bạn! Mình thấy phong cách ${style_name || "của bạn"} rất thú vị!`;
+            reply = `Chào bạn! Mình thấy phong cách ${style_name ||
+              "của bạn"} rất thú vị!`;
             if (description) {
               reply += `\n${description}`;
             }
@@ -248,12 +267,13 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
         setIsTyping(false);
         setLoading(false);
       }, 1000);
-    } catch  {
+    } catch {
       setMessages((prev) => [
         ...prev,
         {
           type: "bot",
-          text: "Rất tiếc, mình không thể kết nối đến hệ thống ngay bây giờ. Bạn vui lòng thử lại sau nhé!",
+          text:
+            "Rất tiếc, mình không thể kết nối đến hệ thống ngay bây giờ. Bạn vui lòng thử lại sau nhé!",
           timestamp: new Date(),
         },
       ]);
@@ -266,7 +286,8 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
     setMessages([
       {
         type: "bot",
-        text: "🎉 Chào bạn! Mình là stylist AI, rất vui được giúp bạn chọn trang phục hôm nay. Bạn cần tư vấn gì ạ?",
+        text:
+          "🎉 Chào bạn! Mình là stylist AI, rất vui được giúp bạn chọn trang phục hôm nay. Bạn cần tư vấn gì ạ?",
         timestamp: new Date(),
       },
     ]);
@@ -367,13 +388,13 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
             >
               {m.type === "bot" ? (
                 <div className="relative">
-                 <Image
-  src={aiAvatar}
-  alt="AI Avatar"
-  width={40}
-  height={40}
-  className="w-10 h-10 rounded-full shadow-md object-cover border-2 border-orange-200"
-/>
+                  <Image
+                    src={aiAvatar}
+                    alt="AI Avatar"
+                    width={40}
+                    height={40}
+                    className="w-10 h-10 rounded-full shadow-md object-cover border-2 border-orange-200"
+                  />
 
                   <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white flex items-center justify-center">
                     <Bot size={10} />
@@ -432,9 +453,9 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
                           <div className="relative overflow-hidden">
                             <Image
                               src={p.images?.[0] || "/img/no-image.jpg"}
-                                width={400}
-  height={144}
-   unoptimized
+                              width={400}
+                              height={144}
+                              unoptimized
                               alt={p.name}
                               className="w-full h-36 object-cover group-hover:scale-110 transition-transform duration-300"
                             />
@@ -487,13 +508,13 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
         {isTyping && (
           <div className="flex items-center gap-3 animate-fadeInUp">
             <Image
-  src={aiAvatar}
-  alt="AI Avatar"
-  width={40}
-  height={40}
-   unoptimized
-  className="w-10 h-10 rounded-full shadow-md object-cover border-2 border-orange-200"
-/>
+              src={aiAvatar}
+              alt="AI Avatar"
+              width={40}
+              height={40}
+              unoptimized
+              className="w-10 h-10 rounded-full shadow-md object-cover border-2 border-orange-200"
+            />
 
             <div className="bg-white dark:bg-gray-700 border border-orange-200 dark:border-gray-600 px-4 py-3 rounded-2xl rounded-tl-md flex items-center gap-2">
               <div className="flex space-x-1">

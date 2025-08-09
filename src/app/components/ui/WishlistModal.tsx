@@ -209,12 +209,11 @@ import { X, Trash2, Loader2, ShoppingCart } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-// Assuming the wishlist item type is defined or imported
 interface WishlistItem {
   productId: number;
   variantId: number;
   name: string;
-  img: string | string[]; // Adjust this type based on your store/api
+  img: string | string[]; 
   size: string;
   price: number;
   salePrice?: number;

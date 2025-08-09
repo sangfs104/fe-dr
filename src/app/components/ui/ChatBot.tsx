@@ -208,7 +208,7 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
     try {
       setTimeout(async () => {
         const res = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/stylist/analyze`,
+          `https://dreams-admin.io.vn/api/stylist/analyze`,
           {
             answers: [input],
           }
@@ -394,7 +394,6 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
                     alt="AI Avatar"
                     width={40}
                     height={40}
-                    
                     className="w-10 h-10 rounded-full shadow-md object-cover border-2 border-orange-200"
                   />
 
@@ -405,17 +404,17 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
               ) : (
                 <div className="relative">
                   <Image
-  src={
-    user?.avatar
-      ? `http://127.0.0.1:8000/storage/${user.avatar}`
-      : "/img/user-avatar.webp"
-  }
-  width={40}
-  height={40}
-  alt="User Avatar"
-  className="rounded-full shadow-md object-cover border-2 border-orange-200"
-  onError={(e) => console.log("Lỗi tải ảnh:", e)}
-/>
+                    src={
+                      user?.avatar
+                        ? `http://127.0.0.1:8000/storage/${user.avatar}`
+                        : "/img/user-avatar.webp"
+                    }
+                    width={40}
+                    height={40}
+                    alt="User Avatar"
+                    className="rounded-full shadow-md object-cover border-2 border-orange-200"
+                    onError={(e) => console.log("Lỗi tải ảnh:", e)}
+                  />
                 </div>
               )}
 

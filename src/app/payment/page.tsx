@@ -662,7 +662,7 @@ function PaymentPage() {
                         try {
                           const token = localStorage.getItem("token");
                           const response = await axios.post(
-                            "http://localhost:8000/api/apply-coupon",
+                            "https://dreams.id.vn/api/apply-coupon",
                             { code: couponCode.trim() },
                             {
                               headers: {

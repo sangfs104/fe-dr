@@ -278,7 +278,7 @@ const RegisterPage = () => {
 
                 <p className="mt-3 text-center text-xs sm:text-sm">
                   Đã có tài khoản?{" "}
-                  <a href="/login" className="text-purple-600 hover:underline">
+                  <a href="/login" className="text-purple-600 ">
                     Đăng nhập
                   </a>
                 </p>

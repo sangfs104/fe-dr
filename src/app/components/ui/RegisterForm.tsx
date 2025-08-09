@@ -151,7 +151,7 @@ const RegisterForm = () => {
 
         <p className="mt-4 text-center text-sm">
           Đã có tài khoản?{" "}
-          <a href="/login" className="text-purple-600 hover:underline">
+          <a href="/login" className="text-purple-600 ">
             Đăng nhập
           </a>
         </p>

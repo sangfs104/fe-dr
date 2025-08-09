@@ -14,8 +14,6 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import type { Product } from "@/app/types/Product";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
 const getCategoryIcon = (name: string) => {
   const lower = name?.toLowerCase() || "";
 
@@ -62,8 +60,8 @@ export default function CategoryProduct({
 
       try {
         const [catRes, prodRes] = await Promise.all([
-          fetch(`${API_URL}/category`, { cache: "no-store" }),
-          fetch(`${API_URL}/api/product`, { cache: "no-store" }),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/category`, { cache: "no-store" }),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/product`, { cache: "no-store" }),
         ]);
 
         const catJson = await catRes.json();
@@ -137,6 +135,7 @@ export default function CategoryProduct({
         isVisible ? "opacity-100" : "opacity-0"
       }`}
     >
+      {/* Floating background elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-gradient-to-br from-orange-200 to-pink-200 rounded-full opacity-5 animate-pulse"></div>
         <div
@@ -147,6 +146,7 @@ export default function CategoryProduct({
 
       <div className="relative px-4 sm:px-10 md:px-20 lg:px-40 py-12">
         <div className="flex flex-col lg:flex-row gap-10">
+          {/* Categories Section */}
           <div
             className={`w-full lg:w-1/4 transform transition-all duration-1000 ${
               isVisible
@@ -177,7 +177,10 @@ export default function CategoryProduct({
                   onMouseEnter={() => setActiveCategory(category.id)}
                   onMouseLeave={() => setActiveCategory(null)}
                 >
+                  {/* Background gradient overlay */}
                   <div className="absolute inset-0 bg-gradient-to-br from-orange-50 to-red-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+
+                  {/* Animated border */}
                   <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#FF8A50] via-[#FF7043] to-[#FF5722] opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-sm"></div>
                   <div className="absolute inset-[1px] rounded-xl bg-white"></div>
 
@@ -202,6 +205,7 @@ export default function CategoryProduct({
                     </h3>
                   </div>
 
+                  {/* Hover effect particles */}
                   <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300">
                     <div className="w-2 h-2 bg-[#FF7043] rounded-full animate-ping"></div>
                   </div>
@@ -209,6 +213,7 @@ export default function CategoryProduct({
               ))}
             </div>
 
+            {/* Enhanced Video Section */}
             <div
               className={`mt-8 relative rounded-2xl overflow-hidden shadow-2xl transform transition-all duration-1000 hover:scale-105 ${
                 isVisible
@@ -303,8 +308,8 @@ export async function CategoryProductServer() {
 
   try {
     const [catRes, prodRes] = await Promise.all([
-      fetch(`${API_URL}/category`, { cache: "no-store" }),
-      fetch(`${API_URL}/api/product`, { cache: "no-store" }),
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/category`, { cache: "no-store" }),
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/product`, { cache: "no-store" }),
     ]);
 
     const catJson = await catRes.json();

@@ -1230,6 +1230,7 @@
 //     </div>
 //   );
 // }
+
 "use client";
 import { useCallback, useState, useRef, useEffect } from "react";
 import {
@@ -1433,7 +1434,7 @@ const languageOptions = [
   { code: "en", flag: "🇺🇸", name: "English", speechLang: "en-US" },
 ];
 
-export default function VoiceQuickOrderFlexible() {
+export default function VoiceQuickOrderTest() {
   const [voiceText, setVoiceText] = useState<string>("");
   const [orderInfo, setOrderInfo] = useState<OrderInfo | null>(null);
   const [orderResult, setOrderResult] = useState<OrderResult | null>(null);
@@ -1444,7 +1445,7 @@ export default function VoiceQuickOrderFlexible() {
   const [showWidget, setShowWidget] = useState<boolean>(false);
   const [aiSpeechText, setAiSpeechText] = useState<string>("");
   const [isRecording, setIsRecording] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null); // Thêm trạng thái lỗi
+  const [error, setError] = useState<string | null>(null);
   const [showTooltip, setShowTooltip] = useState<boolean>(true);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -1659,7 +1660,7 @@ export default function VoiceQuickOrderFlexible() {
 
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/voice-order/parse`,
         {
@@ -1710,9 +1711,13 @@ export default function VoiceQuickOrderFlexible() {
       });
     } catch (error) {
       console.error("Error parsing order:", error);
-      const errorMessage = error.message.includes("Failed to fetch")
-        ? "Lỗi kết nối đến server, có thể do CORS hoặc server không phản hồi"
-        : error.message;
+      // Type-safe error handling
+      let errorMessage = t.errorProcessing;
+      if (error instanceof Error) {
+        errorMessage = error.message.includes("Failed to fetch")
+          ? "Lỗi kết nối đến server, có thể do CORS hoặc server không phản hồi"
+          : error.message;
+      }
       setError(errorMessage);
       speak(`${t.errorProcessing}: ${errorMessage}`);
       setStep("idle");
@@ -1742,7 +1747,7 @@ export default function VoiceQuickOrderFlexible() {
 
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/voice-order/quick`,
         {
@@ -1779,9 +1784,13 @@ export default function VoiceQuickOrderFlexible() {
       }
     } catch (error) {
       console.error("Error processing order:", error);
-      const errorMessage = error.message.includes("Failed to fetch")
-        ? "Lỗi kết nối đến server, có thể do CORS hoặc server không phản hồi"
-        : error.message;
+      // Type-safe error handling
+      let errorMessage = t.errorProcessing;
+      if (error instanceof Error) {
+        errorMessage = error.message.includes("Failed to fetch")
+          ? "Lỗi kết nối đến server, có thể do CORS hoặc server không phản hồi"
+          : error.message;
+      }
       setError(errorMessage);
       speak(`${t.errorProcessing}: ${errorMessage}`);
       setStep("idle");
@@ -2379,17 +2388,6 @@ export default function VoiceQuickOrderFlexible() {
                         )}
                       </div>
                     )}
-
-                    <div className="mt-4 p-4 bg-white/80 rounded-xl border border-green-200 backdrop-blur-sm">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-gradient-to-r from-green-400 to-emerald-400 rounded-full flex items-center justify-center">
-                          <Sparkles size={16} className="text-white" />
-                        </div>
-                        <p className="text-sm text-green-700 font-semibold">
-                          {orderResult.message}
-                        </p>
-                      </div>
-                    </div>
 
                     <div className="mt-4 pt-4 border-t border-green-200">
                       <button

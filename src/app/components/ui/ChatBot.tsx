@@ -207,7 +207,7 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
     try {
       setTimeout(async () => {
         const res = await axios.post(
-          "http://127.0.0.1:8000/api/stylist/analyze",
+          `${process.env.NEXT_PUBLIC_API_URL}/api/stylist/analyze`,
           {
             answers: [input],
           }

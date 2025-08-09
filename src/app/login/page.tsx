@@ -54,7 +54,7 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/login`, {
+      const res = await fetch(`https://dreams-admin.io.vn/api/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -88,14 +88,11 @@ export default function LoginPage() {
     }
 
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/forgotPassword`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: forgotEmail }),
-        }
-      );
+      const res = await fetch(`https://dreams-admin.io.vn/api/forgotPassword`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: forgotEmail }),
+      });
 
       const data = await res.json();
 
@@ -111,25 +108,25 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#f9f9fb]">
+    <div className="flex flex-col min-h-[100dvh] bg-[#f9f9fb]">
       <main className="flex-grow flex justify-center items-center px-2 pt-2 pb-4 overflow-y-auto">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="flex flex-col md:flex-row bg-white shadow-md rounded-xl overflow-hidden max-w-5xl w-full max-h-[90vh] overflow-y-auto"
+          className="flex flex-col-reverse md:flex-row bg-white shadow-md rounded-xl overflow-hidden max-w-5xl w-full max-h-[90vh] overflow-y-auto"
         >
-          <div className="w-full max-w-sm aspect-square flex items-center justify-center">
+          <div className="w-full max-w-sm aspect-[3/2] sm:aspect-square flex items-center justify-center">
             <Image
               src="/img/BANNERREAM.png"
               alt="shopping illustration"
               width={400}
               height={400}
-              className="w-full h-auto rounded-xl shadow-lg transition-transform duration-300 hover:scale-105"
+              className="w-full h-auto max-h-64 sm:max-h-full rounded-xl shadow-lg transition-transform duration-300 hover:scale-105"
             />
           </div>
 
-          <div className="flex-1 p-10">
+          <div className="flex-1 p-6 sm:p-10 min-h-[300px] flex flex-col justify-center">
             <h2 className="login-bounce text-3xl font-bold text-orange-500 mb-4">
               Đăng nhập
             </h2>
@@ -193,7 +190,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setShowForgotModal(true)}
-                  className="text-purple-600 hover:underline"
+                  className="text-purple-600"
                 >
                   Quên mật khẩu?
                 </button>
@@ -239,10 +236,7 @@ export default function LoginPage() {
 
             <p className="mt-4 text-sm text-center">
               Bạn chưa có tài khoản?{" "}
-              <a
-                href="/register"
-                className="text-purple-600 font-semibold hover:underline"
-              >
+              <a href="/register" className="text-purple-600 font-semibold">
                 Đăng ký
               </a>
             </p>
@@ -253,7 +247,11 @@ export default function LoginPage() {
               <div className="absolute right-0 top-1/2 w-2/5 h-px bg-gray-300"></div>
             </div>
 
-            <GoogleLoginButton setLoading={setLoadingGoogle} />
+            <div className="block !important">
+              {" "}
+              {/* hoặc dùng className tùy chỉnh */}
+              <GoogleLoginButton setLoading={setLoadingGoogle} />
+            </div>
           </div>
         </motion.div>
       </main>

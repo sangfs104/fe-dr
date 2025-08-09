@@ -394,7 +394,7 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
                     alt="AI Avatar"
                     width={40}
                     height={40}
-                    unoptimized
+                    
                     className="w-10 h-10 rounded-full shadow-md object-cover border-2 border-orange-200"
                   />
 

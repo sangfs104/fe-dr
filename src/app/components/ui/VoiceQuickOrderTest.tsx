@@ -1662,7 +1662,7 @@ export default function VoiceQuickOrderTest() {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/voice-order/parse`,
+        `https://dreams-admin.io.vn/api/voice-order/parse`,
         {
           method: "POST",
           headers: {
@@ -1749,7 +1749,7 @@ export default function VoiceQuickOrderTest() {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/voice-order/quick`,
+        `https://dreams-admin.io.vn/api/voice-order/quick`,
         {
           method: "POST",
           headers: {

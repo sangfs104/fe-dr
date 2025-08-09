@@ -62,6 +62,7 @@
 //     </div>
 //   );
 // }
+
 import ProductCard from "./ProductList";
 import Link from "next/link";
 import type { Product } from "../../types/Product";

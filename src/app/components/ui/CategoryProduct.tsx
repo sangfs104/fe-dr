@@ -51,45 +51,88 @@ export default function CategoryProduct({
   const [activeCategory, setActiveCategory] = useState<number | null>(null);
   const [isVisible, setIsVisible] = useState(false);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (initialCategories.length && initialProducts.length) {
-        setIsVisible(true);
-        return;
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     if (initialCategories.length && initialProducts.length) {
+  //       setIsVisible(true);
+  //       return;
+  //     }
+
+  //     try {
+  //       const [catRes, prodRes] = await Promise.all([
+  //         fetch(`${process.env.NEXT_PUBLIC_API_URL}/category`, { cache: "no-store" }),
+  //         fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/product`, { cache: "no-store" }),
+  //       ]);
+
+  //       const catJson = await catRes.json();
+  //       const prodJson = await prodRes.json();
+
+  //       const fetchedCategories = Array.isArray(catJson.data)
+  //         ? catJson.data.filter((c: Category) => c.status === 1)
+  //         : [];
+
+  //       const fetchedProducts = Array.isArray(prodJson.data)
+  //         ? prodJson.data
+  //         : Array.isArray(prodJson.data?.data)
+  //         ? prodJson.data.data
+  //         : [];
+
+  //       setCategories(fetchedCategories);
+  //       setProducts(fetchedProducts);
+  //     } catch (error) {
+  //       console.error("Error fetching data:", error);
+  //     } finally {
+  //       setLoading(false);
+  //       setIsVisible(true);
+  //     }
+  //   };
+
+  //   fetchData();
+  // }, [initialCategories, initialProducts]);
+useEffect(() => {
+  const fetchData = async () => {
+    if (initialCategories.length && initialProducts.length) {
+      setIsVisible(true);
+      return;
+    }
+
+    try {
+      const [catRes, prodRes] = await Promise.all([
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/category`, { cache: "no-store" }),
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/product`, { cache: "no-store" }),
+      ]);
+
+      if (!catRes.ok || !prodRes.ok) {
+        throw new Error(`API error: ${catRes.status} ${prodRes.status}`);
       }
 
-      try {
-        const [catRes, prodRes] = await Promise.all([
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/category`, { cache: "no-store" }),
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/product`, { cache: "no-store" }),
-        ]);
+      const catJson = await catRes.json();
+      const prodJson = await prodRes.json();
 
-        const catJson = await catRes.json();
-        const prodJson = await prodRes.json();
+      console.log("Categories response:", catJson);
+      console.log("Products response:", prodJson);
 
-        const fetchedCategories = Array.isArray(catJson.data)
-          ? catJson.data.filter((c: Category) => c.status === 1)
-          : [];
+      const fetchedCategories = Array.isArray(catJson.data)
+        ? catJson.data.filter((c: Category) => c.status === 1)
+        : [];
+      const fetchedProducts = Array.isArray(prodJson.data)
+        ? prodJson.data
+        : Array.isArray(prodJson.data?.data)
+        ? prodJson.data.data
+        : [];
 
-        const fetchedProducts = Array.isArray(prodJson.data)
-          ? prodJson.data
-          : Array.isArray(prodJson.data?.data)
-          ? prodJson.data.data
-          : [];
+      setCategories(fetchedCategories);
+      setProducts(fetchedProducts);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+      setIsVisible(true);
+    }
+  };
 
-        setCategories(fetchedCategories);
-        setProducts(fetchedProducts);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false);
-        setIsVisible(true);
-      }
-    };
-
-    fetchData();
-  }, [initialCategories, initialProducts]);
-
+  fetchData();
+}, [initialCategories, initialProducts]);
   const SectionTitle = ({
     title,
     subtitle,

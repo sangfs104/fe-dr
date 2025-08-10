@@ -7,14 +7,39 @@ import toast from "react-hot-toast";
 
 // Dữ liệu vòng quay
 const data = [
-  { option: "Không trúng", style: { backgroundColor: "#f87171" } },
-  { option: "Không trúng", style: { backgroundColor: "#34d399" } },
-  { option: "Không trúng", style: { backgroundColor: "#f87171" } },
-  { option: "Không trúng", style: { backgroundColor: "#60a5fa" } },
-  { option: "Không trúng", style: { backgroundColor: "#f87171" } },
-  { option: "Không trúng", style: { backgroundColor: "#fbbf24" } },
-  { option: "Không trúng", style: { backgroundColor: "#f87171" } },
-  { option: "Chúc mừng", style: { backgroundColor: "#a78bfa" } },
+  {
+    option: "Voucher",
+    style: { backgroundColor: "#f87171", fontSize: 16, fontWeight: "bold" },
+    textDistance: 0, // gần tâm
+  },
+  {
+    option: "Không trúng",
+    style: { backgroundColor: "#34d399", fontSize: 16, fontWeight: "bold" },
+    image: { uri: "/img/sad1.png", sizeMultiplier: 0.4 }, // to hơn chút
+    textDistance: 0,
+  },
+  {
+    option: "Voucher",
+    style: { backgroundColor: "#60a5fa", fontSize: 16, fontWeight: "bold" },
+    textDistance: 0,
+  },
+  {
+    option: "Không trúng",
+    style: { backgroundColor: "#fbbf24", fontSize: 16, fontWeight: "bold" },
+    image: { uri: "/img/sad1.png", sizeMultiplier: 0.4 },
+    textDistance: 0,
+  },
+  {
+    option: "Voucher",
+    style: { backgroundColor: "#a78bfa", fontSize: 16, fontWeight: "bold" },
+    textDistance: 0,
+  },
+  {
+    option: "Không trúng",
+    style: { backgroundColor: "#f472b6", fontSize: 16, fontWeight: "bold" },
+    image: { uri: "/img/sad1.png", sizeMultiplier: 0.4 },
+    textDistance: 0,
+  },
 ];
 
 const LuckyWheelClient = () => {
@@ -67,31 +92,44 @@ const LuckyWheelClient = () => {
       toast.error("Chúc bạn may mắn lần sau");
       loseSound.current?.play().catch(console.warn);
     } else {
-      toast.success(`🎉 Chúc mừng! Bạn nhận được voucher`);
+      toast.success(`Chúc mừng! Bạn nhận được voucher`);
       winSound.current?.play().catch(console.warn);
     }
   };
 
   return (
     <div className="flex flex-col items-center gap-6">
-      <div className="relative w-[300px] h-[300px] md:w-[400px] md:h-[400px]">
+      <div className="relative flex items-center justify-center w-[300px] h-[300px] md:w-[400px] md:h-[400px]">
         <Wheel
           mustStartSpinning={mustSpin}
           prizeNumber={prizeIndex}
           data={data}
-          backgroundColors={["#ffffff", "#f3f4f6"]}
-          textColors={["#000"]}
+          outerBorderColor="#ccc"
+          outerBorderWidth={2}
+          radiusLineColor="#fff"
+          radiusLineWidth={2}
+          fontSize={12}
+          spinDuration={1.2} // quay nhanh hơn
           onStopSpinning={handleStopSpinning}
-          outerBorderColor="#000"
-          radiusLineColor="#000"
-          innerBorderColor="#000"
+          perpendicularText={true}
         />
 
         <button
           onClick={handleSpinClick}
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-4 py-2 bg-[#FF9731] text-white rounded-full shadow hover:bg-[#e87e12] transition text-sm md:text-base"
+          style={{ zIndex: 10 }}
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
+      w-28 h-28 md:w-32 md:h-32 rounded-full bg-[#FF9731]
+      flex items-center justify-center 
+      text-white text-lg md:text-xl font-extrabold uppercase tracking-wide
+      shadow-lg active:scale-95
+      transition-transform duration-200
+      border-4 border-white"
         >
-          Quay Ngay
+          <span className="[text-shadow:_1px_1px_3px_rgba(0,0,0,0.6)]">
+            Quay
+            <br />
+            Ngay
+          </span>
         </button>
       </div>
     </div>

@@ -1331,6 +1331,7 @@ interface OrderResult {
   message: string;
   payment_url?: string;
   vnp_TxnRef?: string;
+  error?: boolean; // 👈 thêm dòng này
 }
 
 type Step = "idle" | "listening" | "parsing" | "confirming" | "done";

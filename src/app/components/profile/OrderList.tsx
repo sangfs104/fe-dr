@@ -423,7 +423,7 @@ export default function OrderList() {
                       <Image
                         src={
                           productImage
-                            ? `${process.env.NEXT_PUBLIC_API_URL}/img/${productImage.name}`
+                            ? `${process.env.NEXT_PUBLIC_API_URL}/pulic/img/${productImage.name}`
                             : "/img/default.webp"
                         }
                         width={80}

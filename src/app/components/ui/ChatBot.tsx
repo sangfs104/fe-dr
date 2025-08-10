@@ -192,6 +192,96 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
     }
   };
 
+  // const handleSend = async () => {
+  //   if (!input.trim()) return;
+
+  //   const userMessage: Message = {
+  //     type: "user",
+  //     text: input,
+  //     timestamp: new Date(),
+  //   };
+  //   setMessages((prev) => [...prev, userMessage]);
+  //   setInput("");
+  //   setLoading(true);
+  //   setIsTyping(true);
+
+  //   try {
+  //     setTimeout(async () => {
+  //       const res = await axios.post(
+  //         `${process.env.NEXT_PUBLIC_API_URL}/api/stylist/analyze`,
+  //         {
+  //           answers: [input],
+  //         }
+  //       );
+
+  //       const {
+  //         message,
+  //         style_name,
+  //         description,
+  //         keywords,
+  //         products,
+  //         mix_and_match,
+  //       } = res.data;
+
+  //       let reply =
+  //         message ||
+  //         "Chào bạn! Mình chưa hiểu rõ gu của bạn lắm. Bạn có thể mô tả thêm một chút không ạ?";
+  //       let productList = products || [];
+
+  //       if (
+  //         !input.match(
+  //           /(phối đồ|set đồ|đi chơi|du lịch|outfit|mix and match)/iu
+  //         )
+  //       ) {
+  //         productList = products && products.length > 0 ? [products[0]] : [];
+  //         reply =
+  //           products && products.length > 0
+  //             ? `Chào bạn! Mình đã tìm thấy một sản phẩm rất phù hợp cho bạn là ${products[0].name}. Bạn thấy thế nào ạ?`
+  //             : reply;
+  //       } else {
+  //         if (style_name || description) {
+  //           reply = `Chào bạn! Mình thấy phong cách ${style_name ||
+  //             "của bạn"} rất thú vị!`;
+  //           if (description) {
+  //             reply += `\n${description}`;
+  //           }
+  //         }
+  //         if (mix_and_match) {
+  //           reply += `\nMình có gợi ý phối đồ cho bạn đây: ${mix_and_match}. Bạn có thích không ạ?`;
+  //         }
+  //         if (products && products.length > 0) {
+  //           reply += `\nMình cũng tìm thấy một số sản phẩm phù hợp, bạn có muốn xem không ạ?`;
+  //         }
+  //       }
+
+  //       setMessages((prev) => [
+  //         ...prev,
+  //         {
+  //           type: "bot",
+  //           text: reply,
+  //           products: productList,
+  //           keywords: keywords || [],
+  //           mix_and_match: mix_and_match || null,
+  //           timestamp: new Date(),
+  //         },
+  //       ]);
+  //       setIsTyping(false);
+  //       setLoading(false);
+  //     }, 1000);
+  //   } catch {
+  //     setMessages((prev) => [
+  //       ...prev,
+  //       {
+  //         type: "bot",
+  //         text:
+  //           "Rất tiếc, mình không thể kết nối đến hệ thống ngay bây giờ. Bạn vui lòng thử lại sau nhé!",
+  //         timestamp: new Date(),
+  //       },
+  //     ]);
+  //     setIsTyping(false);
+  //     setLoading(false);
+  //   }
+  // };
   const handleSend = async () => {
     if (!input.trim()) return;
 
@@ -206,69 +296,67 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
     setIsTyping(true);
 
     try {
-      setTimeout(async () => {
-        const res = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/stylist/analyze`,
-          {
-            answers: [input],
-          }
-        );
+      // Nếu muốn giả lập delay typing
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
-        const {
-          message,
-          style_name,
-          description,
-          keywords,
-          products,
-          mix_and_match,
-        } = res.data;
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/stylist/analyze`,
+        {
+          answers: [input],
+        }
+      );
 
-        let reply =
-          message ||
-          "Chào bạn! Mình chưa hiểu rõ gu của bạn lắm. Bạn có thể mô tả thêm một chút không ạ?";
-        let productList = products || [];
+      const {
+        message,
+        style_name,
+        description,
+        keywords,
+        products,
+        mix_and_match,
+      } = res.data;
 
-        if (
-          !input.match(
-            /(phối đồ|set đồ|đi chơi|du lịch|outfit|mix and match)/iu
-          )
-        ) {
-          productList = products && products.length > 0 ? [products[0]] : [];
-          reply =
-            products && products.length > 0
-              ? `Chào bạn! Mình đã tìm thấy một sản phẩm rất phù hợp cho bạn là ${products[0].name}. Bạn thấy thế nào ạ?`
-              : reply;
-        } else {
-          if (style_name || description) {
-            reply = `Chào bạn! Mình thấy phong cách ${style_name ||
-              "của bạn"} rất thú vị!`;
-            if (description) {
-              reply += `\n${description}`;
-            }
-          }
-          if (mix_and_match) {
-            reply += `\nMình có gợi ý phối đồ cho bạn đây: ${mix_and_match}. Bạn có thích không ạ?`;
-          }
-          if (products && products.length > 0) {
-            reply += `\nMình cũng tìm thấy một số sản phẩm phù hợp, bạn có muốn xem không ạ?`;
+      let reply =
+        message ||
+        "Chào bạn! Mình chưa hiểu rõ gu của bạn lắm. Bạn có thể mô tả thêm một chút không ạ?";
+      let productList = products || [];
+
+      if (
+        !input.match(/(phối đồ|set đồ|đi chơi|du lịch|outfit|mix and match)/iu)
+      ) {
+        productList = products && products.length > 0 ? [products[0]] : [];
+        reply =
+          products && products.length > 0
+            ? `Chào bạn! Mình đã tìm thấy một sản phẩm rất phù hợp cho bạn là ${products[0].name}. Bạn thấy thế nào ạ?`
+            : reply;
+      } else {
+        if (style_name || description) {
+          reply = `Chào bạn! Mình thấy phong cách ${style_name ||
+            "của bạn"} rất thú vị!`;
+          if (description) {
+            reply += `\n${description}`;
           }
         }
+        if (mix_and_match) {
+          reply += `\nMình có gợi ý phối đồ cho bạn đây: ${mix_and_match}. Bạn có thích không ạ?`;
+        }
+        if (products && products.length > 0) {
+          reply += `\nMình cũng tìm thấy một số sản phẩm phù hợp, bạn có muốn xem không ạ?`;
+        }
+      }
 
-        setMessages((prev) => [
-          ...prev,
-          {
-            type: "bot",
-            text: reply,
-            products: productList,
-            keywords: keywords || [],
-            mix_and_match: mix_and_match || null,
-            timestamp: new Date(),
-          },
-        ]);
-        setIsTyping(false);
-        setLoading(false);
-      }, 1000);
-    } catch {
+      setMessages((prev) => [
+        ...prev,
+        {
+          type: "bot",
+          text: reply,
+          products: productList,
+          keywords: keywords || [],
+          mix_and_match: mix_and_match || null,
+          timestamp: new Date(),
+        },
+      ]);
+    } catch (error) {
+      console.error(error);
       setMessages((prev) => [
         ...prev,
         {
@@ -278,6 +366,7 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
           timestamp: new Date(),
         },
       ]);
+    } finally {
       setIsTyping(false);
       setLoading(false);
     }
@@ -394,7 +483,6 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
                     alt="AI Avatar"
                     width={40}
                     height={40}
-                    
                     className="w-10 h-10 rounded-full shadow-md object-cover border-2 border-orange-200"
                   />
 
@@ -405,17 +493,17 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
               ) : (
                 <div className="relative">
                   <Image
-  src={
-    user?.avatar
-      ? `http://127.0.0.1:8000/storage/${user.avatar}`
-      : "/img/user-avatar.webp"
-  }
-  width={40}
-  height={40}
-  alt="User Avatar"
-  className="rounded-full shadow-md object-cover border-2 border-orange-200"
-  onError={(e) => console.log("Lỗi tải ảnh:", e)}
-/>
+                    src={
+                      user?.avatar
+                        ? `http://127.0.0.1:8000/storage/${user.avatar}`
+                        : "/img/user-avatar.webp"
+                    }
+                    width={40}
+                    height={40}
+                    alt="User Avatar"
+                    className="rounded-full shadow-md object-cover border-2 border-orange-200"
+                    onError={(e) => console.log("Lỗi tải ảnh:", e)}
+                  />
                 </div>
               )}
 

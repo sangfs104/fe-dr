@@ -10,7 +10,7 @@ const LuckyWheelClient = dynamic(() => import("./LuckyWheelClient"), {
 
 export default function LuckyWheelPage() {
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center bg-gray-100 py-10 px-4">
+    <main className="flex flex-col items-center bg-white mt-8 mb-20 px-4">
       <div className="flex justify-center">
         <h1
           className="text-3xl md:text-4xl font-bold mb-8"

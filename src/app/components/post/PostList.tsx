@@ -501,6 +501,7 @@ interface Post {
   author_id: string;
   type?: string;
   product?: Product;
+  image_url?: string; 
 }
 
 interface Comment {
@@ -528,7 +529,7 @@ export default function PostList({ limit, showMore }: PostListProps) {
     typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/posts", {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/posts`, {
       headers: { ...(token && { Authorization: `Bearer ${token}` }) },
     })
       .then((res) => res.json())
@@ -594,11 +595,11 @@ function PostItem({ post, token }: PostItemProps) {
 
   // Fetch comments & reactions
   useEffect(() => {
-    fetch(`http://localhost:8000/api/posts/${post.id}/comments`)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/posts/${post.id}/comments`)
       .then((res) => res.json())
       .then(setComments);
 
-    fetch(`http://localhost:8000/api/posts/${post.id}/react`)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/posts/${post.id}/react`)
       .then((res) => res.json())
       .then((data: Reaction[]) => {
         setReactions(data);
@@ -634,7 +635,7 @@ function PostItem({ post, token }: PostItemProps) {
     }
     if (!commentInput.trim()) return;
 
-    await fetch(`http://localhost:8000/api/posts/${post.id}/comments`, {
+    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/posts/${post.id}/comments`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -644,7 +645,7 @@ function PostItem({ post, token }: PostItemProps) {
     });
     setCommentInput("");
     const res = await fetch(
-      `http://localhost:8000/api/posts/${post.id}/comments`
+      `${process.env.NEXT_PUBLIC_API_URL}/api/posts/${post.id}/comments`
     );
     setComments(await res.json());
   };
@@ -656,7 +657,7 @@ function PostItem({ post, token }: PostItemProps) {
       return;
     }
 
-    await fetch(`http://localhost:8000/api/posts/${post.id}/react`, {
+    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/posts/${post.id}/react`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -666,7 +667,7 @@ function PostItem({ post, token }: PostItemProps) {
     });
 
     setMyReaction(reaction);
-    const res = await fetch(`http://localhost:8000/api/posts/${post.id}/react`);
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/posts/${post.id}/react`);
     setReactions(await res.json());
   };
 
@@ -712,7 +713,7 @@ const reactionColors: { [key: string]: string } = {
       </div>
 
       {/* Image */}
-      {post.image && (
+      {/* {post.image && (
         <div className="relative">
           <motion.div
             ref={imageRef}
@@ -722,7 +723,7 @@ const reactionColors: { [key: string]: string } = {
             layout
           >
             <Image
-              src={`http://127.0.0.1:8000/storage/${post.image}`}
+              src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${post.image}`}
               alt={post.title}
               width={800}
               height={340}
@@ -739,8 +740,35 @@ const reactionColors: { [key: string]: string } = {
             </button>
           )}
         </div>
-      )}
-
+      )} */}
+{post.image_url && (
+  <div className="relative">
+    <motion.div
+      ref={imageRef}
+      className={`overflow-hidden transition-all duration-500 rounded-2xl ${
+        showFullImage ? "max-h-[650px]" : "max-h-[320px]"
+      }`}
+      layout
+    >
+      <Image
+        src={post.image_url}
+        alt={post.title}
+        width={800}
+        height={340}
+        className="w-full object-cover rounded-2xl shadow"
+        priority
+      />
+    </motion.div>
+    {isImageOverflow && (
+      <button
+        onClick={() => setShowFullImage((s) => !s)}
+        className="absolute bottom-3 right-6 text-sm bg-white/80 px-4 py-1.5 rounded-full shadow text-indigo-600 font-semibold hover:bg-indigo-50 hover:text-indigo-800 transition z-10"
+      >
+        {showFullImage ? "Thu gọn" : "Xem thêm ảnh"}
+      </button>
+    )}
+  </div>
+)}
       {/* Content */}
       <div className="px-6 py-5">
         <h2 className="text-2xl font-bold mb-2 text-gray-900 leading-tight">

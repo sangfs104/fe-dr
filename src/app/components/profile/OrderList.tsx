@@ -414,16 +414,30 @@ export default function OrderList() {
                   (img) => img.id === item.variant.img_id
                 );
 
+                console.log("productImage", productImage);
+
                 return (
                   <div
                     key={item.id}
                     className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 gap-4"
                   >
                     <div className="flex items-center gap-4 w-full sm:w-auto">
+                      {/* <Image
+                        src={
+                          productImage
+                            ? `${process.env.NEXT_PUBLIC_API_URL}/public/img/${productImage.name}`
+                            : "/img/default.webp"
+                        }
+                        width={80}
+                        height={80}
+                        alt={item.product.name}
+                        className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-md border"
+                      /> */}
+
                       <Image
                         src={
                           productImage
-                            ? `/img/${productImage.name}`
+                            ? `${process.env.NEXT_PUBLIC_API_URL}/public/img/${productImage.name}`
                             : "/img/default.webp"
                         }
                         width={80}

@@ -553,12 +553,12 @@ export default function AIRecommendedProducts() {
   const [animateProducts, setAnimateProducts] = useState(false);
 
   const { data: aiData, isLoading: aiLoading } = useSWR(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/user/ai-recommend`,
+    `https://dreams-admin.io.vn/api/user/ai-recommend`,
     fetcher
   );
 
   const { data: viewedData, isLoading: viewedLoading } = useSWR(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/user/viewed-products`,
+    `https://dreams-admin.io.vn/api/user/viewed-products`,
     fetcher
   );
 

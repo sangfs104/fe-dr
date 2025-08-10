@@ -469,7 +469,11 @@ export default function VoiceQuickOrderFlexible() {
     setIsRecording(false);
 
     // Ghép thông tin lại thành text để gửi lên BE
-    const orderText = `${quantity} ${product} size ${size} giao về ${address}`;
+    // const orderText = `${quantity} ${product} size ${size} giao về ${address}`;
+    const orderText = `${quantity} ${product} size ${size} giao về ${address}`.replace(
+      /\.$/,
+      ""
+    );
     setVoiceText(orderText);
     parseOrder(orderText);
   };

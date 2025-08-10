@@ -190,7 +190,7 @@ import type { Metadata } from "next";
 import ClientLayout from "./ClientLayout";
 
 export const metadata: Metadata = {
-  title: "Dreams - Thời trang định nghĩa phong cách",
+  title: "DREAMS",
   description: "Nơi xu hướng gặp gỡ sự chân thực.",
 };
 

@@ -1771,6 +1771,67 @@ export default function VoiceQuickOrderFlexible() {
       setPaymentMethod(null);
     }
   };
+  // const handleQuickOrder = async (
+  //   orderData: OrderInfo,
+  //   method: 1 | 2
+  // ): Promise<void> => {
+  //   const token = localStorage.getItem("token");
+
+  //   if (!token) {
+  //     setErrorMessage(t.needLogin);
+  //     speak(t.needLogin);
+  //     setStep("idle");
+  //     setPaymentMethod(null);
+  //     return;
+  //   }
+
+  //   const payload = {
+  //     ...orderData,
+  //     payment_id: method,
+  //   };
+
+  //   try {
+  //     const res = await fetch(
+  //       `${process.env.NEXT_PUBLIC_API_URL}/api/voice-order/quick`,
+  //       {
+  //         method: "POST",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //         body: JSON.stringify(payload),
+  //       }
+  //     );
+
+  //     const data: OrderResult = await res.json();
+
+  //     if (!res.ok) {
+  //       throw new Error(data.message || `HTTP error! status: ${res.status}`);
+  //     }
+
+  //     if (data.error) {
+  //       throw new Error(data.message || t.errorProcessing);
+  //     }
+
+  //     setOrderResult(data);
+  //     setStep("done");
+
+  //     if (method === 2 && data.payment_url) {
+  //       speak(t.redirectingPayment);
+  //       setTimeout(() => {
+  //         window.location.href = data.payment_url!;
+  //       }, 2000);
+  //     } else {
+  //       speak(data.message || t.orderSuccess);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error processing order:", error);
+  //     setErrorMessage(error.message || t.errorProcessing);
+  //     speak(error.message || t.errorProcessing);
+  //     setStep("idle");
+  //     setPaymentMethod(null);
+  //   }
+  // };
   const handleQuickOrder = async (
     orderData: OrderInfo,
     method: 1 | 2
@@ -1826,13 +1887,14 @@ export default function VoiceQuickOrderFlexible() {
       }
     } catch (error) {
       console.error("Error processing order:", error);
-      setErrorMessage(error.message || t.errorProcessing);
-      speak(error.message || t.errorProcessing);
+      const errorMessage =
+        error instanceof Error ? error.message : t.errorProcessing;
+      setErrorMessage(errorMessage);
+      speak(errorMessage);
       setStep("idle");
       setPaymentMethod(null);
     }
   };
-
   const handleTextChange = (
     e: React.ChangeEvent<HTMLTextAreaElement>
   ): void => {

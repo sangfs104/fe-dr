@@ -26,11 +26,14 @@ export default function AddressList() {
     }
 
     try {
-      const res = await fetch("http://localhost:8000/api/addresses", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/addresses`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       const result = await res.json();
       setAddresses(result.data || []);
     } catch (error) {
@@ -53,14 +56,17 @@ export default function AddressList() {
 
     setSubmitting(true);
     try {
-      const res = await fetch("http://localhost:8000/api/addresses", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ adress: newAddress }),
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/addresses`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ adress: newAddress }),
+        }
+      );
 
       const result = await res.json();
       if (res.ok) {
@@ -83,7 +89,7 @@ export default function AddressList() {
     if (!token) return;
     try {
       const res = await fetch(
-        `http://localhost:8000/api/addresses/${id}/set-default`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/addresses/${id}/set-default`,
         {
           method: "PATCH",
           headers: {

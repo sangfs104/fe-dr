@@ -1628,6 +1628,76 @@ export default function VoiceQuickOrderFlexible() {
     recognitionRef.current = recognition;
   };
 
+  // const parseOrder = async (text: string): Promise<void> => {
+  //   setStep("parsing");
+  //   setPaymentMethod(null);
+  //   setErrorMessage(null); // Reset lỗi
+  //   const token = localStorage.getItem("token");
+
+  //   if (!token) {
+  //     setErrorMessage(t.needLogin);
+  //     speak(t.needLogin);
+  //     setStep("idle");
+  //     setPaymentMethod(null);
+  //     return;
+  //   }
+
+  //   try {
+  //     const res = await fetch(
+  //       `${process.env.NEXT_PUBLIC_API_URL}/api/voice-order/parse`,
+  //       {
+  //         method: "POST",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //         body: JSON.stringify({ text }),
+  //       }
+  //     );
+
+  //     const data = await res.json();
+
+  //     if (!res.ok) {
+  //       throw new Error(data.message || `HTTP error! status: ${res.status}`);
+  //     }
+
+  //     if (data.error) {
+  //       throw new Error(data.message || t.errorProcessing);
+  //     }
+
+  //     setOrderInfo(data);
+  //     setStep("confirming");
+
+  //     const confirmText = t.confirmOrder
+  //       .replace("{quantity}", data.quantity.toString())
+  //       .replace("{product}", data.product)
+  //       .replace("{size}", data.size)
+  //       .replace("{address}", data.address);
+
+  //     speak(confirmText, async () => {
+  //       const result = await waitForVoiceConfirm();
+  //       if (result === "yes") {
+  //         speak(t.choosePayment, async () => {
+  //           const method = await waitForVoicePaymentMethod();
+  //           setPaymentMethod(method);
+  //           speak(t.confirming);
+  //           await handleQuickOrder(data, method);
+  //         });
+  //       } else {
+  //         speak(t.orderCanceled);
+  //         setOrderInfo(null);
+  //         setPaymentMethod(null);
+  //         setStep("idle");
+  //       }
+  //     });
+  //   } catch (error) {
+  //     console.error("Error parsing order:", error);
+  //     setErrorMessage(error.message || t.errorProcessing);
+  //     speak(error.message || t.errorProcessing);
+  //     setStep("idle");
+  //     setPaymentMethod(null);
+  //   }
+  // };
   const parseOrder = async (text: string): Promise<void> => {
     setStep("parsing");
     setPaymentMethod(null);
@@ -1692,13 +1762,15 @@ export default function VoiceQuickOrderFlexible() {
       });
     } catch (error) {
       console.error("Error parsing order:", error);
-      setErrorMessage(error.message || t.errorProcessing);
-      speak(error.message || t.errorProcessing);
+      // Safely extract error message
+      const errorMessage =
+        error instanceof Error ? error.message : t.errorProcessing;
+      setErrorMessage(errorMessage);
+      speak(errorMessage);
       setStep("idle");
       setPaymentMethod(null);
     }
   };
-
   const handleQuickOrder = async (
     orderData: OrderInfo,
     method: 1 | 2

@@ -60,8 +60,10 @@ export default function CategoryProduct({
 
       try {
         const [catRes, prodRes] = await Promise.all([
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/category`, { cache: "no-store" }),
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/product`, { cache: "no-store" }),
+          // fetch(`${process.env.NEXT_PUBLIC_API_URL}/category`, { cache: "no-store" }),
+          // fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/product`, { cache: "no-store" }),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/category`, { cache: "no-store" }),
+         fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/product`, { cache: "no-store" })
         ]);
 
         const catJson = await catRes.json();

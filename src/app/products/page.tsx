@@ -344,7 +344,9 @@ export default function ProductPage() {
         // Nếu có danh mục thì gọi API lọc theo danh mục
         if (debouncedCategory) {
           params.append("category_id", debouncedCategory.toString());
-          url = `http://127.0.0.1:8000/api/products-by-category?${params.toString()}`;
+          url = `${
+            process.env.NEXT_PUBLIC_API_URL
+          }/api/products-by-category?${params.toString()}`;
         } else {
           if (debouncedSize) params.append("size", debouncedSize);
           if (debouncedPrice > 0) {
@@ -352,7 +354,9 @@ export default function ProductPage() {
             params.append("max", debouncedPrice.toString());
           }
           if (debouncedSort) params.append("sort", debouncedSort);
-          url = `http://127.0.0.1:8000/api/products/filter-all?${params.toString()}`;
+          url = `${
+            process.env.NEXT_PUBLIC_API_URL
+          }/api/products/filter-all?${params.toString()}`;
         }
 
         const res = await fetch(url);
@@ -378,7 +382,7 @@ export default function ProductPage() {
                 : Array.isArray(item.img)
                 ? item.img.map(
                     (img: ProductImage) =>
-                      `http://127.0.0.1:8000/img/${img.name}`
+                      `${process.env.NEXT_PUBLIC_API_URL}/img/${img.name}`
                   )
                 : [],
               variant: Array.isArray(item.variant) ? item.variant : [],

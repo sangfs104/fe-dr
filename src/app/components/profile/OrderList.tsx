@@ -414,6 +414,8 @@ export default function OrderList() {
                   (img) => img.id === item.variant.img_id
                 );
 
+                console.log("productImage", productImage);
+
                 return (
                   <div
                     key={item.id}
@@ -431,10 +433,11 @@ export default function OrderList() {
                         alt={item.product.name}
                         className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-md border"
                       /> */}
+
                       <Image
                         src={
                           productImage
-                            ? `${process.env.NEXT_PUBLIC_API_URL}/img/${productImage.name}`
+                            ? `${process.env.NEXT_PUBLIC_API_URL}/public/img/${productImage.name}`
                             : "/img/default.webp"
                         }
                         width={80}

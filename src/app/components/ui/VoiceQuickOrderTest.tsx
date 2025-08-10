@@ -426,6 +426,57 @@ export default function VoiceQuickOrderFlexible() {
     });
   };
 
+  // const startVoice = async (): Promise<void> => {
+  //   setStep("listening");
+  //   setIsRecording(true);
+  //   const lang = currentLangOption?.speechLang || "vi-VN";
+  //   const tProduct =
+  //     language === "vi"
+  //       ? "Bạn muốn mua sản phẩm gì?"
+  //       : "What product do you want to buy?";
+  //   const tSize =
+  //     language === "vi" ? "Bạn chọn size gì?" : "What size do you want?";
+  //   const tQuantity =
+  //     language === "vi"
+  //       ? "Bạn muốn mua bao nhiêu?"
+  //       : "How many do you want to buy?";
+  //   const tAddress =
+  //     language === "vi" ? "Giao về địa chỉ nào?" : "Where should we deliver?";
+
+  //   const product = await askFieldByVoice(tProduct, lang);
+  //   if (!product) {
+  //     setIsRecording(false);
+  //     speak("Không nhận diện được sản phẩm, vui lòng thử lại.");
+  //     setStep("idle");
+  //     return;
+  //   }
+  //   const size = await askFieldByVoice(tSize, lang);
+  //   if (!size) {
+  //     setIsRecording(false);
+  //     speak("Không nhận diện được size, vui lòng thử lại.");
+  //     setStep("idle");
+  //     return;
+  //   }
+  //   const quantityText = await askFieldByVoice(tQuantity, lang);
+  //   const quantity = parseInt(quantityText.replace(/\D/g, ""), 10) || 1;
+  //   const address = await askFieldByVoice(tAddress, lang);
+  //   if (!address) {
+  //     setIsRecording(false);
+  //     speak("Không nhận diện được địa chỉ, vui lòng thử lại.");
+  //     setStep("idle");
+  //     return;
+  //   }
+  //   setIsRecording(false);
+
+  //   // Ghép thông tin lại thành text để gửi lên BE
+  //   // const orderText = `${quantity} ${product} size ${size} giao về ${address}`;
+  //   const orderText = `${quantity} ${product} size ${size} giao về ${address}`.replace(
+  //     /\.$/,
+  //     ""
+  //   );
+  //   setVoiceText(orderText);
+  //   parseOrder(orderText);
+  // };
   const startVoice = async (): Promise<void> => {
     setStep("listening");
     setIsRecording(true);
@@ -438,10 +489,12 @@ export default function VoiceQuickOrderFlexible() {
       language === "vi" ? "Bạn chọn size gì?" : "What size do you want?";
     const tQuantity =
       language === "vi"
-        ? "Bạn muốn mua bao nhiêu?"
+        ? "Bạn muốn số lượng bao nhiêu?"
         : "How many do you want to buy?";
     const tAddress =
-      language === "vi" ? "Giao về địa chỉ nào?" : "Where should we deliver?";
+      language === "vi"
+        ? "Bạn muốn Giao về địa chỉ nào?"
+        : "Where should we deliver?";
 
     const product = await askFieldByVoice(tProduct, lang);
     if (!product) {
@@ -468,12 +521,12 @@ export default function VoiceQuickOrderFlexible() {
     }
     setIsRecording(false);
 
-    // Ghép thông tin lại thành text để gửi lên BE
-    // const orderText = `${quantity} ${product} size ${size} giao về ${address}`;
-    const orderText = `${quantity} ${product} size ${size} giao về ${address}`.replace(
-      /\.$/,
-      ""
-    );
+    // Loại bỏ dấu chấm cuối ở từng trường
+    const productClean = product.replace(/\.$/, "");
+    const sizeClean = size.replace(/\.$/, "");
+    const addressClean = address.replace(/\.$/, "");
+    const orderText = `${quantity} ${productClean} size ${sizeClean} giao về ${addressClean}`;
+
     setVoiceText(orderText);
     parseOrder(orderText);
   };

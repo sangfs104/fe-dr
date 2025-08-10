@@ -114,15 +114,16 @@ export default function LoginPage() {
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="flex flex-col-reverse md:flex-row bg-white shadow-md rounded-xl overflow-hidden max-w-5xl w-full max-h-[90vh] overflow-y-auto"
+          className="flex flex-col-reverse md:flex-row bg-white shadow-md rounded-xl overflow-hidden max-w-5xl w-full"
         >
-          <div className="w-full max-w-sm aspect-[3/2] sm:aspect-square flex items-center justify-center">
+          <div className="border-4 border-white rounded-lg overflow-hidden">
             <Image
               src="/img/BANNERREAM.png"
-              alt="shopping illustration"
-              width={400}
-              height={400}
-              className="w-full h-auto max-h-64 sm:max-h-full rounded-xl shadow-lg transition-transform duration-300 hover:scale-105"
+              alt="Login Banner"
+              width={500}
+              height={500}
+              className="w-full h-auto object-contain"
+              priority
             />
           </div>
 

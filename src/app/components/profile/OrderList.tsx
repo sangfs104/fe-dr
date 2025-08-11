@@ -435,11 +435,7 @@ export default function OrderList() {
                       /> */}
 
                       <Image
-                        src={
-                          productImage
-                            ? `${process.env.NEXT_PUBLIC_API_URL}/public/img/${productImage.name}`
-                            : "/img/default.webp"
-                        }
+                        src={item.image_url || "/img/default.webp"}
                         width={80}
                         height={80}
                         alt={item.product.name}

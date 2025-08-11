@@ -145,6 +145,5 @@ export interface Product {
   category_id: number;
   category: { id: number; name: string };
   hot?: boolean;
-  image_url?: string;
   slug?: string;
 }

@@ -859,48 +859,48 @@ const reactionColors: { [key: string]: string } = {
               </motion.button>
             );
           })}
-        </div>
-      </div> */}
+        </div> */}
+
+<div className="flex gap-1 justify-start items-center border-t pt-4 mb-1" style={{ minWidth: "350px", flexWrap: "nowrap" }}>
+  {Object.keys(reactionIcons).map((r) => {
+    const isActive = myReaction === r;
+    const colorClass = reactionColors[r];
+    return (
+      <motion.button
+        key={r}
+        title={r}
+        whileTap={{ scale: 0.9 }}
+        whileHover={{ scale: 1.08 }}
+        onClick={() => handleReact(r)}
+        className={`flex items-center gap-1 text-[13px] px-3 py-1 rounded-full border transition font-semibold shadow-sm
+          ${
+            isActive
+              ? `${colorClass} bg-white/80 border-indigo-200 ring-2 ring-indigo-100`
+              : "bg-white/80 text-gray-600 border-gray-200 hover:border-indigo-200"
+          }
+        `}
+      >
+        <span
+          className={`${colorClass} transition-colors ${
+            isActive
+              ? "text-opacity-100"
+              : "text-opacity-60 hover:text-opacity-100"
+          }`}
+        >
+          {reactionIcons[r]}
+        </span>
+        <span>
+          {reactions.find((x) => x.reaction === r)?.total || 0}
+        </span>
+      </motion.button>
+    );
+  })}
+</div>
 
 
-
-  <div className="flex gap-1 justify-start items-center border-t pt-4 mb-1">
-          {Object.keys(reactionIcons).map((r) => {
-            const isActive = myReaction === r;
-            const colorClass = reactionColors[r];
-            return (
-              <motion.button
-                key={r}
-                title={r}
-                whileTap={{ scale: 0.9 }}
-                whileHover={{ scale: 1.08 }}
-                onClick={() => handleReact(r)}
-                className={`flex items-center gap-1 text-[13px] px-3 py-1 rounded-full border transition font-semibold shadow-sm
-                  ${
-                    isActive
-                      ? `${colorClass} bg-white/80 border-indigo-200 ring-2 ring-indigo-100`
-                      : "bg-white/80 text-gray-600 border-gray-200 hover:border-indigo-200"
-                  }
-                `}
-                style={{ minWidth: "59px" }}
-              >
-                <span
-                  className={`${colorClass} transition-colors ${
-                    isActive
-                      ? "text-opacity-100"
-                      : "text-opacity-60 hover:text-opacity-100"
-                  }`}
-                >
-                  {reactionIcons[r]}
-                </span>
-                <span>
-                  {reactions.find((x) => x.reaction === r)?.total || 0}
-                </span>
-              </motion.button>
-            );
-          })}
-        </div>
+        
       </div>
+
       {/* Comments */}
       <div className="px-6 pb-5 pt-2">
         <motion.button

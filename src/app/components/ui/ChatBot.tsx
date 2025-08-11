@@ -51,7 +51,6 @@ type Product = {
   name: string;
   description: string;
   images: string[];
-  image?: string;
   variant: ProductVariant[];
   category: {
     id: number;
@@ -541,9 +540,7 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
                         <Link href={`/products/${p.id}`}>
                           <div className="relative overflow-hidden">
                             <Image
-                              src={
-                                p.image || p.images?.[0] || "/img/no-image.jpg"
-                              }
+                              src={p.images?.[0] || "/img/no-image.jpg"}
                               width={400}
                               height={144}
                               unoptimized

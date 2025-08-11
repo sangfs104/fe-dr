@@ -727,7 +727,7 @@ export default function VoiceQuickOrderFlexible() {
         `}
       </style>
       {!showWidget && (
-        <div className="relative flex flex-col items-center group">
+        <div className="relative group">
           {/* Floating message with fade in/out animation */}
           {showTooltip && (
             <div
@@ -755,19 +755,13 @@ export default function VoiceQuickOrderFlexible() {
           {/* Main bot button with modern glassmorphism */}
           <button
             onClick={() => setShowWidget(true)}
-            className="relative flex items-center justify-center gap-2 rounded-full p-4 bg-gradient-to-br from-purple-600 via-pink-500 to-orange-500 text-white shadow-2xl transition-all duration-500 hover:scale-110 active:scale-95 backdrop-blur-lg"
+            className="relative flex items-center justify-center w-16 h-16 rounded-full p-4 bg-gradient-to-br from-purple-600 via-pink-500 to-orange-500 text-white shadow-2xl transition-all duration-500 hover:scale-110 active:scale-95 backdrop-blur-lg"
             style={{
               background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
               boxShadow: "0 25px 50px rgba(102, 126, 234, 0.4)",
-              minWidth: "120px", // Đảm bảo nút có chiều rộng tối thiểu
             }}
           >
-            <div className="relative z-10">
-              <Bot size={32} className="relative z-10" />
-            </div>
-            <span className="text-sm font-semibold whitespace-nowrap">
-              {t.quickOrder}
-            </span>
+            <Bot size={32} className="relative z-10" />
             <div className="absolute inset-0 rounded-full bg-white opacity-20 animate-ping"></div>
             <div className="absolute -top-2 -right-2 w-4 h-4 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full animate-bounce delay-75 shadow-lg"></div>
             <div className="absolute -bottom-2 -left-2 w-3 h-3 bg-gradient-to-r from-green-400 to-blue-400 rounded-full animate-bounce delay-150 shadow-lg"></div>

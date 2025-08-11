@@ -824,7 +824,9 @@ const reactionColors: { [key: string]: string } = {
         )}
 
         {/* Reactions */}
-        <div className="flex gap-1 justify-start items-center border-t pt-4 mb-1">
+        <div className="flex gap-1 justify-start items-center border-t pt-4 mb-1"
+          style={{ overflow: "visible", minHeight: "48px" }}
+>
           {Object.keys(reactionIcons).map((r) => {
             const isActive = myReaction === r;
             const colorClass = reactionColors[r];

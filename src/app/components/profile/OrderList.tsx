@@ -276,6 +276,7 @@ type OrderItem = {
   price: string;
   variant: Variant;
   product: Product;
+  image_url?: string;
 };
 
 type Order = {

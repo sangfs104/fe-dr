@@ -46,13 +46,18 @@ import { DreamToast } from "./components/ui/DreamToast";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import Header from "./components/ui/Header";
 import CartModal from "./components/ui/CartModal";
-import { useState, ReactNode } from "react";
-import ChatToggle from "./components/ui/ChatToggle";
+import { useState } from "react";
+
 import Footer from "./components/ui/Footer";
 import VoiceQuickOrderTest from "./components/ui/VoiceQuickOrderTest";
-import ChatBot from "./components/ui/ChatBot"; // Thêm dòng này
+import ChatToggle from "./components/ui/ChatToggle";
+import ChatBot from "./components/ui/ChatBot"; // Nếu có
 
-export default function ClientLayout({ children }: { children: ReactNode }) {
+export default function ClientLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [showCartModal, setShowCartModal] = useState(false);
   const [showChatBot, setShowChatBot] = useState(false);
 

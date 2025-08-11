@@ -51,6 +51,7 @@ type Product = {
   name: string;
   description: string;
   images: string[];
+  image?: string; // Thêm dòng này
   variant: ProductVariant[];
   category: {
     id: number;
@@ -529,8 +530,7 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
                     {m.timestamp && formatTime(m.timestamp)}
                   </div>
                 </div>
-
-                {m.products && m.products.length > 0 && (
+                {/* {m.products && m.products.length > 0 && (
                   <div className="mt-3 grid grid-cols-1 gap-3">
                     {m.products.map((p) => (
                       <div
@@ -541,6 +541,66 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
                           <div className="relative overflow-hidden">
                             <Image
                               src={p.images?.[0] || "/img/no-image.jpg"}
+                              width={400}
+                              height={144}
+                              unoptimized
+                              alt={p.name}
+                              className="w-full h-36 object-cover group-hover:scale-110 transition-transform duration-300"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                          </div>
+                          <div className="p-3">
+                            <div className="font-semibold text-orange-700 dark:text-orange-300 group-hover:text-orange-800 transition-colors">
+                              {p.name}
+                            </div>
+                            <div className="text-gray-600 dark:text-gray-300 text-xs mt-1 line-clamp-2">
+                              {p.description}
+                            </div>
+                            <div className="mt-2 text-xs text-orange-600 dark:text-orange-400 font-medium">
+                              Xem chi tiết →
+                            </div>
+                          </div>
+                        </Link>
+                        <div className="absolute top-2 right-2 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button
+                            onClick={() => handleAddToCart(p)}
+                            className="text-white bg-orange-500 p-1 rounded-full hover:bg-orange-600"
+                            title="Thêm vào giỏ hàng"
+                          >
+                            <ShoppingCart size={20} />
+                          </button>
+                          <button
+                            onClick={() => router.push(`/products/${p.id}`)}
+                            className="text-white bg-orange-500 p-1 rounded-full hover:bg-orange-600"
+                            title="Xem chi tiết"
+                          >
+                            <Eye size={20} />
+                          </button>
+                          <button
+                            onClick={() => handleAddToWishlist(p)}
+                            className="text-white bg-orange-500 p-1 rounded-full hover:bg-orange-600"
+                            title="Thêm vào wishlist"
+                          >
+                            <Heart size={20} />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )} */}
+                {m.products && m.products.length > 0 && (
+                  <div className="mt-3 grid grid-cols-1 gap-3">
+                    {m.products.map((p) => (
+                      <div
+                        key={p.id}
+                        className="block border border-orange-200 dark:border-orange-700 rounded-xl overflow-hidden hover:shadow-lg hover:scale-[1.02] transition-all duration-300 bg-white dark:bg-gray-800 group relative"
+                      >
+                        <Link href={`/products/${p.id}`}>
+                          <div className="relative overflow-hidden">
+                            <Image
+                              src={
+                                p.image || p.images?.[0] || "/img/no-image.jpg"
+                              }
                               width={400}
                               height={144}
                               unoptimized

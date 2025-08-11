@@ -366,7 +366,7 @@ export default function Header() {
               >
                 {user.avatar ? (
                   <Image
-                    src={`http://127.0.0.1:8000/storage/${user.avatar}`}
+                    src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${user.avatar}`}
                     width={24}
                     height={24}
                     alt="Avatar"

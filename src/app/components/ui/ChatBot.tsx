@@ -495,7 +495,7 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
                   <Image
                     src={
                       user?.avatar
-                        ? `http://127.0.0.1:8000/storage/${user.avatar}`
+                        ? `${process.env.NEXT_PUBLIC_API_URL}/storage/${user.avatar}`
                         : "/img/user-avatar.webp"
                     }
                     width={40}

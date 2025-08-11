@@ -236,7 +236,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import Image from "next/image";
+// import Image from "next/image";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -435,7 +435,14 @@ export default function OrderList() {
                         className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-md border"
                       /> */}
 
-                      <Image
+                      {/* <Image
+                        src={item.image_url || "/img/default.webp"}
+                        width={80}
+                        height={80}
+                        alt={item.product.name}
+                        className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-md border"
+                      /> */}
+                      <img
                         src={item.image_url || "/img/default.webp"}
                         width={80}
                         height={80}

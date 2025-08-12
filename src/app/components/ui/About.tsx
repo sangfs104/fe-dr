@@ -58,31 +58,34 @@ const FashionIntro3D: React.FC = () => {
     {
       name: "Vinh Võ",
       role: "Creative Director",
-      image: "/z6899203655714_5deb655bad3925f4ac103a3ddc39101d.jpg", // Adjusted to local path
+      image:
+        "../../../../public/img/z6899203655714_5deb655bad3925f4ac103a3ddc39101d.jpg", // Adjusted to local path
       description: "Với hơn 10 năm kinh nghiệm trong ngành thời trang",
     },
     {
       name: "Bảo Lê",
       role: "Fashion Designer",
-      image: "/cv avt.jpg", // Adjusted to local path
+      image: "../../../../public/img/cv avt.jpg", // Adjusted to local path
       description: "Chuyên gia thiết kế với tầm nhìn sáng tạo độc đáo",
     },
     {
       name: "Quyền Hứa",
       role: "Style Consultant",
-      image: "/z6899200362085_eeb071a22c7b71ce59471c11c1e91b35.jpg", // Adjusted to local path
+      image:
+        "../../../../public/img/z6899200362085_eeb071a22c7b71ce59471c11c1e91b35.jpg", // Adjusted to local path
       description: "Tư vấn phong cách cá nhân cho khách hàng VIP",
     },
     {
       name: "Đăng Lê",
       role: "Style Consultant",
-      image: "/z6395017736866_a46ee65a02ad4d564d0f13b601489f81.jpg", // Adjusted to local path
+      image:
+        "../../../../public/img/z6395017736866_a46ee65a02ad4d564d0f13b601489f81.jpg", // Adjusted to local path
       description: "Tư vấn phong cách cá nhân cho khách hàng VIP",
     },
     {
       name: "Sang Nguyễn",
       role: "Style Consultant",
-      image: "/sang.webp", // Adjusted to local path
+      image: "../../../../public/img/sang.webp", // Adjusted to local path
       description: "Tư vấn phong cách cá nhân cho khách hàng VIP",
     },
   ];
@@ -95,12 +98,12 @@ const FashionIntro3D: React.FC = () => {
   ];
 
   const galleryImages: string[] = [
-    "https://images.unsplash.com/photo-1445205170230-053b83016050?w=600&h=400&fit=crop",
-    "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=600&h=400&fit=crop",
-    "https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?w=600&h=400&fit=crop",
-    "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=600&h=400&fit=crop",
-    "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=600&h=400&fit=crop",
-    "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&h=400&fit=crop",
+    "https://www.instagram.com/p/DNNB0DUviq5/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+    "https://www.instagram.com/p/DLr2NDXMnol/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+    "https://www.instagram.com/p/DMNHZ-HPo9G/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+    "https://www.instagram.com/p/DEy8NZcv5pJ/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+    "https://www.instagram.com/p/DEQEokkPONF/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+    "https://www.instagram.com/p/DDlVtkHS7Ks/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
   ];
 
   // useEffect(() => {
@@ -439,7 +442,7 @@ const FashionIntro3D: React.FC = () => {
             >
               <div className="relative">
                 <Image
-                  src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&h=600&fit=crop"
+                  src="../../../../public/img/loginae.png"
                   alt="Fashion Store"
                   width={800}
                   height={600}

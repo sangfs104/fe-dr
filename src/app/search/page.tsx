@@ -6,8 +6,6 @@ import axios from "axios";
 import { FaSpinner } from "react-icons/fa";
 import ProductCard from "../components/ui/ProductCard";
 import ProductModal from "../components/ui/ProductModal";
-import HeaderHome from "../components/ui/Header";
-import Footer from "../components/ui/Footer";
 import { Suspense } from "react";
 
 interface ProductImage {
@@ -188,20 +186,17 @@ const SearchPage = () => {
   if (!keyword) {
     return (
       <>
-        <HeaderHome />
         <section className="px-6 md:px-20 lg:px-40 py-6 min-h-[70vh]">
           <div className="text-center py-20 text-gray-500 dark:text-gray-400 text-lg">
             Vui lòng nhập từ khóa tìm kiếm.
           </div>
         </section>
-        <Footer />
       </>
     );
   }
 
   return (
     <>
-      <HeaderHome />
       <section className="md:sticky md:top-0 z-10 bg-white dark:bg-zinc-900 py-4">
         <div className="md:hidden flex justify-between items-center px-6 mb-4">
           <h2 className="text-xl font-bold dark:text-white">
@@ -266,7 +261,6 @@ const SearchPage = () => {
           </div>
         )}
       </section>
-      <Footer />
       {selectedProduct && (
         <ProductModal
           product={selectedProduct}

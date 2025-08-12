@@ -110,6 +110,8 @@
 //   slug?: string;
 // }
 // types/Product.ts
+
+
 export interface ProductImage {
   id: number;
   product_id: number;

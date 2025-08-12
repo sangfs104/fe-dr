@@ -98,12 +98,12 @@ const FashionIntro3D: React.FC = () => {
   ];
 
   const galleryImages: string[] = [
-    "https://images.unsplash.com/photo-1445205170230-053b83016050?w=600&h=400&fit=crop",
-    "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=600&h=400&fit=crop",
-    "https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?w=600&h=400&fit=crop",
-    "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=600&h=400&fit=crop",
-    "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=600&h=400&fit=crop",
-    "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&h=400&fit=crop",
+    "https://www.instagram.com/p/DNNB0DUviq5/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+    "https://www.instagram.com/p/DLr2NDXMnol/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+    "https://www.instagram.com/p/DMNHZ-HPo9G/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+    "https://www.instagram.com/p/DEy8NZcv5pJ/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+    "https://www.instagram.com/p/DEQEokkPONF/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+    "https://www.instagram.com/p/DDlVtkHS7Ks/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
   ];
 
   // useEffect(() => {

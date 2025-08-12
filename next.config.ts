@@ -55,6 +55,20 @@ const nextConfig = {
         port: "",
         pathname: "/**",
       },
+
+      {
+        protocol: "http",
+        hostname: "localhost",
+        port: "8000",
+        pathname: "/**",
+      },
+      // Thêm cho ảnh Google
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+        port: "",
+        pathname: "/**",
+      },
     ],
   },
 };

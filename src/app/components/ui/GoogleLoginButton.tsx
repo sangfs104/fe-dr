@@ -7,7 +7,6 @@ type Props = {
   setLoading: (value: boolean) => void;
 };
 
-// Google Credential Response Type (tối giản theo tài liệu Google)
 type GoogleCredentialResponse = {
   credential: string;
   select_by?: string;
@@ -23,7 +22,7 @@ export default function GoogleLoginButton({ setLoading }: Props) {
     document.body.appendChild(script);
 
     script.onload = () => {
-      // @ts-expect-error: google object is injected by Google script
+      // @ts-expect-error Google API types are not defined in TypeScript
       window.google.accounts.id.initialize({
         client_id:
           "618672128676-6dopq4dgv5p5qgl83mphuppi9vkrmd2k.apps.googleusercontent.com",
@@ -35,11 +34,14 @@ export default function GoogleLoginButton({ setLoading }: Props) {
           setLoading(true);
 
           try {
-            const res = await fetch("http://localhost:8000/api/auth/google", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ id_token: idToken }),
-            });
+            const res = await fetch(
+              `${process.env.NEXT_PUBLIC_API_URL}/api/auth/google`,
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id_token: idToken }),
+              }
+            );
 
             if (!res.ok) throw new Error("Đăng nhập thất bại");
 
@@ -58,7 +60,7 @@ export default function GoogleLoginButton({ setLoading }: Props) {
         },
       });
 
-      // @ts-expect-error: google object is injected by Google script
+      // @ts-expect-error Google API renderButton is not typed in TypeScript
       window.google.accounts.id.renderButton(
         document.getElementById("googleButton"),
         {

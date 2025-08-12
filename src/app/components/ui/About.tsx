@@ -95,12 +95,12 @@ const FashionIntro3D: React.FC = () => {
   ];
 
   const galleryImages: string[] = [
-    "https://www.instagram.com/p/DNNB0DUviq5/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
-    "https://www.instagram.com/p/DLr2NDXMnol/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
-    "https://www.instagram.com/p/DMNHZ-HPo9G/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
-    "https://www.instagram.com/p/DEy8NZcv5pJ/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
-    "https://www.instagram.com/p/DEQEokkPONF/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
-    "https://www.instagram.com/p/DDlVtkHS7Ks/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+    "/img/SaveGram.App_504859434_18228594547295101_2752573199655038558_n.jpg",
+    "/img/SaveGram.App_472272307_1895780734496351_1201654977310732178_n.jpg",
+    "/img/SaveGram.App_462698026_480972724898097_2256248796792058548_n.jpg",
+    "/img/SaveGram.App_491493368_18362110990131749_3884788045880126240_n.jpg",
+    "/img/SaveGram.App_470222005_17951399894894480_8964097037351499441_n (1).jpg",
+    "/img/banner2.webp",
   ];
 
   // useEffect(() => {

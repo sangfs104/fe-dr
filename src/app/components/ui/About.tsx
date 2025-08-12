@@ -48,10 +48,10 @@ const FashionIntro3D: React.FC = () => {
 
   // Dữ liệu hình ảnh và thông tin
   const heroImages: string[] = [
-    "https://www.instagram.com/p/DDRvgDrIhQC/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
-    "https://www.instagram.com/reel/DCqDUqYvyGU/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
-    "https://www.instagram.com/p/C6SQQj-PaCI/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
-    "https://www.instagram.com/p/C2g_cXNvk2d/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+    "/img/SaveGram.App_468841963_18366054859189767_8427479686452264225_n.jpg",
+    "/img/SaveGram.App_510327413_18287235784302044_3286915512183082238_n.jpg",
+    "/img/SaveGram.App_491492971_17949785840961794_8276583753359782555_n.jpg",
+    "/img/SaveGram.App_529235278_17961634514961794_2441183722785595798_n.jpg",
   ];
 
   const teamMembers: TeamMember[] = [
@@ -82,7 +82,7 @@ const FashionIntro3D: React.FC = () => {
     {
       name: "Sang Nguyễn",
       role: "Style Consultant",
-      image: "../../../../public/img/sang.webp", // Adjusted to local path
+      image: "/img/sang.webp", // Adjusted to local path
       description: "Tư vấn phong cách cá nhân cho khách hàng VIP",
     },
   ];
@@ -439,7 +439,7 @@ const FashionIntro3D: React.FC = () => {
             >
               <div className="relative">
                 <Image
-                  src="../../../../public/img/loginae.png"
+                  src="/img/loginae.png"
                   alt="Fashion Store"
                   width={800}
                   height={600}

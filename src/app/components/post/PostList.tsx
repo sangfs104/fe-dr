@@ -503,6 +503,7 @@ interface Post {
   type?: string;
   product?: Product;
   image_url?: string; 
+    images?: string[];
 }
 
 interface Comment {
@@ -991,7 +992,7 @@ const reactionColors: { [key: string]: string } = {
               </>
             )}
           </motion.button>
-          <AnimatePresence>
+          {/* <AnimatePresence>
             {showProduct && (
               <motion.div
                 initial={{ opacity: 0, y: 12 }}
@@ -1001,6 +1002,19 @@ const reactionColors: { [key: string]: string } = {
                 className="not-prose mt-3"
               >
                 <ProductCard product={post.product} />
+              </motion.div>
+            )}
+          </AnimatePresence> */}
+            <AnimatePresence>
+            {showProduct && (
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 12 }}
+                transition={{ duration: 0.4 }}
+                className="not-prose mt-3"
+              >
+                <ProductCard product={{ ...post.product, images: post.images || post.product.img.map((i) => `/img/${i.name}`) }} />
               </motion.div>
             )}
           </AnimatePresence>

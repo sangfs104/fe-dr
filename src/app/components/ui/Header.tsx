@@ -495,6 +495,13 @@ export default function Header() {
             {language === "vi" ? "Tin tức" : "News"}
             <span className="absolute inset-x-0 -bottom-2 h-0.5 bg-[tomato] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-200"></span>
           </button>
+          <button
+            onClick={() => handleLinkClick("/about")}
+            className="relative hover:text-[tomato] transition-all duration-200 group"
+          >
+            {language === "vi" ? "Giới thiệu" : "About"}
+            <span className="absolute inset-x-0 -bottom-2 h-0.5 bg-[tomato] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-200"></span>
+          </button>
         </nav>
       </div>
 

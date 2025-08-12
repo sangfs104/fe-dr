@@ -48,38 +48,35 @@ const FashionIntro3D: React.FC = () => {
 
   // Dữ liệu hình ảnh và thông tin
   const heroImages: string[] = [
-    "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&h=800&fit=crop",
-    "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=1200&h=800&fit=crop",
-    "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=1200&h=800&fit=crop",
-    "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=1200&h=800&fit=crop",
+    "https://www.instagram.com/p/DDRvgDrIhQC/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+    "https://www.instagram.com/reel/DCqDUqYvyGU/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+    "https://www.instagram.com/p/C6SQQj-PaCI/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+    "https://www.instagram.com/p/C2g_cXNvk2d/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
   ];
 
   const teamMembers: TeamMember[] = [
     {
       name: "Vinh Võ",
       role: "Creative Director",
-      image:
-        "../../../../public/img/z6899203655714_5deb655bad3925f4ac103a3ddc39101d.jpg", // Adjusted to local path
+      image: "/img/z6899203655714_5deb655bad3925f4ac103a3ddc39101d.jpg", // Adjusted to local path
       description: "Với hơn 10 năm kinh nghiệm trong ngành thời trang",
     },
     {
       name: "Bảo Lê",
       role: "Fashion Designer",
-      image: "../../../../public/img/cv avt.jpg", // Adjusted to local path
+      image: "/img/cv avt.jpg", // Adjusted to local path
       description: "Chuyên gia thiết kế với tầm nhìn sáng tạo độc đáo",
     },
     {
       name: "Quyền Hứa",
       role: "Style Consultant",
-      image:
-        "../../../../public/img/z6899200362085_eeb071a22c7b71ce59471c11c1e91b35.jpg", // Adjusted to local path
+      image: "/img/z6899200362085_eeb071a22c7b71ce59471c11c1e91b35.jpg", // Adjusted to local path
       description: "Tư vấn phong cách cá nhân cho khách hàng VIP",
     },
     {
       name: "Đăng Lê",
       role: "Style Consultant",
-      image:
-        "../../../../public/img/z6395017736866_a46ee65a02ad4d564d0f13b601489f81.jpg", // Adjusted to local path
+      image: "/img/z6395017736866_a46ee65a02ad4d564d0f13b601489f81.jpg", // Adjusted to local path
       description: "Tư vấn phong cách cá nhân cho khách hàng VIP",
     },
     {

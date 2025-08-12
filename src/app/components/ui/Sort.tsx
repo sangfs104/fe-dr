@@ -321,7 +321,7 @@ export default function BreadcrumbFilter({
   }, [currentCategory]);
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/category`)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/category`)
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data.data)) {

@@ -236,22 +236,31 @@ export default function CartPage() {
     ? cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
     : 0;
 
-  const handleQuantityChange = (
-    item: CartItem,
-    newQuantity: number,
-    event?: React.ChangeEvent<HTMLInputElement>
+  // Handle quantity update
+  const handleUpdateQuantity = (
+    productId: number,
+    variantId: number,
+    newQuantity: number
   ) => {
-    const updatedQuantity = Math.max(1, newQuantity); // Đảm bảo số lượng không dưới 1
+    console.log("Updating quantity:", { productId, variantId, newQuantity }); // Debugging
     dispatch(
       updateQuantity({
-        productId: +item.productId,
-        variantId: +item.variantId,
-        newQuantity: updatedQuantity,
+        productId,
+        variantId,
+        newQuantity,
       })
     );
-    if (event) {
-      event.target.value = updatedQuantity.toString(); // Đồng bộ giá trị input
-    }
+  };
+
+  // Handle item removal
+  const handleRemoveFromCart = (productId: number, variantId: number) => {
+    console.log("Removing item:", { productId, variantId }); // Debugging
+    dispatch(
+      removeFromCart({
+        productId,
+        variantId,
+      })
+    );
   };
 
   return (
@@ -284,7 +293,7 @@ export default function CartPage() {
             {isClient &&
               cartItems.map((item: CartItem, i: number) => (
                 <motion.div
-                  key={i}
+                  key={`${item.productId}-${item.variantId}`} // Ensure unique key
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 20 }}
@@ -314,7 +323,11 @@ export default function CartPage() {
                         whileTap={{ scale: 0.9 }}
                         className="w-8 h-8 bg-gray-100 border border-gray-300 rounded-full flex items-center justify-center disabled:opacity-50 hover:bg-gray-200 transition-colors"
                         onClick={() =>
-                          handleQuantityChange(item, item.quantity - 1)
+                          handleUpdateQuantity(
+                            item.productId,
+                            item.variantId,
+                            item.quantity - 1
+                          )
                         }
                         disabled={item.quantity <= 1}
                       >
@@ -323,21 +336,19 @@ export default function CartPage() {
                       <input
                         type="number"
                         value={item.quantity}
-                        onChange={(e) =>
-                          handleQuantityChange(
-                            item,
-                            parseInt(e.target.value) || 1
-                          )
-                        }
+                        readOnly
                         className="w-12 h-8 border border-gray-300 rounded-md text-center text-sm bg-gray-50"
-                        min="1"
                       />
                       <motion.button
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
                         className="w-8 h-8 bg-gray-100 border border-gray-300 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors"
                         onClick={() =>
-                          handleQuantityChange(item, item.quantity + 1)
+                          handleUpdateQuantity(
+                            item.productId,
+                            item.variantId,
+                            item.quantity + 1
+                          )
                         }
                       >
                         +
@@ -351,12 +362,7 @@ export default function CartPage() {
                       whileTap={{ scale: 0.9 }}
                       className="text-red-500 hover:text-red-600 transition-colors"
                       onClick={() =>
-                        dispatch(
-                          removeFromCart({
-                            productId: +item.productId,
-                            variantId: +item.variantId,
-                          })
-                        )
+                        handleRemoveFromCart(item.productId, item.variantId)
                       }
                     >
                       <X size={20} />

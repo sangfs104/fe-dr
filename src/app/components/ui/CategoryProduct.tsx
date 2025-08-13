@@ -372,7 +372,8 @@ interface Category {
   id: number;
   name: string;
   image_url?: string;
-  status: number;
+  status: number | string; // Updated to accept string or number
+  image_url_full?: string;
 }
 
 interface CategoryProductProps {
@@ -389,7 +390,6 @@ export default function CategoryProduct({
   const [loading, setLoading] = useState(!initialCategories.length);
   const [activeCategory, setActiveCategory] = useState<number | null>(null);
   const [isVisible, setIsVisible] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -398,52 +398,29 @@ export default function CategoryProduct({
         return;
       }
 
-      setLoading(true);
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-        if (!apiUrl) {
-          throw new Error("API URL is not defined");
-        }
-
         const [catRes, prodRes] = await Promise.all([
-          fetch(`${apiUrl}/api/category`, { cache: "no-store" }),
-          fetch(`${apiUrl}/api/product`, { cache: "no-store" }),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/category`, { cache: "no-store" }),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/product`, { cache: "no-store" })
         ]);
-
-        if (!catRes.ok || !prodRes.ok) {
-          throw new Error(`API error: ${catRes.status} ${prodRes.status}`);
-        }
 
         const catJson = await catRes.json();
         const prodJson = await prodRes.json();
 
-        console.log("Raw categories:", catJson.data);
-        console.log("Raw products:", prodJson);
+        const fetchedCategories = Array.isArray(catJson.data)
+          ? catJson.data.filter((c: Category) => c.status == "1") // Use == to handle string "1"
+          : [];
 
-        // Lấy tất cả danh mục (bỏ điều kiện status === 1)
-        const fetchedCategories = Array.isArray(catJson.data) ? catJson.data : [];
-        // Lấy từ prodJson.data.data nếu API trả về dạng { data: [], ... }
-        const fetchedProducts = Array.isArray(prodJson.data?.data) ? prodJson.data.data : [];
-
-        console.log("Filtered categories:", fetchedCategories);
-        console.log("Filtered products:", fetchedProducts);
-
-        if (fetchedCategories.length === 0) {
-          console.warn("No categories found");
-        }
-        if (fetchedProducts.length === 0) {
-          console.warn("No products found");
-        }
+        const fetchedProducts = Array.isArray(prodJson.data)
+          ? prodJson.data
+          : Array.isArray(prodJson.data?.data)
+          ? prodJson.data.data
+          : [];
 
         setCategories(fetchedCategories);
         setProducts(fetchedProducts);
       } catch (error) {
         console.error("Error fetching data:", error);
-        setError(
-          error instanceof Error
-            ? error.message
-            : "An unexpected error occurred"
-        );
       } finally {
         setLoading(false);
         setIsVisible(true);
@@ -488,14 +465,6 @@ export default function CategoryProduct({
             <div className="absolute inset-0 w-16 h-16 border-4 border-transparent border-t-[#FF8A50] rounded-full animate-spin animation-delay-75"></div>
           </div>
         </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="px-4 sm:px-10 md:px-20 lg:px-40 py-12 bg-gradient-to-br from-gray-50 via-white to-orange-50 mt-4 text-center text-red-500">
-        {error}. Please try again later or check the API connection.
       </div>
     );
   }
@@ -631,7 +600,7 @@ export default function CategoryProduct({
             </div>
 
             {products.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-4 -mt-10">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-4 -gap-y-4 -mt-10">
                 {products.slice(0, 6).map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}
@@ -665,35 +634,30 @@ export default function CategoryProduct({
   );
 }
 
-// Server Component wrapper
 export async function CategoryProductServer() {
   let categories: Category[] = [];
   let products: Product[] = [];
 
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-    if (!apiUrl) {
-      throw new Error("API URL is not defined");
-    }
-
     const [catRes, prodRes] = await Promise.all([
-      fetch(`${apiUrl}/api/category`, { cache: "no-store" }),
-      fetch(`${apiUrl}/api/product`, { cache: "no-store" }),
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/category`, { cache: "no-store" }),
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/product`, { cache: "no-store" }),
     ]);
-
-    if (!catRes.ok || !prodRes.ok) {
-      throw new Error(`API error: ${catRes.status} ${prodRes.status}`);
-    }
 
     const catJson = await catRes.json();
     const prodJson = await prodRes.json();
 
-    // Lấy tất cả danh mục (bỏ điều kiện status === 1)
-    categories = Array.isArray(catJson.data) ? catJson.data : [];
-    // Lấy từ prodJson.data.data nếu API trả về dạng { data: [], ... }
-    products = Array.isArray(prodJson.data?.data) ? prodJson.data.data : [];
+    categories = Array.isArray(catJson.data)
+      ? catJson.data.filter((c: Category) => c.status == "1") 
+      : [];
+
+    products = Array.isArray(prodJson.data)
+      ? prodJson.data
+      : Array.isArray(prodJson.data?.data)
+      ? prodJson.data.data
+      : [];
   } catch (error) {
-    console.error("Server-side error fetching data:", error);
+    console.error("Error fetching data:", error);
   }
 
   return (

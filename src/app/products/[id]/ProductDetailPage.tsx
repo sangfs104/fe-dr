@@ -298,7 +298,38 @@ export default function ProductDetailClient({
     });
     setShowModal(true);
   };
+  const handleBuyNow = () => {
+    if (!selectedVariant) {
+      toast.error("Vui lòng chọn kích thước", {
+        icon: "⚠️",
+        style: {
+          borderRadius: "16px",
+          background: "#FEF2F2",
+          color: "#DC2626",
+          border: "1px solid #FECACA",
+        },
+      });
+      return;
+    }
 
+    // Add the selected product to the cart
+    dispatch(
+      addToCart({
+        productId: product.id,
+        variantId: selectedVariant.id,
+        name: product.name,
+        img: mainImg,
+        price: getEffectivePrice(selectedVariant),
+        sale_price: selectedVariant.sale_price,
+        size: selectedVariant.size,
+        quantity,
+        variantList: product.variant,
+      })
+    );
+
+    // Redirect to the payment page with the selected product ID
+    window.location.href = `/payment?ids=${product.id}`;
+  };
   const handleSubmitReview = async () => {
     const token =
       typeof window !== "undefined" ? localStorage.getItem("token") : null;
@@ -1101,6 +1132,18 @@ export default function ProductDetailClient({
                 </div>
               </motion.button>
 
+              {/* <motion.button
+                whileHover={{
+                  scale: 1.02,
+                  boxShadow: "0 10px 25px rgba(0, 0, 0, 0.15)",
+                  y: -2,
+                  backgroundColor: "#F3F4F6",
+                }}
+                whileTap={{ scale: 0.98 }}
+                className="px-6 sm:px-8 py-4 sm:py-5 bg-white border-2 border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900 rounded-xl sm:rounded-2xl font-bold text-base sm:text-lg transition-all duration-300 shadow-lg"
+              >
+                Mua ngay
+              </motion.button> */}
               <motion.button
                 whileHover={{
                   scale: 1.02,
@@ -1109,6 +1152,7 @@ export default function ProductDetailClient({
                   backgroundColor: "#F3F4F6",
                 }}
                 whileTap={{ scale: 0.98 }}
+                onClick={handleBuyNow} // Attach handleBuyNow function
                 className="px-6 sm:px-8 py-4 sm:py-5 bg-white border-2 border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900 rounded-xl sm:rounded-2xl font-bold text-base sm:text-lg transition-all duration-300 shadow-lg"
               >
                 Mua ngay

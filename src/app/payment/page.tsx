@@ -226,7 +226,6 @@ function PaymentPage() {
     const token = localStorage.getItem("token");
     if (!token) {
       toast.error("Vui lòng đăng nhập trước khi thanh toán.", {
-        icon: "🔒",
         style: {
           borderRadius: "16px",
           background: "#FEF2F2",
@@ -242,7 +241,6 @@ function PaymentPage() {
 
     if (itemsToPay.length === 0) {
       toast.error("Giỏ hàng của bạn đang trống.", {
-        icon: "🛒",
         style: {
           borderRadius: "16px",
           background: "#FEF2F2",
@@ -255,7 +253,6 @@ function PaymentPage() {
 
     if (!validateForm()) {
       toast.error("Vui lòng điền đầy đủ thông tin bắt buộc để thanh toán.", {
-        icon: "⚠️",
         style: {
           borderRadius: "16px",
           background: "#FEF2F2",
@@ -330,7 +327,6 @@ function PaymentPage() {
         window.location.href = response.data.payment_url;
       } else if (paymentMethod === "cod") {
         toast.success("Đặt hàng thành công! Bạn sẽ thanh toán khi nhận hàng.", {
-          icon: "✅",
           style: {
             borderRadius: "16px",
             background: "#F0FDF4",
@@ -347,7 +343,6 @@ function PaymentPage() {
     } catch (err) {
       console.error("Payment error", err);
       toast.error("Có lỗi xảy ra khi xử lý đơn hàng. Vui lòng thử lại.", {
-        icon: "❌",
         style: {
           borderRadius: "16px",
           background: "#FEF2F2",

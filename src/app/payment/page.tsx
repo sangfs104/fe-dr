@@ -122,30 +122,150 @@ function PaymentPage() {
     return Object.keys(newErrors).length === 0;
   };
 
+  // const handlePayment = async () => {
+  //   const token = localStorage.getItem("token");
+  //   if (!token) {
+  //     toast.error("Vui lòng đăng nhập trước khi thanh toán.");
+  //     setTimeout(() => {
+  //       window.location.href = "/login";
+  //     }, 2500);
+  //     return;
+  //   }
+
+  //   if (cartItems.length === 0) {
+  //     toast.error("Giỏ hàng của bạn đang trống.");
+  //     return;
+  //   }
+
+  //   if (!validateForm()) {
+  //     toast.error("Vui lòng điền đầy đủ thông tin bắt buộc.");
+  //     return;
+  //   }
+  //   try {
+  //     const token = localStorage.getItem("token");
+  //     const cartData = cartItems.map((item) => ({
+  //       variant_id: item.variantId,
+  //       // price: item.price, //tiền vnpay lấy đúng
+  //       quantity: item.quantity,
+  //     }));
+
+  //     const requestBody = {
+  //       cart: cartData,
+  //       coupon_id: couponId,
+  //       shipping_id: 1,
+  //       address_id: 1,
+  //       payment_id: paymentMethod === "cod" ? 2 : 1,
+  //       order_desc:
+  //         paymentMethod === "cod"
+  //           ? "Thanh toán khi nhận hàng"
+  //           : "Thanh toán đơn hàng VNPAY",
+  //       bank_code: "",
+  //       shipping_fee: shippingFee,
+  //       customer_info: {
+  //         first_name: formData.firstName,
+  //         last_name: formData.lastName,
+  //         company: formData.company,
+  //         country: formData.country,
+  //         address: formData.address,
+  //         city: formData.city,
+  //         phone: formData.phone,
+  //         email: formData.email,
+  //         note: formData.note,
+  //       },
+  //     };
+
+  //     // const apiUrl =
+  //     //   paymentMethod === "cod"
+  //     //     ? "http://localhost:8000/api/payment/cod"
+  //     //     : "http://localhost:8000/api/payment/vnpay";
+  //     const apiUrl =
+  //       paymentMethod === "cod"
+  //         ? `${process.env.NEXT_PUBLIC_API_URL}/api/payment/cod`
+  //         : `${process.env.NEXT_PUBLIC_API_URL}/api/payment/vnpay`;
+  //     const response = await axios.post(apiUrl, requestBody, {
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     });
+
+  //     const order = response.data.order;
+  //     const orderWithPaymentMethod = {
+  //       ...order,
+  //       total_price: finalTotal,
+  //       payment_method: paymentMethod,
+  //       items: cartItems.map((item) => ({
+  //         quantity: item.quantity,
+  //         variant: {
+  //           name: item.name,
+  //           price: item.price,
+  //           image_url: item.img,
+  //         },
+  //       })),
+  //     };
+
+  //     if (paymentMethod === "bank" && response.data.payment_url) {
+  //       localStorage.setItem(
+  //         "latestOrder",
+  //         JSON.stringify(orderWithPaymentMethod)
+  //       );
+  //       window.location.href = response.data.payment_url;
+  //     } else if (paymentMethod === "cod") {
+  //       toast.success("Đặt hàng thành công! Bạn sẽ thanh toán khi nhận hàng.");
+  //       localStorage.setItem(
+  //         "latestOrder",
+  //         JSON.stringify(orderWithPaymentMethod)
+  //       );
+  //       window.location.href = "/order-success";
+  //     }
+  //   } catch (err) {
+  //     console.error("Payment error", err);
+  //     toast.error("Có lỗi xảy ra khi xử lý đơn hàng. Vui lòng thử lại.");
+  //   }
+  // };
   const handlePayment = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
-      toast.error("Vui lòng đăng nhập trước khi thanh toán.");
+      toast.error("Vui lòng đăng nhập trước khi thanh toán.", {
+        style: {
+          borderRadius: "16px",
+          background: "#FEF2F2",
+          color: "#DC2626",
+          border: "1px solid #FECACA",
+        },
+      });
       setTimeout(() => {
         window.location.href = "/login";
       }, 2500);
       return;
     }
 
-    if (cartItems.length === 0) {
-      toast.error("Giỏ hàng của bạn đang trống.");
+    if (itemsToPay.length === 0) {
+      toast.error("Giỏ hàng của bạn đang trống.", {
+        style: {
+          borderRadius: "16px",
+          background: "#FEF2F2",
+          color: "#DC2626",
+          border: "1px solid #FECACA",
+        },
+      });
       return;
     }
 
     if (!validateForm()) {
-      toast.error("Vui lòng điền đầy đủ thông tin bắt buộc.");
+      toast.error("Vui lòng điền đầy đủ thông tin bắt buộc để thanh toán.", {
+        style: {
+          borderRadius: "16px",
+          background: "#FEF2F2",
+          color: "#DC2626",
+          border: "1px solid #FECACA",
+        },
+      });
       return;
     }
+
     try {
-      const token = localStorage.getItem("token");
-      const cartData = cartItems.map((item) => ({
+      const cartData = itemsToPay.map((item) => ({
         variant_id: item.variantId,
-        // price: item.price, //tiền vnpay lấy đúng
         quantity: item.quantity,
       }));
 
@@ -174,10 +294,6 @@ function PaymentPage() {
         },
       };
 
-      // const apiUrl =
-      //   paymentMethod === "cod"
-      //     ? "http://localhost:8000/api/payment/cod"
-      //     : "http://localhost:8000/api/payment/vnpay";
       const apiUrl =
         paymentMethod === "cod"
           ? `${process.env.NEXT_PUBLIC_API_URL}/api/payment/cod`
@@ -193,7 +309,7 @@ function PaymentPage() {
         ...order,
         total_price: finalTotal,
         payment_method: paymentMethod,
-        items: cartItems.map((item) => ({
+        items: itemsToPay.map((item) => ({
           quantity: item.quantity,
           variant: {
             name: item.name,
@@ -210,7 +326,14 @@ function PaymentPage() {
         );
         window.location.href = response.data.payment_url;
       } else if (paymentMethod === "cod") {
-        toast.success("Đặt hàng thành công! Bạn sẽ thanh toán khi nhận hàng.");
+        toast.success("Đặt hàng thành công! Bạn sẽ thanh toán khi nhận hàng.", {
+          style: {
+            borderRadius: "16px",
+            background: "#F0FDF4",
+            color: "#16A34A",
+            border: "1px solid #BBF7D0",
+          },
+        });
         localStorage.setItem(
           "latestOrder",
           JSON.stringify(orderWithPaymentMethod)
@@ -219,10 +342,16 @@ function PaymentPage() {
       }
     } catch (err) {
       console.error("Payment error", err);
-      toast.error("Có lỗi xảy ra khi xử lý đơn hàng. Vui lòng thử lại.");
+      toast.error("Có lỗi xảy ra khi xử lý đơn hàng. Vui lòng thử lại.", {
+        style: {
+          borderRadius: "16px",
+          background: "#FEF2F2",
+          color: "#DC2626",
+          border: "1px solid #FECACA",
+        },
+      });
     }
   };
-
   useEffect(() => {
     const token = localStorage.getItem("token");
 

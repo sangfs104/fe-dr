@@ -67,6 +67,7 @@
 // };
 
 // export default ServiceHighlights;
+
 "use client"; // đảm bảo chạy client-side cho animation
 
 import { FC } from "react";

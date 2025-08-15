@@ -389,6 +389,7 @@ type UserInfo = {
   phone: string | null;
   role: string;
   day_of_birth?: string | null;
+  avatar_url?: string | null;
   avatar?: string | null;
   is_active?: string;
   created_at?: string;
@@ -540,7 +541,7 @@ export default function UserInfo() {
         )}
       </div>
 
-      <div className="flex flex-col sm:flex-row items-center gap-4 mb-6 text-center sm:text-left">
+      {/* <div className="flex flex-col sm:flex-row items-center gap-4 mb-6 text-center sm:text-left">
         {avatarPreview ? (
           <Image
             width={96}
@@ -552,7 +553,63 @@ export default function UserInfo() {
         ) : user.avatar ? (
           <div className="relative group w-20 h-20 sm:w-24 sm:h-24">
             <Image
-              src={user.avatar} // Use the avatar URL directly from the API
+              src={user.avatar_url}
+              alt="Avatar"
+              fill
+              className="rounded-full object-cover border"
+              sizes="96px"
+            />
+            {isEditing && (
+              <>
+                <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+                  <span className="text-white text-sm">Thay ảnh</span>
+                </div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setAvatarFile(file);
+                      setAvatarPreview(URL.createObjectURL(file));
+                    }
+                  }}
+                  className="absolute inset-0 opacity-0 cursor-pointer"
+                />
+              </>
+            )}
+          </div>
+        ) : (
+          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center font-bold text-xl uppercase">
+            {user.name.charAt(0)}
+          </div>
+        )}
+        <div>
+          <div className="font-semibold text-base">{user.name}</div>
+          <span
+            className={`text-xs font-medium px-2 py-1 rounded-full mt-1 inline-block ${
+              user.role === "admin"
+                ? "bg-red-100 text-red-600"
+                : "bg-blue-100 text-blue-600"
+            }`}
+          >
+            {user.role === "admin" ? "Quản trị viên" : "Khách hàng"}
+          </span>
+        </div>
+      </div> */}
+      <div className="flex flex-col sm:flex-row items-center gap-4 mb-6 text-center sm:text-left">
+        {avatarPreview ? (
+          <Image
+            width={96}
+            height={96}
+            src={avatarPreview} // Safe to use since avatarPreview is checked
+            alt="Avatar Preview"
+            className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border"
+          />
+        ) : user.avatar_url ? (
+          <div className="relative group w-20 h-20 sm:w-24 sm:h-24">
+            <Image
+              src={user.avatar_url}
               alt="Avatar"
               fill
               className="rounded-full object-cover border"
@@ -596,7 +653,6 @@ export default function UserInfo() {
           </span>
         </div>
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {isEditing ? (
           <>

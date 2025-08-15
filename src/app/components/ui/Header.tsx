@@ -1017,7 +1017,7 @@ export default function Header() {
                   //   className="w-6 h-6 rounded-full object-cover border group-hover:border-[tomato] transition-all duration-200 group-hover:scale-110"
                   // />
                   <Image
-                    src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${user.avatar}`}
+                    src={`${process.env.NEXT_PUBLIC_API_URL}/public/img/${user.avatar}`}
                     width={24}
                     height={24}
                     alt="Avatar"

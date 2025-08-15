@@ -32,7 +32,7 @@ import { addToWishlistAPI, fetchWishlist } from "@/store/wishlistSlice";
 import { useRouter } from "next/navigation";
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
-const aiAvatar = `${apiUrl.replace(/\/$/, "")}/img/ai-avatar.webp`;
+const aiAvatar = `${apiUrl.replace(/\/$/, "")}public/img/ai-avatar.webp`;
 
 type ProductVariant = {
   id: number;
@@ -485,6 +485,7 @@ export default function ChatBox({ onClose }: { onClose: () => void }) {
                     width={40}
                     height={40}
                     className="w-10 h-10 rounded-full shadow-md object-cover border-2 border-orange-200"
+                    unoptimized
                   />
 
                   <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white flex items-center justify-center">

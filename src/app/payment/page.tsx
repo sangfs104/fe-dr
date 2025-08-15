@@ -931,7 +931,8 @@
 
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import axios from "axios";
+// import axios from "axios";
+import axios, { AxiosError } from "axios"; // Import Axios and AxiosError
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faChevronDown,
@@ -953,7 +954,7 @@ function PaymentPage() {
   const [discount, setDiscount] = useState(0);
   const [couponId, setCouponId] = useState<number | null>(null);
   const [shippingFee, setShippingFee] = useState<number>(0);
-
+  const [couponApplied, setCouponApplied] = useState(false);
   // Lấy danh sách sản phẩm được chọn từ wishlist
   const selectedItems = useSelector(
     (state: RootState) => state.wishlist.selectedForPayment
@@ -1555,7 +1556,7 @@ function PaymentPage() {
               </div>
             </div>
 
-            <div className="mt-6 text-[1.05em] text-[#374151]">
+            {/* <div className="mt-6 text-[1.05em] text-[#374151]">
               <div className="flex items-center flex-wrap gap-1">
                 <span>Có mã giảm giá?</span>
                 <button
@@ -1627,8 +1628,100 @@ function PaymentPage() {
                   </div>
                 </div>
               )}
-            </div>
+            </div> */}
+            <div className="mt-6 text-[1.05em] text-[#374151]">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <span className="whitespace-nowrap">Có mã giảm giá?</span>
+                <button
+                  type="button"
+                  onClick={() => setShowCoupon(!showCoupon)}
+                  className="flex items-center text-[#111827] font-bold hover:text-[#374151] transition"
+                >
+                  <span className="whitespace-nowrap">
+                    Nhấn vào đây để nhập mã giảm giá
+                  </span>
+                  <FontAwesomeIcon
+                    icon={faChevronDown}
+                    className="ml-1 text-sm"
+                  />
+                </button>
+              </div>
 
+              {showCoupon && (
+                <div className="mt-3 p-4 rounded-xl border border-dashed border-gray-400 bg-white shadow animate-fadein flex flex-col">
+                  <span className="mb-2 text-gray">
+                    Nếu bạn có mã giảm giá, vui lòng áp dụng nó bên dưới.
+                  </span>
+                  <div className="flex gap-3">
+                    <input
+                      type="text"
+                      className="flex-1 min-w-0 rounded-lg border border-gray-400 bg-white px-3 py-2 font-normal focus:outline-none focus:ring-0 focus:border-gray-400"
+                      placeholder="Mã giảm giá"
+                      value={couponCode}
+                      onChange={(e) => setCouponCode(e.target.value)}
+                    />
+
+                    <button
+                      disabled={couponApplied}
+                      className={`shrink-0 px-5 py-2 rounded-lg text-white font-bold shadow transition
+                      ${
+                        couponApplied
+                          ? "bg-gray-400 cursor-not-allowed"
+                          : "bg-[#FF5722] hover:bg-[#ea580c]"
+                      }`}
+                      onClick={async (e) => {
+                        e.preventDefault();
+
+                        if (couponApplied) {
+                          toast.error("Bạn đã áp dụng mã giảm giá rồi!");
+                          return;
+                        }
+
+                        if (!couponCode.trim()) {
+                          toast.error("Vui lòng nhập mã giảm giá.");
+                          return;
+                        }
+
+                        try {
+                          const token = localStorage.getItem("token");
+                          const response = await axios.post(
+                            "http://localhost:8000/api/apply-coupon",
+                            { code: couponCode.trim() },
+                            { headers: { Authorization: `Bearer ${token}` } }
+                          );
+
+                          const data = response.data;
+                          if (data.status === 200) {
+                            setDiscount(Number(data.coupon.discount_value));
+                            setCouponId(data.coupon.id);
+                            setCouponApplied(true); // đánh dấu đã áp dụng
+                            toast.success(
+                              data.message || "Áp dụng mã giảm giá thành công!"
+                            );
+                          } else {
+                            setDiscount(0);
+                            setCouponId(null);
+                            toast.error(
+                              data.message || "Mã giảm giá không hợp lệ."
+                            );
+                          }
+                        } catch (err) {
+                          setDiscount(0);
+                          setCouponId(null);
+                          const error = err as AxiosError<{ message: string }>;
+                          toast.error(
+                            error.response?.data?.message ||
+                              "Đã xảy ra lỗi khi kiểm tra mã giảm giá."
+                          );
+                        }
+                      }}
+                    >
+                      {couponApplied ? "ĐÃ ÁP DỤNG" : "ÁP DỤNG"}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
             <div className="mt-6">
               <label className="flex items-center gap-3 font-semibold cursor-pointer mb-2">
                 <input

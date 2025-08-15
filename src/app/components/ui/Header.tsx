@@ -1009,19 +1009,12 @@ export default function Header() {
                 onClick={() => router.push("/account")}
               >
                 {user.avatar ? (
-                  // <Image
-                  //   src={user.avatar} // Use the avatar URL directly from the API
-                  //   width={24}
-                  //   height={24}
-                  //   alt="Avatar"
-                  //   className="w-6 h-6 rounded-full object-cover border group-hover:border-[tomato] transition-all duration-200 group-hover:scale-110"
-                  // />
                   <Image
-                    src={`${process.env.NEXT_PUBLIC_API_URL}/public/img/${user.avatar}`}
+                    // src={user.avatar} // Use the avatar URL directly from the API
+                    src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/${user.avatar}`}
                     width={24}
                     height={24}
                     alt="Avatar"
-                    unoptimized
                     className="w-6 h-6 rounded-full object-cover border group-hover:border-[tomato] transition-all duration-200 group-hover:scale-110"
                   />
                 ) : (

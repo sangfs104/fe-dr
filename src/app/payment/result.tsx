@@ -32,7 +32,9 @@ export default function PaymentResultPage() {
       try {
         const urlParams = new URLSearchParams(window.location.search);
         const response = await axios.get(
-          `http://localhost:8000/api/payment/vnpay/return?${urlParams.toString()}`
+          `${
+            process.env.NEXT_PUBLIC_API_URL
+          }/api/payment/vnpay/return?${urlParams.toString()}`
         );
         setResult(response.data);
       } catch (error) {

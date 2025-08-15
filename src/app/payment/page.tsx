@@ -1685,7 +1685,7 @@ function PaymentPage() {
                         try {
                           const token = localStorage.getItem("token");
                           const response = await axios.post(
-                            "http://localhost:8000/api/apply-coupon",
+                            `${process.env.NEXT_PUBLIC_API_URL}/api/apply-coupon`,
                             { code: couponCode.trim() },
                             { headers: { Authorization: `Bearer ${token}` } }
                           );

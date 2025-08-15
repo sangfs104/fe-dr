@@ -32,7 +32,7 @@ import { addToWishlistAPI, fetchWishlist } from "@/store/wishlistSlice";
 import { useRouter } from "next/navigation";
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
-const aiAvatar = `${apiUrl.replace(/\/$/, "")}public/img/ai-avatar.webp`;
+const aiAvatar = `${apiUrl.replace(/\/$/, "")}/public/img/ai-avatar.webp`;
 
 type ProductVariant = {
   id: number;

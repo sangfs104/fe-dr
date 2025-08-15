@@ -1,12 +1,10 @@
+
 "use client";
+
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { AxiosError } from "axios";
-import Image from "next/image";
-import { Suspense } from "react";
-
 import {
   faChevronDown,
   faReceipt,
@@ -17,7 +15,9 @@ import CheckoutProgress from "../components/ui/CheckoutProgress";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { RootState } from "@/store/store";
-import { useSearchParams } from "next/navigation";
+import Image from "next/image";
+import { Suspense } from "react";
+
 function PaymentPage() {
   const [showCoupon, setShowCoupon] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<"bank" | "cod">("bank");
@@ -25,17 +25,14 @@ function PaymentPage() {
   const [discount, setDiscount] = useState(0);
   const [couponId, setCouponId] = useState<number | null>(null);
   const [shippingFee, setShippingFee] = useState<number>(0);
-  const searchParams = useSearchParams();
-  const idsParam = searchParams.get("ids");
-  const selectedIds = idsParam ? idsParam.split(",").map(Number) : [];
-  const [couponApplied, setCouponApplied] = useState(false);
 
+  // Lấy danh sách sản phẩm được chọn từ wishlist
+  const selectedItems = useSelector(
+    (state: RootState) => state.wishlist.selectedForPayment
+  );
   const cartItems = useSelector((state: RootState) => state.cart.items);
-  // Lọc lại sản phẩm theo selectedIds
-  const itemsToPay =
-    selectedIds.length > 0
-      ? cartItems.filter((item) => selectedIds.includes(item.productId))
-      : cartItems;
+  const itemsToPay = selectedItems.length > 0 ? selectedItems : cartItems;
+
   const countryCityMap: {
     [key: string]: { value: string; label: string }[];
   } = {
@@ -122,106 +119,6 @@ function PaymentPage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  // const handlePayment = async () => {
-  //   const token = localStorage.getItem("token");
-  //   if (!token) {
-  //     toast.error("Vui lòng đăng nhập trước khi thanh toán.");
-  //     setTimeout(() => {
-  //       window.location.href = "/login";
-  //     }, 2500);
-  //     return;
-  //   }
-
-  //   if (cartItems.length === 0) {
-  //     toast.error("Giỏ hàng của bạn đang trống.");
-  //     return;
-  //   }
-
-  //   if (!validateForm()) {
-  //     toast.error("Vui lòng điền đầy đủ thông tin bắt buộc.");
-  //     return;
-  //   }
-  //   try {
-  //     const token = localStorage.getItem("token");
-  //     const cartData = cartItems.map((item) => ({
-  //       variant_id: item.variantId,
-  //       // price: item.price, //tiền vnpay lấy đúng
-  //       quantity: item.quantity,
-  //     }));
-
-  //     const requestBody = {
-  //       cart: cartData,
-  //       coupon_id: couponId,
-  //       shipping_id: 1,
-  //       address_id: 1,
-  //       payment_id: paymentMethod === "cod" ? 2 : 1,
-  //       order_desc:
-  //         paymentMethod === "cod"
-  //           ? "Thanh toán khi nhận hàng"
-  //           : "Thanh toán đơn hàng VNPAY",
-  //       bank_code: "",
-  //       shipping_fee: shippingFee,
-  //       customer_info: {
-  //         first_name: formData.firstName,
-  //         last_name: formData.lastName,
-  //         company: formData.company,
-  //         country: formData.country,
-  //         address: formData.address,
-  //         city: formData.city,
-  //         phone: formData.phone,
-  //         email: formData.email,
-  //         note: formData.note,
-  //       },
-  //     };
-
-  //     // const apiUrl =
-  //     //   paymentMethod === "cod"
-  //     //     ? "http://localhost:8000/api/payment/cod"
-  //     //     : "http://localhost:8000/api/payment/vnpay";
-  //     const apiUrl =
-  //       paymentMethod === "cod"
-  //         ? `${process.env.NEXT_PUBLIC_API_URL}/api/payment/cod`
-  //         : `${process.env.NEXT_PUBLIC_API_URL}/api/payment/vnpay`;
-  //     const response = await axios.post(apiUrl, requestBody, {
-  //       headers: {
-  //         Authorization: `Bearer ${token}`,
-  //       },
-  //     });
-
-  //     const order = response.data.order;
-  //     const orderWithPaymentMethod = {
-  //       ...order,
-  //       total_price: finalTotal,
-  //       payment_method: paymentMethod,
-  //       items: cartItems.map((item) => ({
-  //         quantity: item.quantity,
-  //         variant: {
-  //           name: item.name,
-  //           price: item.price,
-  //           image_url: item.img,
-  //         },
-  //       })),
-  //     };
-
-  //     if (paymentMethod === "bank" && response.data.payment_url) {
-  //       localStorage.setItem(
-  //         "latestOrder",
-  //         JSON.stringify(orderWithPaymentMethod)
-  //       );
-  //       window.location.href = response.data.payment_url;
-  //     } else if (paymentMethod === "cod") {
-  //       toast.success("Đặt hàng thành công! Bạn sẽ thanh toán khi nhận hàng.");
-  //       localStorage.setItem(
-  //         "latestOrder",
-  //         JSON.stringify(orderWithPaymentMethod)
-  //       );
-  //       window.location.href = "/order-success";
-  //     }
-  //   } catch (err) {
-  //     console.error("Payment error", err);
-  //     toast.error("Có lỗi xảy ra khi xử lý đơn hàng. Vui lòng thử lại.");
-  //   }
-  // };
   const handlePayment = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -266,7 +163,7 @@ function PaymentPage() {
     try {
       const cartData = itemsToPay.map((item) => ({
         variant_id: item.variantId,
-        quantity: item.quantity,
+        quantity: item.quantity || 1,
       }));
 
       const requestBody = {
@@ -310,7 +207,7 @@ function PaymentPage() {
         total_price: finalTotal,
         payment_method: paymentMethod,
         items: itemsToPay.map((item) => ({
-          quantity: item.quantity,
+          quantity: item.quantity || 1,
           variant: {
             name: item.name,
             price: item.price,
@@ -352,6 +249,7 @@ function PaymentPage() {
       });
     }
   };
+
   useEffect(() => {
     const token = localStorage.getItem("token");
 
@@ -410,7 +308,12 @@ function PaymentPage() {
         if (userData) {
           setFormData((prev) => ({
             ...prev,
-            name: userData.name,
+            firstName:
+              userData.name
+                ?.split(" ")
+                .slice(1)
+                .join(" ") || "",
+            lastName: userData.name?.split(" ")[0] || "",
             email: userData.email,
             phone: userData.phone,
           }));
@@ -423,33 +326,19 @@ function PaymentPage() {
   }, []);
 
   useEffect(() => {
-    const stored = localStorage.getItem("user");
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      const fullName = parsed.name || "";
-      const nameParts = fullName.trim().split(" ");
-      const firstName = nameParts.slice(1).join(" ") || "";
-      const lastName = nameParts[0] || "";
-      setFormData((prev) => ({
-        ...prev,
-        firstName,
-        lastName,
-        email: parsed.email || "",
-        phone: parsed.phone || "",
-      }));
+    if (itemsToPay.length === 0 && selectedItems.length > 0) {
+      toast.error(
+        "Các sản phẩm đã chọn không có trong giỏ hàng. Vui lòng kiểm tra lại."
+      );
     }
-  }, []);
+  }, [itemsToPay, selectedItems]);
 
-  // const subtotal = cartItems.reduce(
-  //   (sum, item) => sum + item.price * item.quantity,
-  //   0
-  // );
-  // const total = subtotal - discount;
   const subtotal = itemsToPay.reduce(
-    (sum, item) => sum + item.price * item.quantity,
+    (sum, item) => sum + item.price * (item.quantity || 1),
     0
   );
   const finalTotal = subtotal + shippingFee - discount;
+
   const calculateShippingFee = (address: string) => {
     const addr = address.toLowerCase();
     if (
@@ -474,7 +363,6 @@ function PaymentPage() {
 
       <div className="flex flex-col md:flex-row gap-10 max-w-[1400px] mx-auto my-10 px-[40px]">
         {/* Thông tin thanh toán */}
-        {/* <div className="flex-1 bg-[#fffff]/80 border border-[#ffd6c0] rounded-3xl shadow-2xl p-10 relative overflow-hidden"> */}
         <div className="flex-1 bg-white border border-gray-200 rounded-3xl shadow-lg p-10 relative overflow-hidden">
           <div className="flex items-center justify-center gap-4 mb-6 text-center">
             <span className="bg-gradient-to-br from-[#374151] to-[#111827] text-white rounded-xl p-2 shadow-lg">
@@ -499,7 +387,6 @@ function PaymentPage() {
                     className="w-full px-4 py-3 bg-transparent text-base font-normal text-gray-900 focus:outline-none rounded-md"
                   />
                 </div>
-
                 {errors.firstName && (
                   <p className="text-sm text-rose-500 pl-1 mt-1">
                     {errors.firstName}
@@ -517,7 +404,6 @@ function PaymentPage() {
                     className="w-full px-4 py-3 bg-transparent text-base font-normal text-gray-900 focus:outline-none rounded-md"
                   />
                 </div>
-
                 {errors.lastName && (
                   <p className="text-sm text-rose-500 pl-1 mt-1">
                     {errors.lastName}
@@ -527,7 +413,6 @@ function PaymentPage() {
             </div>
 
             <div className="flex flex-col gap-4">
-              {/* Quốc gia/Khu vực */}
               <div>
                 <div className="relative w-full rounded-md bg-white border-2 border-gray-300 focus-within:border-gray-800 transition">
                   <select
@@ -543,7 +428,6 @@ function PaymentPage() {
                     <option value="NB">Nhật Bản</option>
                     <option value="HQ">Hàn Quốc</option>
                   </select>
-
                   <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500">
                     <svg
                       className="w-4 h-4"
@@ -556,7 +440,6 @@ function PaymentPage() {
                     </svg>
                   </div>
                 </div>
-
                 {errors.country && (
                   <p className="text-sm text-rose-500 pl-1 mt-1">
                     {errors.country}
@@ -564,7 +447,6 @@ function PaymentPage() {
                 )}
               </div>
 
-              {/* Địa chỉ */}
               <div>
                 <div className="w-full rounded-md bg-white border-2 border-gray-300 focus-within:border-gray-800 transition">
                   <input
@@ -577,7 +459,6 @@ function PaymentPage() {
                     className="w-full px-4 py-3 bg-transparent text-base font-normal text-gray-900 focus:outline-none rounded-md"
                   />
                 </div>
-
                 {errors.address && (
                   <p className="text-sm text-rose-500 pl-1 mt-1">
                     {errors.address}
@@ -585,7 +466,6 @@ function PaymentPage() {
                 )}
               </div>
 
-              {/* Tỉnh / Thành phố */}
               <div>
                 <div className="relative w-full rounded-md bg-white border-2 border-gray-300 focus-within:border-gray-800 transition">
                   <select
@@ -603,7 +483,6 @@ function PaymentPage() {
                       </option>
                     ))}
                   </select>
-
                   <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500">
                     <svg
                       className="w-4 h-4"
@@ -616,7 +495,6 @@ function PaymentPage() {
                     </svg>
                   </div>
                 </div>
-
                 {errors.city && (
                   <p className="text-sm text-rose-500 pl-1 mt-1">
                     {errors.city}
@@ -624,7 +502,6 @@ function PaymentPage() {
                 )}
               </div>
 
-              {/* Số điện thoại + Email */}
               <div className="flex gap-4">
                 <div className="flex-1">
                   <div className="w-full rounded-md bg-white border-2 border-gray-300 focus-within:border-gray-800 transition">
@@ -637,7 +514,6 @@ function PaymentPage() {
                       className="w-full px-4 py-3 bg-transparent text-base font-normal text-gray-900 focus:outline-none rounded-md"
                     />
                   </div>
-
                   {errors.phone && (
                     <p className="text-sm text-rose-500 pl-1 mt-1">
                       {errors.phone}
@@ -655,7 +531,6 @@ function PaymentPage() {
                       className="w-full px-4 py-3 bg-transparent text-base font-normal text-gray-900 focus:outline-none rounded-md"
                     />
                   </div>
-
                   {errors.email && (
                     <p className="text-sm text-rose-500 pl-1 mt-1">
                       {errors.email}
@@ -664,7 +539,6 @@ function PaymentPage() {
                 </div>
               </div>
 
-              {/* Ghi chú */}
               <div>
                 <textarea
                   name="note"
@@ -677,9 +551,8 @@ function PaymentPage() {
             </div>
           </form>
         </div>
-        {/* Thông tin đơn hàng */}
+
         <div className="w-full max-w-lg mx-auto bg-white border border-gray-200 rounded-3xl shadow-xl p-10">
-          {/* Tiêu đề và icon */}
           <div className="flex items-center justify-center gap-4 mb-4 text-center">
             <span className="bg-gradient-to-br from-[#374151] to-[#111827] text-white rounded-xl p-2 shadow-lg">
               <FontAwesomeIcon icon={faBoxOpen} className="text-xl" />
@@ -689,31 +562,32 @@ function PaymentPage() {
             </h5>
           </div>
 
-          {/* Đường gạch ngang bên dưới */}
           <hr className="mb-6 border-t border-gray-300" />
-
           <div className="mt-7">
             <div className="flex justify-between font-medium text-gray border-b border-gray pb-2 mb-3 text-gray">
               <span>SẢN PHẨM</span>
             </div>
             {itemsToPay.map((item) => (
               <div
-                className="flex items-center justify-between py-3 border-dashed gap-4  rounded-xl transition"
+                className="flex items-center justify-between py-3 border-dashed gap-4 rounded-xl transition"
                 key={`${item.productId}-${item.variantId}`}
               >
                 <div className="flex items-center gap-3">
                   <Image
-                    src={item.img || "/placeholder.png"}
+                    src={
+                      Array.isArray(item.img)
+                        ? item.img[0]
+                        : item.img || "/placeholder.png"
+                    }
                     alt={item.name}
-                    width={56} // tương đương w-14
-                    height={56} // tương đương h-14
+                    width={56}
+                    height={56}
                     className="rounded-xl object-cover border"
                   />
-
                   <div>
                     <p className="font-normal text-gray">{item.name}</p>
                     <p className="text-sm text-gray font-normal no-underline">
-                      {item.size} / Số lượng: {item.quantity}
+                      {item.size} / Số lượng: {item.quantity || 1}
                     </p>
                   </div>
                 </div>
@@ -752,25 +626,19 @@ function PaymentPage() {
                 </span>
               </div>
             </div>
-            {/* Coupon */}
+
             <div className="mt-6 text-[1.05em] text-[#374151]">
-              <div className="flex items-center justify-between flex-wrap gap-2">
-                <span className="whitespace-nowrap">Có mã giảm giá?</span>
+              <div className="flex items-center flex-wrap gap-1">
+                <span>Có mã giảm giá?</span>
                 <button
                   type="button"
                   onClick={() => setShowCoupon(!showCoupon)}
-                  className="flex items-center text-[#111827] font-bold hover:text-[#374151] transition"
+                  className="text-[#111827] font-bold hover:text-[#374151] transition"
                 >
-                  <span className="whitespace-nowrap">
-                    Nhấn vào đây để nhập mã giảm giá
-                  </span>
-                  <FontAwesomeIcon
-                    icon={faChevronDown}
-                    className="ml-1 text-sm"
-                  />
+                  Nhấn vào đây để nhập mã giảm giá
+                  <FontAwesomeIcon icon={faChevronDown} className="ml-1" />
                 </button>
               </div>
-
               {showCoupon && (
                 <div className="mt-3 p-4 rounded-xl border border-dashed border-gray-400 bg-white shadow animate-fadein flex flex-col">
                   <span className="mb-2 text-gray">
@@ -779,46 +647,34 @@ function PaymentPage() {
                   <div className="flex gap-3">
                     <input
                       type="text"
-                      className="flex-1 min-w-0 rounded-lg border border-gray-400 bg-white px-3 py-2 font-normal focus:outline-none focus:ring-0 focus:border-gray-400"
+                      className="flex-1 rounded-lg border border-gray-400 bg-white px-3 py-2 font-normal focus:outline-none focus:ring-0 focus:border-gray-400"
                       placeholder="Mã giảm giá"
                       value={couponCode}
                       onChange={(e) => setCouponCode(e.target.value)}
                     />
-
                     <button
-                      disabled={couponApplied}
-                      className={`shrink-0 px-5 py-2 rounded-lg text-white font-bold shadow transition
-                      ${
-                        couponApplied
-                          ? "bg-gray-400 cursor-not-allowed"
-                          : "bg-[#FF5722] hover:bg-[#ea580c]"
-                      }`}
+                      className="px-5 py-2 rounded-lg bg-[#FF5722] text-white font-bold shadow hover:bg-[#ea580c] transition"
                       onClick={async (e) => {
                         e.preventDefault();
-
-                        if (couponApplied) {
-                          toast.error("Bạn đã áp dụng mã giảm giá rồi!");
-                          return;
-                        }
-
                         if (!couponCode.trim()) {
                           toast.error("Vui lòng nhập mã giảm giá.");
                           return;
                         }
-
                         try {
                           const token = localStorage.getItem("token");
                           const response = await axios.post(
-                            "http://localhost:8000/api/apply-coupon",
+                            `${process.env.NEXT_PUBLIC_API_URL}/api/apply-coupon`,
                             { code: couponCode.trim() },
-                            { headers: { Authorization: `Bearer ${token}` } }
+                            {
+                              headers: {
+                                Authorization: `Bearer ${token}`,
+                              },
+                            }
                           );
-
                           const data = response.data;
                           if (data.status === 200) {
                             setDiscount(Number(data.coupon.discount_value));
                             setCouponId(data.coupon.id);
-                            setCouponApplied(true); // đánh dấu đã áp dụng
                             toast.success(
                               data.message || "Áp dụng mã giảm giá thành công!"
                             );
@@ -829,24 +685,22 @@ function PaymentPage() {
                               data.message || "Mã giảm giá không hợp lệ."
                             );
                           }
-                        } catch (err) {
+                        } catch {
                           setDiscount(0);
                           setCouponId(null);
-                          const error = err as AxiosError<{ message: string }>;
                           toast.error(
-                            error.response?.data?.message ||
-                              "Đã xảy ra lỗi khi kiểm tra mã giảm giá."
+                            "Đã xảy ra lỗi khi kiểm tra mã giảm giá."
                           );
                         }
                       }}
                     >
-                      {couponApplied ? "ĐÃ ÁP DỤNG" : "ÁP DỤNG"}
+                      ÁP DỤNG
                     </button>
                   </div>
                 </div>
               )}
             </div>
-            {/* Payment method */}
+
             <div className="mt-6">
               <label className="flex items-center gap-3 font-semibold cursor-pointer mb-2">
                 <input
@@ -866,7 +720,7 @@ function PaymentPage() {
                 </span>
               </label>
               {paymentMethod === "bank" && (
-                <div className="ml-7 mt-1 text-[#374151] 	bg-[#fffaf0] border-l-4 border-[#eab308] rounded-r-lg px-4 py-2 shadow animate-fadein">
+                <div className="ml-7 mt-1 text-[#374151] bg-[#fffaf0] border-l-4 border-[#eab308] rounded-r-lg px-4 py-2 shadow animate-fadein">
                   Thực hiện thanh toán qua cổng VNPAY.
                 </div>
               )}
@@ -888,7 +742,7 @@ function PaymentPage() {
                 </span>
               </label>
               {paymentMethod === "cod" && (
-                <div className="ml-7 mt-1 text-[#374151] 	bg-[#fffaf0] border-l-4 border-[#eab308] rounded-r-lg px-4 py-2 shadow animate-fadein">
+                <div className="ml-7 mt-1 text-[#374151] bg-[#fffaf0] border-l-4 border-[#eab308] rounded-r-lg px-4 py-2 shadow animate-fadein">
                   Bạn sẽ thanh toán bằng tiền mặt khi nhận hàng.
                 </div>
               )}
@@ -902,7 +756,7 @@ function PaymentPage() {
           </div>
         </div>
       </div>
-      {/* Animations */}
+
       <style jsx>{`
         .animate-fadein {
           animation: fadein 0.6s;

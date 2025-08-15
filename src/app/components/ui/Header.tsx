@@ -678,7 +678,6 @@ type UserInfo = {
   phone: string | null;
   role: string;
   avatar: string | null;
-  avatar_url?: string | null;
   google_id?: string;
   day_of_birth?: string | null;
   is_active?: string;
@@ -1004,7 +1003,7 @@ export default function Header() {
             </button>
 
             {/* User */}
-            {/* {hasMounted && user ? (
+            {hasMounted && user ? (
               <button
                 className="text-xs sm:text-sm font-semibold hover:text-[tomato] flex items-center gap-1 group transition-all duration-200"
                 onClick={() => router.push("/account")}
@@ -1031,35 +1030,8 @@ export default function Header() {
               >
                 <User className="w-4 h-4" />
               </Link>
-            ) : null} */}
-            {/* User */}
-            {hasMounted && user ? (
-              <button
-                className="text-xs sm:text-sm font-semibold hover:text-[tomato] flex items-center gap-1 group transition-all duration-200"
-                onClick={() => router.push("/account")}
-              >
-                {user.avatar_url ? (
-                  <Image
-                    src={user.avatar_url} // Use avatar_url directly from the API response
-                    width={24}
-                    height={24}
-                    alt="Avatar"
-                    className="w-6 h-6 rounded-full object-cover border group-hover:border-[tomato] transition-all duration-200 group-hover:scale-110"
-                  />
-                ) : (
-                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[tomato] to-red-500 text-white flex items-center justify-center text-xs font-bold uppercase group-hover:scale-110 transition-transform">
-                    {user.name.charAt(0)}
-                  </div>
-                )}
-              </button>
-            ) : hasMounted ? (
-              <Link
-                href="/login"
-                className="p-1.5 sm:p-2 rounded-full hover:bg-orange-50 hover:text-[tomato] transition-all duration-200 hover:scale-110"
-              >
-                <User className="w-4 h-4" />
-              </Link>
             ) : null}
+
             {/* Wishlist */}
             <button
               className={`cursor-pointer relative p-1.5 sm:p-2 rounded-full hover:bg-orange-50 hover:text-[tomato] transition-all duration-200 hover:scale-110 ${

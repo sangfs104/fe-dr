@@ -1010,8 +1010,8 @@ export default function Header() {
               >
                 {user.avatar ? (
                   <Image
-                    // src={user.avatar} // Use the avatar URL directly from the API
-                    src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/${user.avatar}`}
+                    src={user.avatar} // Use the avatar URL directly from the API
+                    // src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/${user.avatar}`}
                     width={24}
                     height={24}
                     alt="Avatar"

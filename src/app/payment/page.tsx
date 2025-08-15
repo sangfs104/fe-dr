@@ -21,7 +21,6 @@ import { useSearchParams } from "next/navigation";
 function PaymentPage() {
   const [showCoupon, setShowCoupon] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<"bank" | "cod">("bank");
-  // const cartItems = useSelector((state: RootState) => state.cart.items);
   const [couponCode, setCouponCode] = useState("");
   const [discount, setDiscount] = useState(0);
   const [couponId, setCouponId] = useState<number | null>(null);
@@ -29,6 +28,7 @@ function PaymentPage() {
   const searchParams = useSearchParams();
   const idsParam = searchParams.get("ids");
   const selectedIds = idsParam ? idsParam.split(",").map(Number) : [];
+  const [couponApplied, setCouponApplied] = useState(false);
 
   const cartItems = useSelector((state: RootState) => state.cart.items);
   // Lọc lại sản phẩm theo selectedIds
@@ -754,15 +754,20 @@ function PaymentPage() {
             </div>
             {/* Coupon */}
             <div className="mt-6 text-[1.05em] text-[#374151]">
-              <div className="flex items-center flex-wrap gap-1">
-                <span>Có mã giảm giá?</span>
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <span className="whitespace-nowrap">Có mã giảm giá?</span>
                 <button
                   type="button"
                   onClick={() => setShowCoupon(!showCoupon)}
-                  className="text-[#111827] font-bold hover:text-[#374151] transition"
+                  className="flex items-center text-[#111827] font-bold hover:text-[#374151] transition"
                 >
-                  Nhấn vào đây để nhập mã giảm giá
-                  <FontAwesomeIcon icon={faChevronDown} className="ml-1" />
+                  <span className="whitespace-nowrap">
+                    Nhấn vào đây để nhập mã giảm giá
+                  </span>
+                  <FontAwesomeIcon
+                    icon={faChevronDown}
+                    className="ml-1 text-sm"
+                  />
                 </button>
               </div>
 
@@ -774,35 +779,46 @@ function PaymentPage() {
                   <div className="flex gap-3">
                     <input
                       type="text"
-                      className="flex-1 rounded-lg border border-gray-400 bg-white px-3 py-2 font-normal focus:outline-none focus:ring-0 focus:border-gray-400"
+                      className="flex-1 min-w-0 rounded-lg border border-gray-400 bg-white px-3 py-2 font-normal focus:outline-none focus:ring-0 focus:border-gray-400"
                       placeholder="Mã giảm giá"
                       value={couponCode}
                       onChange={(e) => setCouponCode(e.target.value)}
                     />
 
                     <button
-                      className="px-5 py-2 rounded-lg bg-[#FF5722] text-white font-bold shadow hover:bg-[#ea580c] transition"
+                      disabled={couponApplied}
+                      className={`shrink-0 px-5 py-2 rounded-lg text-white font-bold shadow transition
+                      ${
+                        couponApplied
+                          ? "bg-gray-400 cursor-not-allowed"
+                          : "bg-[#FF5722] hover:bg-[#ea580c]"
+                      }`}
                       onClick={async (e) => {
                         e.preventDefault();
+
+                        if (couponApplied) {
+                          toast.error("Bạn đã áp dụng mã giảm giá rồi!");
+                          return;
+                        }
+
                         if (!couponCode.trim()) {
                           toast.error("Vui lòng nhập mã giảm giá.");
                           return;
                         }
+
                         try {
                           const token = localStorage.getItem("token");
                           const response = await axios.post(
                             "http://localhost:8000/api/apply-coupon",
                             { code: couponCode.trim() },
-                            {
-                              headers: {
-                                Authorization: `Bearer ${token}`,
-                              },
-                            }
+                            { headers: { Authorization: `Bearer ${token}` } }
                           );
+
                           const data = response.data;
                           if (data.status === 200) {
                             setDiscount(Number(data.coupon.discount_value));
                             setCouponId(data.coupon.id);
+                            setCouponApplied(true); // đánh dấu đã áp dụng
                             toast.success(
                               data.message || "Áp dụng mã giảm giá thành công!"
                             );
@@ -816,7 +832,6 @@ function PaymentPage() {
                         } catch (err) {
                           setDiscount(0);
                           setCouponId(null);
-
                           const error = err as AxiosError<{ message: string }>;
                           toast.error(
                             error.response?.data?.message ||
@@ -825,7 +840,7 @@ function PaymentPage() {
                         }
                       }}
                     >
-                      ÁP DỤNG
+                      {couponApplied ? "ĐÃ ÁP DỤNG" : "ÁP DỤNG"}
                     </button>
                   </div>
                 </div>

@@ -551,7 +551,7 @@ export default function UserInfo() {
         ) : user.avatar ? (
           <div className="relative group w-20 h-20 sm:w-24 sm:h-24">
             <Image
-              src={user.avatar} // Use the avatar URL directly from the API
+              src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/${user.avatar}`} // Use the avatar URL directly from the API
               alt="Avatar"
               fill
               className="rounded-full object-cover border"

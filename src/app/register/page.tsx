@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import Footer from "../components/ui/Footer";
+
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import "react-toastify/dist/ReactToastify.css";

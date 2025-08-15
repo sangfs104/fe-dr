@@ -299,7 +299,6 @@ const RegisterPage = () => {
       </main>
 
       <DreamToast />
-      <Footer />
     </div>
   );
 };

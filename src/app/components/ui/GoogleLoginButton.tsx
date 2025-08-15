@@ -50,7 +50,7 @@ export default function GoogleLoginButton({ setLoading }: Props) {
             toast.success("Đăng nhập thành công!");
             localStorage.setItem("token", data.access_token);
             localStorage.setItem("user", JSON.stringify(data.user));
-            window.location.href = "/account";
+            window.location.href = "/";
           } catch (err) {
             console.error("Lỗi login:", err);
             toast.error("Đăng nhập thất bại");

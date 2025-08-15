@@ -540,7 +540,7 @@ export default function UserInfo() {
         )}
       </div>
 
-      <div className="flex flex-col sm:flex-row items-center gap-4 mb-6 text-center sm:text-left">
+      {/* <div className="flex flex-col sm:flex-row items-center gap-4 mb-6 text-center sm:text-left">
         {avatarPreview ? (
           <Image
             width={96}
@@ -595,7 +595,7 @@ export default function UserInfo() {
             {user.role === "admin" ? "Quản trị viên" : "Khách hàng"}
           </span>
         </div>
-      </div>
+      </div> */}
       <div className="flex flex-col sm:flex-row items-center gap-4 mb-6 text-center sm:text-left">
         {avatarPreview ? (
           <Image

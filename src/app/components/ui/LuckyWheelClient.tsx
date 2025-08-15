@@ -42,6 +42,7 @@ const LuckyWheelClient = () => {
   const [prizeIndex, setPrizeIndex] = useState(0);
   const spinningRef = useRef(false);
   const [voucherCode, setVoucherCode] = useState<string | null>(null);
+  const [showVoucherBox, setShowVoucherBox] = useState(false);
 
   const spinningSound = useRef<HTMLAudioElement | null>(null);
   const winSound = useRef<HTMLAudioElement | null>(null);
@@ -60,7 +61,6 @@ const LuckyWheelClient = () => {
   }, []);
 
   const handleSpinClick = async () => {
-    // Kiểm tra đăng nhập
     const token = localStorage.getItem("token");
     if (!token) {
       toast.error("Vui lòng đăng nhập để quay thưởng");
@@ -78,7 +78,6 @@ const LuckyWheelClient = () => {
       );
 
       const json = await res.json();
-
       let randomIndex: number;
 
       if (json.status === 200 && json.voucher) {
@@ -112,8 +111,11 @@ const LuckyWheelClient = () => {
     spinningRef.current = false;
     spinningSound.current?.pause();
 
+    // Reset thời gian phát nhạc về 0
+    if (winSound.current) winSound.current.currentTime = 0;
+    if (loseSound.current) loseSound.current.currentTime = 0;
+
     if (voucherCode) {
-      // Lưu voucher vào localStorage (dạng mảng)
       const existingVouchers = JSON.parse(
         localStorage.getItem("vouchers") || "[]"
       );
@@ -123,11 +125,18 @@ const LuckyWheelClient = () => {
         JSON.stringify([...existingVouchers, newVoucher])
       );
 
-      toast.success(`Chúc mừng! Bạn nhận được voucher: ${voucherCode}`);
       winSound.current?.play().catch(console.warn);
+      setShowVoucherBox(true);
     } else {
-      toast.error("Chúc bạn may mắn lần sau");
       loseSound.current?.play().catch(console.warn);
+      setShowVoucherBox(true); // vẫn hiện modal nhưng nội dung là thua
+    }
+  };
+
+  const handleCopy = () => {
+    if (voucherCode) {
+      navigator.clipboard.writeText(voucherCode);
+      toast.success("Đã sao chép mã!");
     }
   };
 
@@ -164,6 +173,74 @@ const LuckyWheelClient = () => {
           Ngay
         </button>
       </div>
+
+      {showVoucherBox && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[1000]">
+          <div className="p-5 rounded-xl shadow-lg bg-white border border-gray-200 text-center w-80 animate-[fadeIn_0.3s_ease]">
+            {voucherCode ? (
+              <>
+                <h3 className="text-lg font-bold mb-4 bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent">
+                  Bạn đã nhận được Voucher!
+                </h3>
+
+                {/* Phiếu mã giảm giá */}
+                <div className="relative w-full">
+                  {/* Răng cưa */}
+                  <div className="absolute -left-2 top-0 bottom-0 flex flex-col justify-between">
+                    {Array.from({ length: 8 }).map((_, i) => (
+                      <span
+                        key={i}
+                        className="w-3 h-3 bg-white border border-orange-500 rounded-full"
+                      ></span>
+                    ))}
+                  </div>
+                  <div className="absolute -right-2 top-0 bottom-0 flex flex-col justify-between">
+                    {Array.from({ length: 8 }).map((_, i) => (
+                      <span
+                        key={i}
+                        className="w-3 h-3 bg-white border border-orange-500 rounded-full"
+                      ></span>
+                    ))}
+                  </div>
+
+                  {/* Nội dung phiếu */}
+                  <div className="bg-gradient-to-r from-orange-400 to-orange-500 text-white rounded-lg shadow-lg border border-orange-500 flex items-center justify-between px-4 py-3">
+                    <span className="font-mono font-bold text-lg">
+                      {voucherCode}
+                    </span>
+                    <button
+                      onClick={handleCopy}
+                      className="bg-white text-orange-600 px-3 py-1 rounded-lg text-sm font-semibold hover:bg-gray-100"
+                    >
+                      Sao chép
+                    </button>
+                  </div>
+                </div>
+
+                <p className="text-xs text-gray-500 mt-3">
+                  Hãy dùng mã này khi thanh toán để nhận ưu đãi.
+                </p>
+              </>
+            ) : (
+              <>
+                <h3 className="text-lg font-bold text-red-600 mb-2">
+                  😢 Chúc bạn may mắn lần sau!
+                </h3>
+                <p className="text-gray-600">
+                  Bạn chưa trúng phần thưởng nào lần này.
+                </p>
+              </>
+            )}
+
+            <button
+              onClick={() => setShowVoucherBox(false)}
+              className="mt-4 px-4 py-2 rounded-full bg-orange-500 hover:bg-orange-600 text-white font-semibold shadow-md"
+            >
+              Đóng
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

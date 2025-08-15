@@ -678,6 +678,7 @@ type UserInfo = {
   phone: string | null;
   role: string;
   avatar: string | null;
+  avatar_url?: string | null;
   google_id?: string;
   day_of_birth?: string | null;
   is_active?: string;

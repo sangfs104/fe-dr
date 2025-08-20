@@ -812,13 +812,28 @@
 //     </div>
 //   );
 // }
-// ./src/app/components/ui/ChatBot.tsx
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import axios, { AxiosError } from "axios";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
-import { Send, Loader2, Sparkles, Tag, Shirt, Stars, X } from "lucide-react";
+import Image from "next/image"; // Thêm import Image
+import {
+  MessageCircle,
+  Send,
+  Loader2,
+  Sparkles,
+  Tag,
+  Shirt,
+  Stars,
+  X,
+} from "lucide-react";
 
 // ---------------------------------------------
 // Types matching your Laravel API responses
@@ -846,15 +861,15 @@ type ApiProductBasic = {
   name: string;
   description?: string | null;
   price?: number | null;
-  images: string[]; // URLs
+  images: string[];
 };
 
 type ApiProductFull = {
   id: number;
   name: string;
   description?: string | null;
-  images: string[]; // URLs
-  variant?: ApiVariant[]; // Only present in product-specific branch
+  images: string[];
+  variant?: ApiVariant[];
   category?: ApiCategory;
 };
 
@@ -863,9 +878,7 @@ type ApiResponse = {
   style_name?: string | null;
   description?: string | null;
   keywords?: string[];
-  // When AI suggests items based on keywords
   products?: ApiProductBasic[] | ApiProductFull[];
-  // When mix & match requested
   mix_and_match?: string[] | null;
 };
 
@@ -895,11 +908,11 @@ type ChatMessage = {
 // Utilities
 // ---------------------------------------------
 
-function clsx(...args: (string | false | null | undefined)[]) {
+function clsx(...args: (string | false | null | undefined)[]): string {
   return args.filter(Boolean).join(" ");
 }
 
-function formatPrice(p?: number | null) {
+function formatPrice(p?: number | null): string {
   if (p == null) return "";
   try {
     return new Intl.NumberFormat("vi-VN", {
@@ -916,25 +929,26 @@ function formatPrice(p?: number | null) {
 // Main Component
 // ---------------------------------------------
 
-export default function ChatBot({
+export default function ChatBoxStylistAI({
   apiUrl,
   title = "Stylist AI",
-  onClose, // Added onClose prop
 }: {
   /** Optional override. Defaults to `${process.env.NEXT_PUBLIC_API_URL}/api/stylist/analyze` */
   apiUrl?: string;
   title?: string;
-  onClose?: () => void; // Optional callback to close the modal
 }) {
-  const endpoint = useMemo(
-    () =>
-      apiUrl || `${process.env.NEXT_PUBLIC_API_URL ?? ""}/api/stylist/analyze`,
-    [apiUrl]
-  );
+  const endpoint = useMemo(() => {
+    const defaultUrl = `${process.env.NEXT_PUBLIC_API_URL ??
+      ""}/api/stylist/analyze`;
+    if (!process.env.NEXT_PUBLIC_API_URL) {
+      console.warn("NEXT_PUBLIC_API_URL is not set. Using default endpoint.");
+    }
+    return apiUrl || defaultUrl;
+  }, [apiUrl]);
 
-  const [isOpen, setIsOpen] = useState(true); // Controlled internally, can be toggled by onClose
-  const [input, setInput] = useState("");
-  const [sending, setSending] = useState(false);
+  const [isOpen, setIsOpen] = useState<boolean>(true);
+  const [input, setInput] = useState<string>("");
+  const [sending, setSending] = useState<boolean>(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: crypto.randomUUID(),
@@ -944,24 +958,24 @@ export default function ChatBot({
     },
   ]);
 
-  const listRef = useRef<HTMLDivElement | null>(null);
-  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const listRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    listRef.current?.scrollTo({ top: listRef.current.scrollHeight });
+    listRef.current?.scrollTo({
+      top: listRef.current.scrollHeight,
+      behavior: "smooth",
+    });
   }, [messages.length, sending]);
 
   useEffect(() => {
     if (!textareaRef.current) return;
     const el = textareaRef.current;
-    const resize = () => {
-      el.style.height = "0px";
-      el.style.height = Math.min(120, el.scrollHeight) + "px";
-    };
-    resize();
+    el.style.height = "0px";
+    el.style.height = `${Math.min(120, el.scrollHeight)}px`;
   }, [input]);
 
-  const sendInput = async () => {
+  const sendInput = useCallback(async () => {
     const trimmed = input.trim();
     if (!trimmed) return;
 
@@ -982,28 +996,36 @@ export default function ChatBot({
 
       const data = res.data || {};
 
-      const attachment: ChatAttachment | undefined = {
-        kind: "style",
-        style_name: data.style_name,
-        description: data.description,
-        keywords: data.keywords,
-        products: data.products ?? [],
-        mix_and_match: data.mix_and_match ?? null,
-      };
+      const attachment: ChatAttachment | undefined =
+        data.style_name ||
+        data.description ||
+        data.keywords ||
+        data.products ||
+        data.mix_and_match
+          ? {
+              kind: "style",
+              style_name: data.style_name,
+              description: data.description,
+              keywords: data.keywords,
+              products: data.products ?? [],
+              mix_and_match: data.mix_and_match ?? null,
+            }
+          : undefined;
 
       const assistantMsg: ChatMessage = {
         id: crypto.randomUUID(),
         role: "assistant",
-        text: data.message || "",
+        text: data.message || "Mình đã tìm thấy một số gợi ý cho bạn!",
         attachment,
       };
 
       setMessages((prev) => [...prev, assistantMsg]);
     } catch (err) {
-      console.error(err);
-      const msg =
-        (err as AxiosError<{ message?: string }>)?.response?.data?.message ||
-        "Đã có lỗi xảy ra. Vui lòng thử lại.";
+      console.error("API Error:", err);
+      let msg = "Đã có lỗi xảy ra. Vui lòng thử lại.";
+      if (err instanceof axios.AxiosError && err.response?.data?.message) {
+        msg = err.response.data.message;
+      }
       toast.error(msg);
       setMessages((prev) => [
         ...prev,
@@ -1016,32 +1038,22 @@ export default function ChatBot({
     } finally {
       setSending(false);
     }
-  };
+  }, [input, endpoint]);
 
-  const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      if (!sending) void sendInput();
-    }
-  };
-
-  // Handle closing the modal
-  const handleClose = () => {
-    setIsOpen(false);
-    if (onClose) onClose(); // Call the onClose callback if provided
-  };
+  const onKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        if (!sending) sendInput();
+      }
+    },
+    [sending, sendInput]
+  );
 
   return (
     <div className="fixed bottom-4 right-4 z-50 w-full max-w-md">
       <Toaster position="top-right" />
-      {/* Panel */}
-      <div
-        className={clsx(
-          "rounded-2xl shadow-2xl bg-zinc-900 text-zinc-100 border border-zinc-800 overflow-hidden",
-          !isOpen && "hidden" // Hide the chat when isOpen is false
-        )}
-      >
-        {/* Header */}
+      <div className="rounded-2xl shadow-2xl bg-zinc-900 text-zinc-100 border border-zinc-800 overflow-hidden">
         <div className="flex items-center justify-between p-3 border-b border-zinc-800">
           <div className="flex items-center gap-2">
             <div className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-zinc-800">
@@ -1050,16 +1062,23 @@ export default function ChatBot({
             <div className="font-semibold">{title}</div>
           </div>
           <button
-            onClick={handleClose} // Use handleClose to manage internal state and call onClose
-            className="inline-flex items-center gap-2 text-sm px-2 py-1 rounded-xl bg-zinc-800 hover:bg-zinc-700 transition"
+            onClick={() => setIsOpen((v) => !v)}
+            className="inline-flex items-center gap-2 text-sm px-2 py-1 rounded-xl bg-zinc-800 hover:bg-zinc-700 transition-colors"
           >
-            <X className="h-4 w-4" /> Đóng
+            {isOpen ? (
+              <>
+                <X className="h-4 w-4" /> Đóng
+              </>
+            ) : (
+              <>
+                <MessageCircle className="h-4 w-4" /> Mở
+              </>
+            )}
           </button>
         </div>
 
         {isOpen && (
           <>
-            {/* Messages */}
             <div
               ref={listRef}
               className="max-h-[60vh] overflow-y-auto p-3 space-y-3"
@@ -1075,7 +1094,6 @@ export default function ChatBot({
               )}
             </div>
 
-            {/* Composer */}
             <div className="border-t border-zinc-800 p-3">
               <div className="relative">
                 <textarea
@@ -1091,7 +1109,7 @@ export default function ChatBot({
                   onClick={sendInput}
                   disabled={sending || !input.trim()}
                   className={clsx(
-                    "absolute right-2 bottom-2 inline-flex items-center gap-1 rounded-xl px-3 py-2 text-sm",
+                    "absolute right-2 bottom-2 inline-flex items-center gap-1 rounded-xl px-3 py-2 text-sm transition-colors",
                     sending || !input.trim()
                       ? "bg-zinc-700 text-zinc-400 cursor-not-allowed"
                       : "bg-white text-zinc-900 hover:bg-zinc-200"
@@ -1144,12 +1162,10 @@ function MessageBubble({ msg }: { msg: ChatMessage }) {
               desc={msg.attachment.description}
               keywords={msg.attachment.keywords}
             />
-
             {Array.isArray(msg.attachment.mix_and_match) &&
               msg.attachment.mix_and_match.length > 0 && (
                 <MixAndMatch names={msg.attachment.mix_and_match} />
               )}
-
             {Array.isArray(msg.attachment.products) &&
               msg.attachment.products.length > 0 && (
                 <ProductsGrid products={msg.attachment.products} />
@@ -1218,7 +1234,7 @@ function ProductsGrid({
 }) {
   return (
     <div className="grid grid-cols-1 gap-3">
-      {products.map((p: ApiProductBasic | ApiProductFull) => (
+      {products.map((p) => (
         <ProductCard
           key={p.id + ((p as ApiProductFull).variant ? "-full" : "-basic")}
           product={p}
@@ -1237,8 +1253,8 @@ function ProductCard({
   const hasVariants = Array.isArray((product as ApiProductFull).variant);
   const variants = (product as ApiProductFull).variant || [];
 
-  // Attempt to compute minPrice for basic products
-  const basePrice = (product as ApiProductBasic).price ?? null;
+  // Compute display price - Kiểm tra 'price' in product để tránh lỗi TypeScript
+  const basePrice = "price" in product ? product.price ?? null : null;
   const firstSale =
     variants.find((v) => v.sale_price != null)?.sale_price ?? null;
   const firstPrice = variants.find((v) => v.price != null)?.price ?? null;
@@ -1246,14 +1262,15 @@ function ProductCard({
 
   return (
     <div className="rounded-2xl overflow-hidden border border-zinc-700">
-      {/* Image */}
       <div className="aspect-[16/9] bg-zinc-800">
         {cover ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={cover}
             alt={product.name}
             className="h-full w-full object-cover"
+            width={500} // Giả định chiều rộng, điều chỉnh theo thực tế
+            height={281} // Tỷ lệ 16:9, điều chỉnh theo thực tế
+            unoptimized
             loading="lazy"
           />
         ) : (
@@ -1263,7 +1280,6 @@ function ProductCard({
         )}
       </div>
 
-      {/* Info */}
       <div className="p-3">
         <div className="font-medium text-zinc-100 line-clamp-2">
           {product.name}
@@ -1279,7 +1295,6 @@ function ProductCard({
           </div>
         )}
 
-        {/* Variants table (for product-specific branch) */}
         {hasVariants && variants.length > 0 && (
           <div className="mt-3 overflow-x-auto">
             <table className="min-w-full text-xs">

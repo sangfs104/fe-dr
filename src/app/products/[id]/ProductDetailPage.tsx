@@ -6,8 +6,6 @@ import {
   Star,
   X,
   ShoppingCart,
-  Heart,
-  Share2,
   Zap,
   Shield,
   Truck,
@@ -172,7 +170,7 @@ export default function ProductDetailClient({
   );
   const [quantity, setQuantity] = useState<number>(1);
   const [showModal, setShowModal] = useState(false);
-  const [isLiked, setIsLiked] = useState(false);
+  // const [isLiked, setIsLiked] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isAutoPlay, setIsAutoPlay] = useState(true);
   const [isImageLoading, setIsImageLoading] = useState(true);
@@ -490,7 +488,7 @@ export default function ProductDetailClient({
                 </>
               )}
 
-              {/* Action buttons */}
+              {/* Action buttons
               <div className="absolute top-2 sm:top-4 right-2 sm:right-4 z-10 flex gap-1 sm:gap-2">
                 <motion.button
                   whileHover={{ scale: 1.1, rotate: 5 }}
@@ -517,7 +515,7 @@ export default function ProductDetailClient({
                     className="sm:w-5 sm:h-5 text-gray-600 hover:text-blue-500 transition-colors"
                   />
                 </motion.button>
-              </div>
+              </div> */}
 
               {/* Auto-play indicator */}
               {product.images && product.images.length > 1 && (

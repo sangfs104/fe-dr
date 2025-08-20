@@ -936,6 +936,7 @@ export default function ChatBoxStylistAI({
   /** Optional override. Defaults to `${process.env.NEXT_PUBLIC_API_URL}/api/stylist/analyze` */
   apiUrl?: string;
   title?: string;
+  onClose?: () => void; // thêm dòng này
 }) {
   const endpoint = useMemo(() => {
     const defaultUrl = `${process.env.NEXT_PUBLIC_API_URL ??

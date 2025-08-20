@@ -1344,7 +1344,6 @@ import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 import Image from "next/image";
 import {
-  MessageCircle,
   Send,
   Loader2,
   Sparkles,
@@ -1499,7 +1498,6 @@ export default function ChatBoxStylistAI({
   const [input, setInput] = useState<string>("");
   const [sending, setSending] = useState<boolean>(false);
   const [isRecording, setIsRecording] = useState<boolean>(false);
-  const [recordingAnimation, setRecordingAnimation] = useState<boolean>(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: crypto.randomUUID(),
@@ -1616,7 +1614,6 @@ export default function ChatBoxStylistAI({
     }
 
     setIsRecording(true);
-    setRecordingAnimation(true);
     setInput("");
 
     let interimTranscript = "";
@@ -1653,7 +1650,6 @@ export default function ChatBoxStylistAI({
 
     recognition.onend = () => {
       setIsRecording(false);
-      setRecordingAnimation(false);
 
       // Clear timeout
       if (recognitionTimeoutRef.current) {
@@ -1670,7 +1666,6 @@ export default function ChatBoxStylistAI({
 
     recognition.onerror = (event) => {
       setIsRecording(false);
-      setRecordingAnimation(false);
       toast.error("Lỗi nhận diện giọng nói: " + event.error);
 
       if (recognitionTimeoutRef.current) {
@@ -1680,7 +1675,7 @@ export default function ChatBoxStylistAI({
     };
 
     recognition.start();
-  }, [sendInput]);
+  }, [sendInput, isRecording]);
 
   const stopRecording = useCallback(() => {
     if (recognition && isRecording) {
@@ -1705,6 +1700,11 @@ export default function ChatBoxStylistAI({
   const toggleMinimize = useCallback(() => {
     setIsMinimized((prev) => !prev);
   }, []);
+
+  // Return null if chat is closed
+  if (!isOpen) {
+    return null;
+  }
 
   return (
     <div className="fixed bottom-4 right-4 z-50 w-full max-w-md">

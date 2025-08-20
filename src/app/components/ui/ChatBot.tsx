@@ -2177,7 +2177,7 @@ export default function ChatBoxStylistAI({
       const data = res.data || {};
 
       const attachment: ChatAttachment | undefined =
-        data - style_name ||
+        data.style_name ||
         data.description ||
         data.keywords ||
         data.products ||

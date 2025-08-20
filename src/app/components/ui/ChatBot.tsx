@@ -1331,7 +1331,6 @@
 //     </div>
 //   );
 // }
-
 "use client";
 
 import React, {
@@ -1354,6 +1353,9 @@ import {
   Stars,
   X,
   Mic,
+  MicOff,
+  Minimize2,
+  Maximize2,
 } from "lucide-react";
 
 // ---------------------------------------------
@@ -1423,6 +1425,7 @@ type ChatMessage = {
   role: ChatRole;
   text: string;
   attachment?: ChatAttachment;
+  timestamp: Date;
 };
 
 // ---------------------------------------------
@@ -1444,6 +1447,13 @@ function formatPrice(p?: number | null): string {
   } catch {
     return `${p}`;
   }
+}
+
+function formatTime(date: Date): string {
+  return date.toLocaleTimeString("vi-VN", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 // ---------------------------------------------
@@ -1485,27 +1495,33 @@ export default function ChatBoxStylistAI({
   }, [apiUrl]);
 
   const [isOpen, setIsOpen] = useState<boolean>(true);
+  const [isMinimized, setIsMinimized] = useState<boolean>(false);
   const [input, setInput] = useState<string>("");
   const [sending, setSending] = useState<boolean>(false);
   const [isRecording, setIsRecording] = useState<boolean>(false);
+  const [recordingAnimation, setRecordingAnimation] = useState<boolean>(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: crypto.randomUUID(),
       role: "assistant",
       text:
         "Xin chào! Mình là Stylist AI 👗 Hãy nói cho mình biết bạn muốn tìm sản phẩm gì, hỏi size, xem ưu đãi/flash sale, hoặc mình có thể phối một set đồ theo gu của bạn nhé!",
+      timestamp: new Date(),
     },
   ]);
 
   const listRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const recognitionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    listRef.current?.scrollTo({
-      top: listRef.current.scrollHeight,
-      behavior: "smooth",
-    });
-  }, [messages.length, sending]);
+    if (listRef.current && !isMinimized) {
+      listRef.current.scrollTo({
+        top: listRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    }
+  }, [messages.length, sending, isMinimized]);
 
   useEffect(() => {
     if (!textareaRef.current) return;
@@ -1514,112 +1530,165 @@ export default function ChatBoxStylistAI({
     el.style.height = `${Math.min(120, el.scrollHeight)}px`;
   }, [input]);
 
-  const sendInput = useCallback(async () => {
-    const trimmed = input.trim();
-    if (!trimmed) return;
+  const sendInput = useCallback(
+    async (inputText?: string) => {
+      const trimmed = (inputText || input).trim();
+      if (!trimmed) return;
 
-    const userMsg: ChatMessage = {
-      id: crypto.randomUUID(),
-      role: "user",
-      text: trimmed,
-    };
-
-    setMessages((prev) => [...prev, userMsg]);
-    setInput("");
-    setSending(true);
-
-    try {
-      const res = await axios.post<ApiResponse>(endpoint, {
-        answers: [trimmed],
-      });
-
-      const data = res.data || {};
-
-      // Ensure a meaningful message is always provided instead of "không"
-      const defaultMessage =
-        "Mình đã tìm thấy một số gợi ý phù hợp với yêu cầu của bạn. Hãy xem chi tiết bên dưới nhé!";
-      const attachment: ChatAttachment | undefined =
-        data.style_name ||
-        data.description ||
-        data.keywords ||
-        data.products ||
-        data.mix_and_match
-          ? {
-              kind: "style",
-              style_name: data.style_name,
-              description: data.description,
-              keywords: data.keywords,
-              products: data.products ?? [],
-              mix_and_match: data.mix_and_match ?? null,
-            }
-          : undefined;
-
-      const assistantMsg: ChatMessage = {
+      const userMsg: ChatMessage = {
         id: crypto.randomUUID(),
-        role: "assistant",
-        text:
-          data.message && data.message !== "không"
-            ? data.message
-            : defaultMessage,
-        attachment,
+        role: "user",
+        text: trimmed,
+        timestamp: new Date(),
       };
 
-      setMessages((prev) => [...prev, assistantMsg]);
-    } catch (err) {
-      console.error("API Error:", err);
-      let msg = "Đã có lỗi xảy ra. Vui lòng thử lại.";
-      if (err instanceof axios.AxiosError && err.response?.data?.message) {
-        msg =
-          err.response.data.message !== "không"
-            ? err.response.data.message
-            : "Có lỗi xảy ra, nhưng đừng lo, mình sẽ giúp bạn tìm gợi ý khác!";
-      }
-      toast.error(msg);
-      setMessages((prev) => [
-        ...prev,
-        {
+      setMessages((prev) => [...prev, userMsg]);
+      setInput("");
+      setSending(true);
+
+      try {
+        const res = await axios.post<ApiResponse>(endpoint, {
+          answers: [trimmed],
+        });
+
+        const data = res.data || {};
+
+        const defaultMessage =
+          "Mình đã tìm thấy một số gợi ý phù hợp với yêu cầu của bạn. Hãy xem chi tiết bên dưới nhé!";
+        const attachment: ChatAttachment | undefined =
+          data.style_name ||
+          data.description ||
+          data.keywords ||
+          data.products ||
+          data.mix_and_match
+            ? {
+                kind: "style",
+                style_name: data.style_name,
+                description: data.description,
+                keywords: data.keywords,
+                products: data.products ?? [],
+                mix_and_match: data.mix_and_match ?? null,
+              }
+            : undefined;
+
+        const assistantMsg: ChatMessage = {
           id: crypto.randomUUID(),
           role: "assistant",
-          text: msg,
-        },
-      ]);
-    } finally {
-      setSending(false);
-    }
-  }, [input, endpoint]);
+          text:
+            data.message && data.message !== "không"
+              ? data.message
+              : defaultMessage,
+          attachment,
+          timestamp: new Date(),
+        };
+
+        setMessages((prev) => [...prev, assistantMsg]);
+      } catch (err) {
+        console.error("API Error:", err);
+        let msg = "Đã có lỗi xảy ra. Vui lòng thử lại.";
+        if (err instanceof axios.AxiosError && err.response?.data?.message) {
+          msg =
+            err.response.data.message !== "không"
+              ? err.response.data.message
+              : "Có lỗi xảy ra, nhưng đừng lo, mình sẽ giúp bạn tìm gợi ý khác!";
+        }
+        toast.error(msg);
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: crypto.randomUUID(),
+            role: "assistant",
+            text: msg,
+            timestamp: new Date(),
+          },
+        ]);
+      } finally {
+        setSending(false);
+      }
+    },
+    [input, endpoint]
+  );
 
   const startRecording = useCallback(() => {
     if (!recognition) {
       toast.error("Trình duyệt không hỗ trợ nhận diện giọng nói.");
       return;
     }
+
     setIsRecording(true);
-    recognition.start();
+    setRecordingAnimation(true);
+    setInput("");
+
+    let interimTranscript = "";
+    let finalTranscript = "";
+
+    recognition.onstart = () => {
+      console.log("Speech recognition started");
+    };
 
     recognition.onresult = (event) => {
-      const transcript = Array.from(event.results)
-        .map((result) => result[0].transcript)
-        .join("");
-      setInput(transcript);
+      interimTranscript = "";
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+          finalTranscript += transcript;
+        } else {
+          interimTranscript += transcript;
+        }
+      }
+      setInput(finalTranscript + interimTranscript);
+
+      // Clear existing timeout
+      if (recognitionTimeoutRef.current) {
+        clearTimeout(recognitionTimeoutRef.current);
+      }
+
+      // Set new timeout for auto-send after silence
+      recognitionTimeoutRef.current = setTimeout(() => {
+        if (recognition && isRecording) {
+          recognition.stop();
+        }
+      }, 2000); // 2 seconds of silence
     };
 
     recognition.onend = () => {
       setIsRecording(false);
-      // Automatically send the input after speech recognition ends
-      if (input.trim()) {
-        sendInput();
+      setRecordingAnimation(false);
+
+      // Clear timeout
+      if (recognitionTimeoutRef.current) {
+        clearTimeout(recognitionTimeoutRef.current);
+        recognitionTimeoutRef.current = null;
+      }
+
+      // Auto-send if there's text
+      if (finalTranscript.trim()) {
+        sendInput(finalTranscript.trim());
+        finalTranscript = "";
       }
     };
 
     recognition.onerror = (event) => {
       setIsRecording(false);
+      setRecordingAnimation(false);
       toast.error("Lỗi nhận diện giọng nói: " + event.error);
+
+      if (recognitionTimeoutRef.current) {
+        clearTimeout(recognitionTimeoutRef.current);
+        recognitionTimeoutRef.current = null;
+      }
     };
-  }, [input, sendInput]);
+
+    recognition.start();
+  }, [sendInput]);
 
   const stopRecording = useCallback(() => {
     if (recognition && isRecording) {
       recognition.stop();
+    }
+    if (recognitionTimeoutRef.current) {
+      clearTimeout(recognitionTimeoutRef.current);
+      recognitionTimeoutRef.current = null;
     }
   }, [isRecording]);
 
@@ -1633,100 +1702,169 @@ export default function ChatBoxStylistAI({
     [sending, sendInput]
   );
 
+  const toggleMinimize = useCallback(() => {
+    setIsMinimized((prev) => !prev);
+  }, []);
+
   return (
     <div className="fixed bottom-4 right-4 z-50 w-full max-w-md">
       <Toaster position="top-right" />
-      <div className="rounded-2xl shadow-2xl bg-zinc-900 text-zinc-100 border border-zinc-800 overflow-hidden">
-        <div className="flex items-center justify-between p-3 border-b border-zinc-800">
-          <div className="flex items-center gap-2">
-            <div className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-zinc-800">
-              <Sparkles className="h-4 w-4" />
+      <div
+        className={clsx(
+          "rounded-2xl shadow-2xl bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white border border-purple-500/20 overflow-hidden backdrop-blur-sm transition-all duration-300",
+          isMinimized ? "h-16" : "h-auto"
+        )}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b border-purple-500/20 bg-black/20 backdrop-blur-sm">
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 shadow-lg">
+                <Sparkles className="h-5 w-5 text-white" />
+              </div>
+              {isRecording && (
+                <div className="absolute -inset-1 rounded-xl bg-red-500 animate-pulse"></div>
+              )}
             </div>
-            <div className="font-semibold">{title}</div>
+            <div>
+              <div className="font-bold text-lg bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                {title}
+              </div>
+              <div className="text-xs text-purple-300">
+                {isRecording ? "Đang nghe..." : "Trợ lý thời trang AI"}
+              </div>
+            </div>
           </div>
-          <button
-            onClick={() => setIsOpen((v) => !v)}
-            className="inline-flex items-center gap-2 text-sm px-2 py-1 rounded-xl bg-zinc-800 hover:bg-zinc-700 transition-colors"
-          >
-            {isOpen ? (
-              <>
-                <X className="h-4 w-4" /> Đóng
-              </>
-            ) : (
-              <>
-                <MessageCircle className="h-4 w-4" /> Mở
-              </>
-            )}
-          </button>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={toggleMinimize}
+              className="inline-flex items-center justify-center h-8 w-8 rounded-lg bg-white/10 hover:bg-white/20 transition-all duration-200 backdrop-blur-sm"
+            >
+              {isMinimized ? (
+                <Maximize2 className="h-4 w-4" />
+              ) : (
+                <Minimize2 className="h-4 w-4" />
+              )}
+            </button>
+
+            <button
+              onClick={() => setIsOpen(false)}
+              className="inline-flex items-center justify-center h-8 w-8 rounded-lg bg-red-500/20 hover:bg-red-500/30 transition-all duration-200 text-red-400"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
         </div>
 
-        {isOpen && (
+        {/* Chat Content */}
+        {!isMinimized && (
           <>
+            {/* Messages */}
             <div
               ref={listRef}
-              className="max-h-[60vh] overflow-y-auto p-3 space-y-3"
+              className="max-h-[60vh] overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-transparent to-black/10"
             >
               {messages.map((m) => (
                 <MessageBubble key={m.id} msg={m} />
               ))}
               {sending && (
-                <div className="flex items-center gap-2 text-zinc-400 text-sm">
-                  <Loader2 className="h-4 w-4 animate-spin" /> Đang soạn trả
-                  lời...
+                <div className="flex items-center justify-center p-4">
+                  <div className="flex items-center gap-3 text-purple-300 bg-white/5 rounded-full px-4 py-2 backdrop-blur-sm">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span className="text-sm">Đang soạn trả lời...</span>
+                    <div className="flex gap-1">
+                      <div
+                        className="w-2 h-2 bg-purple-400 rounded-full animate-bounce"
+                        style={{ animationDelay: "0ms" }}
+                      ></div>
+                      <div
+                        className="w-2 h-2 bg-purple-400 rounded-full animate-bounce"
+                        style={{ animationDelay: "150ms" }}
+                      ></div>
+                      <div
+                        className="w-2 h-2 bg-purple-400 rounded-full animate-bounce"
+                        style={{ animationDelay: "300ms" }}
+                      ></div>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
 
-            <div className="border-t border-zinc-800 p-3">
+            {/* Input Area */}
+            <div className="border-t border-purple-500/20 p-4 bg-black/20 backdrop-blur-sm">
               <div className="relative">
                 <textarea
                   ref={textareaRef}
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={onKeyDown}
-                  placeholder="Nhập hoặc nói để hỏi: tìm sản phẩm, hỏi size, xem giảm giá/flash sale, hoặc nhờ phối đồ..."
-                  className="w-full resize-none bg-zinc-800 text-zinc-100 rounded-2xl p-3 pr-20 placeholder:text-zinc-500 outline-none focus:ring-2 focus:ring-zinc-700"
+                  placeholder={
+                    isRecording
+                      ? "Đang nghe bạn nói..."
+                      : "Nhập hoặc nói để hỏi: tìm sản phẩm, hỏi size, xem giảm giá/flash sale, hoặc nhờ phối đồ..."
+                  }
+                  className={clsx(
+                    "w-full resize-none bg-white/10 text-white rounded-2xl p-4 pr-24 placeholder:text-purple-300/70 outline-none focus:ring-2 focus:ring-purple-500/50 backdrop-blur-sm transition-all duration-200",
+                    isRecording && "ring-2 ring-red-500/50 bg-red-500/10"
+                  )}
                   rows={1}
+                  disabled={isRecording}
                 />
+
+                {/* Voice Button */}
                 <button
                   onClick={isRecording ? stopRecording : startRecording}
                   disabled={sending || !SpeechRecognition}
                   className={clsx(
-                    "absolute right-12 bottom-2 inline-flex items-center gap-1 rounded-xl px-3 py-2 text-sm transition-colors",
+                    "absolute right-14 bottom-2 inline-flex items-center justify-center h-10 w-10 rounded-xl text-sm font-medium transition-all duration-200 shadow-lg",
                     sending || !SpeechRecognition
-                      ? "bg-zinc-700 text-zinc-400 cursor-not-allowed"
+                      ? "bg-gray-600 text-gray-400 cursor-not-allowed"
                       : isRecording
-                      ? "bg-red-600 text-white hover:bg-red-700"
-                      : "bg-blue-600 text-white hover:bg-blue-700"
+                      ? "bg-gradient-to-r from-red-500 to-pink-500 text-white animate-pulse shadow-red-500/25"
+                      : "bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600 shadow-purple-500/25"
                   )}
                 >
-                  <Mic className="h-4 w-4" />
-                  {isRecording ? "Dừng" : "Nói"}
+                  {isRecording ? (
+                    <MicOff className="h-4 w-4" />
+                  ) : (
+                    <Mic className="h-4 w-4" />
+                  )}
                 </button>
+
+                {/* Send Button */}
                 <button
-                  onClick={sendInput}
-                  disabled={sending || !input.trim()}
+                  onClick={() => sendInput()}
+                  disabled={sending || !input.trim() || isRecording}
                   className={clsx(
-                    "absolute right-2 bottom-2 inline-flex items-center gap-1 rounded-xl px-3 py-2 text-sm transition-colors",
-                    sending || !input.trim()
-                      ? "bg-zinc-700 text-zinc-400 cursor-not-allowed"
-                      : "bg-white text-zinc-900 hover:bg-zinc-200"
+                    "absolute right-2 bottom-2 inline-flex items-center justify-center h-10 w-10 rounded-xl text-sm font-medium transition-all duration-200 shadow-lg",
+                    sending || !input.trim() || isRecording
+                      ? "bg-gray-600 text-gray-400 cursor-not-allowed"
+                      : "bg-gradient-to-r from-green-500 to-emerald-500 text-white hover:from-green-600 hover:to-emerald-600 shadow-green-500/25"
                   )}
                 >
                   {sending ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Gửi
-                    </>
+                    <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
-                    <>
-                      <Send className="h-4 w-4" /> Gửi
-                    </>
+                    <Send className="h-4 w-4" />
                   )}
                 </button>
               </div>
-              <div className="mt-2 text-[11px] text-zinc-500">
-                Nhấn Enter để gửi • Shift+Enter để xuống dòng
+
+              {/* Status Text */}
+              <div className="mt-2 flex items-center justify-between text-xs text-purple-300/70">
+                <span>
+                  {isRecording
+                    ? "🎤 Nói xong sẽ tự động gửi sau 2 giây"
+                    : "Enter để gửi • Shift+Enter xuống dòng"}
+                </span>
+                {SpeechRecognition && (
+                  <span className="flex items-center gap-1">
+                    <Mic className="h-3 w-3" />
+                    Voice enabled
+                  </span>
+                )}
               </div>
             </div>
           </>
@@ -1742,79 +1880,33 @@ export default function ChatBoxStylistAI({
 
 function MessageBubble({ msg }: { msg: ChatMessage }) {
   const isUser = msg.role === "user";
-  const [highlightedText, setHighlightedText] = useState<string[]>([]);
-  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
-
-  useEffect(() => {
-    if (msg.role === "assistant" && msg.text) {
-      const utterance = new SpeechSynthesisUtterance(msg.text);
-      utterance.lang = "vi-VN";
-      utterance.rate = 1;
-      utterance.pitch = 1;
-      utterance.volume = 1;
-
-      const words = msg.text.split(" ");
-      let wordIndex = 0;
-
-      utterance.onboundary = (event) => {
-        if (event.name === "word" && event.charIndex != null) {
-          setHighlightedText(words.slice(0, wordIndex + 1));
-          wordIndex++;
-        }
-      };
-
-      utterance.onend = () => {
-        setHighlightedText([]);
-        utteranceRef.current = null;
-      };
-
-      utteranceRef.current = utterance;
-      window.speechSynthesis.speak(utterance);
-
-      return () => {
-        if (utteranceRef.current) {
-          window.speechSynthesis.cancel();
-          utteranceRef.current = null;
-          setHighlightedText([]);
-        }
-      };
-    }
-  }, [msg.text, msg.role]);
-
-  const renderText = () => {
-    if (!msg.text) return null;
-    const words = msg.text.split(" ");
-    return (
-      <span>
-        {words.map((word, index) => (
-          <span
-            key={index}
-            className={clsx(
-              highlightedText.includes(word) ? "bg-yellow-500 text-black" : ""
-            )}
-          >
-            {word}{" "}
-          </span>
-        ))}
-      </span>
-    );
-  };
 
   return (
     <div className={clsx("flex", isUser ? "justify-end" : "justify-start")}>
       <div
         className={clsx(
-          "max-w-[85%] rounded-2xl px-3 py-2 text-sm",
-          isUser ? "bg-zinc-700 text-zinc-100" : "bg-zinc-800 text-zinc-100"
+          "max-w-[85%] rounded-2xl px-4 py-3 text-sm shadow-lg backdrop-blur-sm transition-all duration-200 hover:shadow-xl",
+          isUser
+            ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-purple-500/25"
+            : "bg-white/10 text-white border border-white/20 shadow-black/25"
         )}
       >
         {msg.text && (
-          <div className="whitespace-pre-wrap leading-relaxed">
-            {renderText()}
-          </div>
+          <div className="whitespace-pre-wrap leading-relaxed">{msg.text}</div>
         )}
+
+        {/* Timestamp */}
+        <div
+          className={clsx(
+            "text-xs mt-1 opacity-70",
+            isUser ? "text-right" : "text-left"
+          )}
+        >
+          {formatTime(msg.timestamp)}
+        </div>
+
         {!isUser && msg.attachment?.kind === "style" && (
-          <div className="mt-2 space-y-3">
+          <div className="mt-3 space-y-3">
             <StyleSummary
               name={msg.attachment.style_name}
               desc={msg.attachment.description}
@@ -1846,20 +1938,20 @@ function StyleSummary({
 }) {
   if (!name && !desc && (!keywords || keywords.length === 0)) return null;
   return (
-    <div className="rounded-2xl border border-zinc-700 bg-zinc-900 p-3">
-      <div className="flex items-center gap-2 text-sm font-semibold">
+    <div className="rounded-xl border border-purple-500/30 bg-gradient-to-br from-purple-900/50 to-pink-900/50 p-4 backdrop-blur-sm">
+      <div className="flex items-center gap-2 text-sm font-semibold text-purple-200">
         <Stars className="h-4 w-4" />
         {name || "Gu thời trang của bạn"}
       </div>
       {desc && (
-        <p className="mt-2 text-zinc-300 text-sm leading-relaxed">{desc}</p>
+        <p className="mt-2 text-purple-100 text-sm leading-relaxed">{desc}</p>
       )}
       {keywords && keywords.length > 0 && (
-        <div className="mt-2 flex flex-wrap gap-2">
+        <div className="mt-3 flex flex-wrap gap-2">
           {keywords.map((k, i) => (
             <span
               key={i}
-              className="inline-flex items-center gap-1 rounded-full border border-zinc-700 px-2 py-1 text-[11px] text-zinc-300"
+              className="inline-flex items-center gap-1 rounded-full bg-white/10 border border-white/20 px-3 py-1 text-xs text-purple-200 backdrop-blur-sm"
             >
               <Tag className="h-3 w-3" /> {k}
             </span>
@@ -1872,13 +1964,16 @@ function StyleSummary({
 
 function MixAndMatch({ names }: { names: string[] }) {
   return (
-    <div className="rounded-2xl border border-zinc-700 bg-zinc-900 p-3">
-      <div className="flex items-center gap-2 text-sm font-semibold">
+    <div className="rounded-xl border border-blue-500/30 bg-gradient-to-br from-blue-900/50 to-cyan-900/50 p-4 backdrop-blur-sm">
+      <div className="flex items-center gap-2 text-sm font-semibold text-blue-200">
         <Shirt className="h-4 w-4" /> Set phối đồ gợi ý
       </div>
-      <ul className="mt-2 list-disc list-inside text-sm text-zinc-300 space-y-1">
+      <ul className="mt-2 space-y-1">
         {names.map((n, i) => (
-          <li key={i}>{n}</li>
+          <li key={i} className="flex items-center gap-2 text-sm text-blue-100">
+            <div className="w-1.5 h-1.5 bg-blue-400 rounded-full"></div>
+            {n}
+          </li>
         ))}
       </ul>
     </div>
@@ -1918,8 +2013,8 @@ function ProductCard({
   const displayPrice = basePrice ?? firstSale ?? firstPrice ?? null;
 
   return (
-    <div className="rounded-2xl overflow-hidden border border-zinc-700">
-      <div className="aspect-[16/9] bg-zinc-800">
+    <div className="rounded-xl overflow-hidden border border-white/20 bg-white/5 backdrop-blur-sm hover:bg-white/10 transition-all duration-300">
+      <div className="aspect-[16/9] bg-gradient-to-br from-gray-800 to-gray-900">
         {cover ? (
           <Image
             src={cover}
@@ -1931,51 +2026,54 @@ function ProductCard({
             loading="lazy"
           />
         ) : (
-          <div className="h-full w-full flex items-center justify-center text-zinc-500 text-xs">
+          <div className="h-full w-full flex items-center justify-center text-gray-400 text-xs">
             Không có ảnh
           </div>
         )}
       </div>
 
       <div className="p-3">
-        <div className="font-medium text-zinc-100 line-clamp-2">
+        <div className="font-medium text-white line-clamp-2">
           {product.name}
         </div>
         {displayPrice != null && (
-          <div className="mt-1 text-sm text-zinc-300">
+          <div className="mt-1 text-sm font-semibold text-green-400">
             {formatPrice(displayPrice)}
           </div>
         )}
         {product.description && (
-          <div className="mt-1 text-xs text-zinc-400 line-clamp-2">
+          <div className="mt-1 text-xs text-gray-300 line-clamp-2">
             {product.description}
           </div>
         )}
 
         {hasVariants && variants.length > 0 && (
           <div className="mt-3 overflow-x-auto">
-            <table className="min-w-full text-xs">
+            <table className="min-w-full text-xs bg-black/20 rounded-lg">
               <thead>
-                <tr className="text-zinc-400">
-                  <th className="text-left font-normal pr-3 py-1">Size</th>
-                  <th className="text-left font-normal pr-3 py-1">Màu</th>
-                  <th className="text-left font-normal pr-3 py-1">Giá</th>
-                  <th className="text-left font-normal pr-3 py-1">Giá KM</th>
-                  <th className="text-left font-normal pr-3 py-1">Kho</th>
+                <tr className="text-gray-400 bg-white/5">
+                  <th className="text-left font-normal px-2 py-2">Size</th>
+                  <th className="text-left font-normal px-2 py-2">Màu</th>
+                  <th className="text-left font-normal px-2 py-2">Giá</th>
+                  <th className="text-left font-normal px-2 py-2">Giá KM</th>
+                  <th className="text-left font-normal px-2 py-2">Kho</th>
                 </tr>
               </thead>
               <tbody>
                 {variants.map((v, i) => (
-                  <tr key={v.id ?? i} className="text-zinc-300">
-                    <td className="pr-3 py-1">{v.size ?? "-"}</td>
-                    <td className="pr-3 py-1">{v.color ?? "-"}</td>
-                    <td className="pr-3 py-1">
+                  <tr
+                    key={v.id ?? i}
+                    className="text-gray-300 border-t border-white/10"
+                  >
+                    <td className="px-2 py-2">{v.size ?? "-"}</td>
+                    <td className="px-2 py-2">{v.color ?? "-"}</td>
+                    <td className="px-2 py-2 text-gray-400">
                       {v.price != null ? formatPrice(v.price) : "-"}
                     </td>
-                    <td className="pr-3 py-1">
+                    <td className="px-2 py-2 text-green-400 font-medium">
                       {v.sale_price != null ? formatPrice(v.sale_price) : "-"}
                     </td>
-                    <td className="pr-3 py-1">{v.stock_quantity ?? "-"}</td>
+                    <td className="px-2 py-2">{v.stock_quantity ?? "-"}</td>
                   </tr>
                 ))}
               </tbody>

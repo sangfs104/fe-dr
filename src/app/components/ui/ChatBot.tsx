@@ -1973,6 +1973,651 @@
 //     </div>
 //   );
 // }
+// được rồi
+// "use client";
+
+// import React, {
+//   useCallback,
+//   useEffect,
+//   useMemo,
+//   useRef,
+//   useState,
+// } from "react";
+// import axios from "axios";
+// import toast, { Toaster } from "react-hot-toast";
+// import Image from "next/image";
+// import {
+//   MessageCircle,
+//   Send,
+//   Loader2,
+//   Sparkles,
+//   Tag,
+//   Shirt,
+//   Stars,
+//   X,
+//   Mic,
+// } from "lucide-react";
+
+// // ---------------------------------------------
+// // Types matching your Laravel API responses
+// // ---------------------------------------------
+
+// type ApiVariant = {
+//   id: number;
+//   product_id?: number;
+//   img_id?: number | null;
+//   size?: string | null;
+//   color?: string | null;
+//   price?: number | null;
+//   sale_price?: number | null;
+//   stock_quantity?: number | null;
+//   status?: number | null;
+// };
+
+// type ApiCategory = {
+//   id?: number | null;
+//   name?: string | null;
+// };
+
+// type ApiProductBasic = {
+//   id: number;
+//   name: string;
+//   description?: string | null;
+//   price?: number | null;
+//   images: string[];
+// };
+
+// type ApiProductFull = {
+//   id: number;
+//   name: string;
+//   description?: string | null;
+//   images: string[];
+//   variant?: ApiVariant[];
+//   category?: ApiCategory;
+// };
+
+// type ApiResponse = {
+//   message?: string;
+//   style_name?: string | null;
+//   description?: string | null;
+//   keywords?: string[];
+//   products?: ApiProductBasic[] | ApiProductFull[];
+//   mix_and_match?: string[] | null;
+// };
+
+// // ---------------------------------------------
+// // Chat UI Types
+// // ---------------------------------------------
+
+// type ChatRole = "user" | "assistant" | "system";
+
+// type ChatAttachment = {
+//   kind: "style";
+//   style_name?: string | null;
+//   description?: string | null;
+//   keywords?: string[];
+//   products?: (ApiProductBasic | ApiProductFull)[];
+//   mix_and_match?: string[] | null;
+// };
+
+// type ChatMessage = {
+//   id: string;
+//   role: ChatRole;
+//   text: string;
+//   attachment?: ChatAttachment;
+// };
+
+// // ---------------------------------------------
+// // Utilities
+// // ---------------------------------------------
+
+// function clsx(...args: (string | false | null | undefined)[]): string {
+//   return args.filter(Boolean).join(" ");
+// }
+
+// function formatPrice(p?: number | null): string {
+//   if (p == null) return "";
+//   try {
+//     return new Intl.NumberFormat("vi-VN", {
+//       style: "currency",
+//       currency: "VND",
+//       maximumFractionDigits: 0,
+//     }).format(p);
+//   } catch {
+//     return `${p}`;
+//   }
+// }
+
+// // ---------------------------------------------
+// // Speech Recognition Setup
+// // ---------------------------------------------
+
+// const SpeechRecognition =
+//   typeof window !== "undefined"
+//     ? window.SpeechRecognition || window.webkitSpeechRecognition
+//     : null;
+
+// const recognition = SpeechRecognition ? new SpeechRecognition() : null;
+
+// if (recognition) {
+//   recognition.lang = "vi-VN";
+//   recognition.interimResults = true;
+//   recognition.continuous = false;
+// }
+
+// // ---------------------------------------------
+// // Main Component
+// // ---------------------------------------------
+
+// export default function ChatBoxStylistAI({
+//   apiUrl,
+//   title = "Stylist AI",
+// }: {
+//   apiUrl?: string;
+//   title?: string;
+//   onClose?: () => void;
+// }) {
+//   const endpoint = useMemo(() => {
+//     const defaultUrl = `${process.env.NEXT_PUBLIC_API_URL ??
+//       ""}/api/stylist/analyze`;
+//     if (!process.env.NEXT_PUBLIC_API_URL) {
+//       console.warn("NEXT_PUBLIC_API_URL is not set. Using default endpoint.");
+//     }
+//     return apiUrl || defaultUrl;
+//   }, [apiUrl]);
+
+//   const [isOpen, setIsOpen] = useState<boolean>(true);
+//   const [input, setInput] = useState<string>("");
+//   const [sending, setSending] = useState<boolean>(false);
+//   const [isRecording, setIsRecording] = useState<boolean>(false);
+//   const [messages, setMessages] = useState<ChatMessage[]>([
+//     {
+//       id: crypto.randomUUID(),
+//       role: "assistant",
+//       text:
+//         "Xin chào! Mình là Stylist AI 👗 Hãy nói cho mình biết bạn muốn tìm sản phẩm gì, hỏi size, xem ưu đãi/flash sale, hoặc mình có thể phối một set đồ theo gu của bạn nhé!",
+//     },
+//   ]);
+
+//   const listRef = useRef<HTMLDivElement>(null);
+//   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+//   useEffect(() => {
+//     listRef.current?.scrollTo({
+//       top: listRef.current.scrollHeight,
+//       behavior: "smooth",
+//     });
+//   }, [messages.length, sending]);
+
+//   useEffect(() => {
+//     if (!textareaRef.current) return;
+//     const el = textareaRef.current;
+//     el.style.height = "0px";
+//     el.style.height = `${Math.min(120, el.scrollHeight)}px`;
+//   }, [input]);
+
+//   const sendInput = useCallback(async () => {
+//     const trimmed = input.trim();
+//     if (!trimmed) return;
+
+//     const userMsg: ChatMessage = {
+//       id: crypto.randomUUID(),
+//       role: "user",
+//       text: trimmed,
+//     };
+
+//     setMessages((prev) => [...prev, userMsg]);
+//     setInput("");
+//     setSending(true);
+
+//     try {
+//       const res = await axios.post<ApiResponse>(endpoint, {
+//         answers: [trimmed],
+//       });
+
+//       const data = res.data || {};
+
+//       const attachment: ChatAttachment | undefined =
+//         data.style_name ||
+//         data.description ||
+//         data.keywords ||
+//         data.products ||
+//         data.mix_and_match
+//           ? {
+//               kind: "style",
+//               style_name: data.style_name,
+//               description: data.description,
+//               keywords: data.keywords,
+//               products: data.products ?? [],
+//               mix_and_match: data.mix_and_match ?? null,
+//             }
+//           : undefined;
+
+//       const assistantMsg: ChatMessage = {
+//         id: crypto.randomUUID(),
+//         role: "assistant",
+//         text: data.message || "Mình đã tìm thấy một số gợi ý cho bạn!",
+//         attachment,
+//       };
+
+//       setMessages((prev) => [...prev, assistantMsg]);
+//     } catch (err) {
+//       console.error("API Error:", err);
+//       let msg = "Đã có lỗi xảy ra. Vui lòng thử lại.";
+//       if (err instanceof axios.AxiosError && err.response?.data?.message) {
+//         msg = err.response.data.message;
+//       }
+//       toast.error(msg);
+//       setMessages((prev) => [
+//         ...prev,
+//         {
+//           id: crypto.randomUUID(),
+//           role: "assistant",
+//           text: msg,
+//         },
+//       ]);
+//     } finally {
+//       setSending(false);
+//     }
+//   }, [input, endpoint]);
+
+//   const startRecording = useCallback(() => {
+//     if (!recognition) {
+//       toast.error("Trình duyệt không hỗ trợ nhận diện giọng nói.");
+//       return;
+//     }
+//     setIsRecording(true);
+//     recognition.start();
+
+//     recognition.onresult = (event) => {
+//       const transcript = Array.from(event.results)
+//         .map((result) => result[0].transcript)
+//         .join("");
+//       setInput(transcript);
+//     };
+
+//     recognition.onend = () => {
+//       setIsRecording(false);
+//       if (input.trim()) {
+//         sendInput();
+//       }
+//     };
+
+//     recognition.onerror = (event) => {
+//       setIsRecording(false);
+//       toast.error("Lỗi nhận diện giọng nói: " + event.error);
+//     };
+//   }, [input, sendInput]);
+
+//   const stopRecording = useCallback(() => {
+//     if (recognition && isRecording) {
+//       recognition.stop();
+//     }
+//   }, [isRecording]);
+
+//   const onKeyDown = useCallback(
+//     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+//       if (e.key === "Enter" && !e.shiftKey) {
+//         e.preventDefault();
+//         if (!sending) sendInput();
+//       }
+//     },
+//     [sending, sendInput]
+//   );
+
+//   return (
+//     <div className="fixed bottom-4 right-4 z-50 w-full max-w-md">
+//       <Toaster position="top-right" />
+//       <div className="rounded-2xl shadow-2xl bg-zinc-900 text-zinc-100 border border-zinc-800 overflow-hidden">
+//         <div className="flex items-center justify-between p-3 border-b border-zinc-800">
+//           <div className="flex items-center gap-2">
+//             <div className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-zinc-800">
+//               <Sparkles className="h-4 w-4" />
+//             </div>
+//             <div className="font-semibold">{title}</div>
+//           </div>
+//           <button
+//             onClick={() => setIsOpen((v) => !v)}
+//             className="inline-flex items-center gap-2 text-sm px-2 py-1 rounded-xl bg-zinc-800 hover:bg-zinc-700 transition-colors"
+//           >
+//             {isOpen ? (
+//               <>
+//                 <X className="h-4 w-4" /> Đóng
+//               </>
+//             ) : (
+//               <>
+//                 <MessageCircle className="h-4 w-4" /> Mở
+//               </>
+//             )}
+//           </button>
+//         </div>
+
+//         {isOpen && (
+//           <>
+//             <div
+//               ref={listRef}
+//               className="max-h-[60vh] overflow-y-auto p-3 space-y-3"
+//             >
+//               {messages.map((m) => (
+//                 <MessageBubble key={m.id} msg={m} />
+//               ))}
+//               {sending && (
+//                 <div className="flex items-center gap-2 text-zinc-400 text-sm">
+//                   <Loader2 className="h-4 w-4 animate-spin" /> Đang soạn trả
+//                   lời...
+//                 </div>
+//               )}
+//             </div>
+
+//             <div className="border-t border-zinc-800 p-3">
+//               <div className="relative">
+//                 <textarea
+//                   ref={textareaRef}
+//                   value={input}
+//                   onChange={(e) => setInput(e.target.value)}
+//                   onKeyDown={onKeyDown}
+//                   placeholder="Nhập hoặc nói để hỏi: tìm sản phẩm, hỏi size, xem giảm giá/flash sale, hoặc nhờ phối đồ..."
+//                   className="w-full resize-none bg-zinc-800 text-zinc-100 rounded-2xl p-3 pr-20 placeholder:text-zinc-500 outline-none focus:ring-2 focus:ring-zinc-700"
+//                   rows={1}
+//                 />
+//                 <button
+//                   onClick={isRecording ? stopRecording : startRecording}
+//                   disabled={sending || !SpeechRecognition}
+//                   className={clsx(
+//                     "absolute right-12 bottom-2 inline-flex items-center gap-1 rounded-xl px-3 py-2 text-sm transition-colors",
+//                     sending || !SpeechRecognition
+//                       ? "bg-zinc-700 text-zinc-400 cursor-not-allowed"
+//                       : isRecording
+//                       ? "bg-red-600 text-white hover:bg-red-700"
+//                       : "bg-blue-600 text-white hover:bg-blue-700"
+//                   )}
+//                 >
+//                   <Mic className="h-4 w-4" />
+//                   {isRecording ? "Dừng" : "Nói"}
+//                 </button>
+//                 <button
+//                   onClick={sendInput}
+//                   disabled={sending || !input.trim()}
+//                   className={clsx(
+//                     "absolute right-2 bottom-2 inline-flex items-center gap-1 rounded-xl px-3 py-2 text-sm transition-colors",
+//                     sending || !input.trim()
+//                       ? "bg-zinc-700 text-zinc-400 cursor-not-allowed"
+//                       : "bg-white text-zinc-900 hover:bg-zinc-200"
+//                   )}
+//                 >
+//                   {sending ? (
+//                     <>
+//                       <Loader2 className="h-4 w-4 animate-spin" />
+//                       Gửi
+//                     </>
+//                   ) : (
+//                     <>
+//                       <Send className="h-4 w-4" /> Gửi
+//                     </>
+//                   )}
+//                 </button>
+//               </div>
+//               <div className="mt-2 text-[11px] text-zinc-500">
+//                 Nhấn Enter để gửi • Shift+Enter để xuống dòng
+//               </div>
+//             </div>
+//           </>
+//         )}
+//       </div>
+//     </div>
+//   );
+// }
+
+// // ---------------------------------------------
+// // Message Bubble + Rich Attachments
+// // ---------------------------------------------
+
+// function MessageBubble({ msg }: { msg: ChatMessage }) {
+//   const isUser = msg.role === "user";
+//   const [highlightedText, setHighlightedText] = useState<string[]>([]);
+//   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+
+//   useEffect(() => {
+//     if (msg.role === "assistant" && msg.text) {
+//       const utterance = new SpeechSynthesisUtterance(msg.text);
+//       utterance.lang = "vi-VN";
+//       utterance.rate = 1;
+//       utterance.pitch = 1;
+//       utterance.volume = 1;
+
+//       const words = msg.text.split(" ");
+//       let wordIndex = 0;
+
+//       utterance.onboundary = (event) => {
+//         if (event.name === "word" && event.charIndex != null) {
+//           setHighlightedText(words.slice(0, wordIndex + 1));
+//           wordIndex++;
+//         }
+//       };
+
+//       utterance.onend = () => {
+//         setHighlightedText([]);
+//         utteranceRef.current = null;
+//       };
+
+//       utteranceRef.current = utterance;
+//       window.speechSynthesis.speak(utterance);
+
+//       return () => {
+//         if (utteranceRef.current) {
+//           window.speechSynthesis.cancel();
+//           utteranceRef.current = null;
+//           setHighlightedText([]);
+//         }
+//       };
+//     }
+//   }, [msg.text, msg.role]);
+
+//   const renderText = () => {
+//     if (!msg.text) return null;
+//     const words = msg.text.split(" ");
+//     return (
+//       <span>
+//         {words.map((word, index) => (
+//           <span
+//             key={index}
+//             className={clsx(
+//               highlightedText.includes(word) ? "bg-yellow-500 text-black" : ""
+//             )}
+//           >
+//             {word}{" "}
+//           </span>
+//         ))}
+//       </span>
+//     );
+//   };
+
+//   return (
+//     <div className={clsx("flex", isUser ? "justify-end" : "justify-start")}>
+//       <div
+//         className={clsx(
+//           "max-w-[85%] rounded-2xl px-3 py-2 text-sm",
+//           isUser ? "bg-zinc-700 text-zinc-100" : "bg-zinc-800 text-zinc-100"
+//         )}
+//       >
+//         {msg.text && (
+//           <div className="whitespace-pre-wrap leading-relaxed">
+//             {renderText()}
+//           </div>
+//         )}
+//         {!isUser && msg.attachment?.kind === "style" && (
+//           <div className="mt-2 space-y-3">
+//             <StyleSummary
+//               name={msg.attachment.style_name}
+//               desc={msg.attachment.description}
+//               keywords={msg.attachment.keywords}
+//             />
+//             {Array.isArray(msg.attachment.mix_and_match) &&
+//               msg.attachment.mix_and_match.length > 0 && (
+//                 <MixAndMatch names={msg.attachment.mix_and_match} />
+//               )}
+//             {Array.isArray(msg.attachment.products) &&
+//               msg.attachment.products.length > 0 && (
+//                 <ProductsGrid products={msg.attachment.products} />
+//               )}
+//           </div>
+//         )}
+//       </div>
+//     </div>
+//   );
+// }
+
+// function StyleSummary({
+//   name,
+//   desc,
+//   keywords,
+// }: {
+//   name?: string | null;
+//   desc?: string | null;
+//   keywords?: string[];
+// }) {
+//   if (!name && !desc && (!keywords || keywords.length === 0)) return null;
+//   return (
+//     <div className="rounded-2xl border border-zinc-700 bg-zinc-900 p-3">
+//       <div className="flex items-center gap-2 text-sm font-semibold">
+//         <Stars className="h-4 w-4" />
+//         {name || "Gu thời trang của bạn"}
+//       </div>
+//       {desc && (
+//         <p className="mt-2 text-zinc-300 text-sm leading-relaxed">{desc}</p>
+//       )}
+//       {keywords && keywords.length > 0 && (
+//         <div className="mt-2 flex flex-wrap gap-2">
+//           {keywords.map((k, i) => (
+//             <span
+//               key={i}
+//               className="inline-flex items-center gap-1 rounded-full border border-zinc-700 px-2 py-1 text-[11px] text-zinc-300"
+//             >
+//               <Tag className="h-3 w-3" /> {k}
+//             </span>
+//           ))}
+//         </div>
+//       )}
+//     </div>
+//   );
+// }
+
+// function MixAndMatch({ names }: { names: string[] }) {
+//   return (
+//     <div className="rounded-2xl border border-zinc-700 bg-zinc-900 p-3">
+//       <div className="flex items-center gap-2 text-sm font-semibold">
+//         <Shirt className="h-4 w-4" /> Set phối đồ gợi ý
+//       </div>
+//       <ul className="mt-2 list-disc list-inside text-sm text-zinc-300 space-y-1">
+//         {names.map((n, i) => (
+//           <li key={i}>{n}</li>
+//         ))}
+//       </ul>
+//     </div>
+//   );
+// }
+
+// function ProductsGrid({
+//   products,
+// }: {
+//   products: (ApiProductBasic | ApiProductFull)[];
+// }) {
+//   return (
+//     <div className="grid grid-cols-1 gap-3">
+//       {products.map((p) => (
+//         <ProductCard
+//           key={p.id + ((p as ApiProductFull).variant ? "-full" : "-basic")}
+//           product={p}
+//         />
+//       ))}
+//     </div>
+//   );
+// }
+
+// function ProductCard({
+//   product,
+// }: {
+//   product: ApiProductBasic | ApiProductFull;
+// }) {
+//   const cover = product.images?.[0];
+//   const hasVariants = Array.isArray((product as ApiProductFull).variant);
+//   const variants = (product as ApiProductFull).variant || [];
+
+//   const basePrice = "price" in product ? product.price ?? null : null;
+//   const firstSale =
+//     variants.find((v) => v.sale_price != null)?.sale_price ?? null;
+//   const firstPrice = variants.find((v) => v.price != null)?.price ?? null;
+//   const displayPrice = basePrice ?? firstSale ?? firstPrice ?? null;
+
+//   return (
+//     <div className="rounded-2xl overflow-hidden border border-zinc-700">
+//       <div className="aspect-[16/9] bg-zinc-800">
+//         {cover ? (
+//           <Image
+//             src={cover}
+//             alt={product.name}
+//             className="h-full w-full object-cover"
+//             width={500}
+//             height={281}
+//             unoptimized
+//             loading="lazy"
+//           />
+//         ) : (
+//           <div className="h-full w-full flex items-center justify-center text-zinc-500 text-xs">
+//             Không có ảnh
+//           </div>
+//         )}
+//       </div>
+
+//       <div className="p-3">
+//         <div className="font-medium text-zinc-100 line-clamp-2">
+//           {product.name}
+//         </div>
+//         {displayPrice != null && (
+//           <div className="mt-1 text-sm text-zinc-300">
+//             {formatPrice(displayPrice)}
+//           </div>
+//         )}
+//         {product.description && (
+//           <div className="mt-1 text-xs text-zinc-400 line-clamp-2">
+//             {product.description}
+//           </div>
+//         )}
+
+//         {hasVariants && variants.length > 0 && (
+//           <div className="mt-3 overflow-x-auto">
+//             <table className="min-w-full text-xs">
+//               <thead>
+//                 <tr className="text-zinc-400">
+//                   <th className="text-left font-normal pr-3 py-1">Size</th>
+//                   <th className="text-left font-normal pr-3 py-1">Màu</th>
+//                   <th className="text-left font-normal pr-3 py-1">Giá</th>
+//                   <th className="text-left font-normal pr-3 py-1">Giá KM</th>
+//                   <th className="text-left font-normal pr-3 py-1">Kho</th>
+//                 </tr>
+//               </thead>
+//               <tbody>
+//                 {variants.map((v, i) => (
+//                   <tr key={v.id ?? i} className="text-zinc-300">
+//                     <td className="pr-3 py-1">{v.size ?? "-"}</td>
+//                     <td className="pr-3 py-1">{v.color ?? "-"}</td>
+//                     <td className="pr-3 py-1">
+//                       {v.price != null ? formatPrice(v.price) : "-"}
+//                     </td>
+//                     <td className="pr-3 py-1">
+//                       {v.sale_price != null ? formatPrice(v.sale_price) : "-"}
+//                     </td>
+//                     <td className="pr-3 py-1">{v.stock_quantity ?? "-"}</td>
+//                   </tr>
+//                 ))}
+//               </tbody>
+//             </table>
+//           </div>
+//         )}
+//       </div>
+//     </div>
+//   );
+// }
 "use client";
 
 import React, {
@@ -1996,10 +2641,6 @@ import {
   X,
   Mic,
 } from "lucide-react";
-
-// ---------------------------------------------
-// Types matching your Laravel API responses
-// ---------------------------------------------
 
 type ApiVariant = {
   id: number;
@@ -2040,13 +2681,9 @@ type ApiResponse = {
   style_name?: string | null;
   description?: string | null;
   keywords?: string[];
-  products?: ApiProductBasic[] | ApiProductFull[];
+  products?: (ApiProductBasic | ApiProductFull)[];
   mix_and_match?: string[] | null;
 };
-
-// ---------------------------------------------
-// Chat UI Types
-// ---------------------------------------------
 
 type ChatRole = "user" | "assistant" | "system";
 
@@ -2066,10 +2703,6 @@ type ChatMessage = {
   attachment?: ChatAttachment;
 };
 
-// ---------------------------------------------
-// Utilities
-// ---------------------------------------------
-
 function clsx(...args: (string | false | null | undefined)[]): string {
   return args.filter(Boolean).join(" ");
 }
@@ -2087,10 +2720,6 @@ function formatPrice(p?: number | null): string {
   }
 }
 
-// ---------------------------------------------
-// Speech Recognition Setup
-// ---------------------------------------------
-
 const SpeechRecognition =
   typeof window !== "undefined"
     ? window.SpeechRecognition || window.webkitSpeechRecognition
@@ -2104,13 +2733,10 @@ if (recognition) {
   recognition.continuous = false;
 }
 
-// ---------------------------------------------
-// Main Component
-// ---------------------------------------------
-
 export default function ChatBoxStylistAI({
   apiUrl,
   title = "Stylist AI",
+  onClose,
 }: {
   apiUrl?: string;
   title?: string;
@@ -2237,9 +2863,7 @@ export default function ChatBoxStylistAI({
 
     recognition.onend = () => {
       setIsRecording(false);
-      if (input.trim()) {
-        sendInput();
-      }
+      if (input.trim()) sendInput();
     };
 
     recognition.onerror = (event) => {
@@ -2254,6 +2878,11 @@ export default function ChatBoxStylistAI({
     }
   }, [isRecording]);
 
+  const handleClose = () => {
+    setIsOpen(false);
+    if (onClose) onClose(); // Notify parent to close the modal
+  };
+
   const onKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
       if (e.key === "Enter" && !e.shiftKey) {
@@ -2265,111 +2894,116 @@ export default function ChatBoxStylistAI({
   );
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 w-full max-w-md">
-      <Toaster position="top-right" />
-      <div className="rounded-2xl shadow-2xl bg-zinc-900 text-zinc-100 border border-zinc-800 overflow-hidden">
-        <div className="flex items-center justify-between p-3 border-b border-zinc-800">
-          <div className="flex items-center gap-2">
-            <div className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-zinc-800">
-              <Sparkles className="h-4 w-4" />
+    <>
+      {/* Backdrop only when open */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40"
+          onClick={handleClose}
+        ></div>
+      )}
+      <div className="fixed bottom-4 right-4 z-50 w-full max-w-md">
+        <Toaster position="top-right" />
+        <div className="rounded-2xl shadow-2xl bg-zinc-900 text-zinc-100 border border-zinc-800 overflow-hidden">
+          <div className="flex items-center justify-between p-3 border-b border-zinc-800">
+            <div className="flex items-center gap-2">
+              <div className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-zinc-800">
+                <Sparkles className="h-4 w-4" />
+              </div>
+              <div className="font-semibold">{title}</div>
             </div>
-            <div className="font-semibold">{title}</div>
-          </div>
-          <button
-            onClick={() => setIsOpen((v) => !v)}
-            className="inline-flex items-center gap-2 text-sm px-2 py-1 rounded-xl bg-zinc-800 hover:bg-zinc-700 transition-colors"
-          >
-            {isOpen ? (
-              <>
-                <X className="h-4 w-4" /> Đóng
-              </>
-            ) : (
-              <>
-                <MessageCircle className="h-4 w-4" /> Mở
-              </>
-            )}
-          </button>
-        </div>
-
-        {isOpen && (
-          <>
-            <div
-              ref={listRef}
-              className="max-h-[60vh] overflow-y-auto p-3 space-y-3"
+            <button
+              onClick={handleClose}
+              className="inline-flex items-center gap-2 text-sm px-2 py-1 rounded-xl bg-zinc-800 hover:bg-zinc-700 transition-colors"
             >
-              {messages.map((m) => (
-                <MessageBubble key={m.id} msg={m} />
-              ))}
-              {sending && (
-                <div className="flex items-center gap-2 text-zinc-400 text-sm">
-                  <Loader2 className="h-4 w-4 animate-spin" /> Đang soạn trả
-                  lời...
-                </div>
+              {isOpen ? (
+                <>
+                  <X className="h-4 w-4" /> Đóng
+                </>
+              ) : (
+                <>
+                  <MessageCircle className="h-4 w-4" /> Mở
+                </>
               )}
-            </div>
+            </button>
+          </div>
 
-            <div className="border-t border-zinc-800 p-3">
-              <div className="relative">
-                <textarea
-                  ref={textareaRef}
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={onKeyDown}
-                  placeholder="Nhập hoặc nói để hỏi: tìm sản phẩm, hỏi size, xem giảm giá/flash sale, hoặc nhờ phối đồ..."
-                  className="w-full resize-none bg-zinc-800 text-zinc-100 rounded-2xl p-3 pr-20 placeholder:text-zinc-500 outline-none focus:ring-2 focus:ring-zinc-700"
-                  rows={1}
-                />
-                <button
-                  onClick={isRecording ? stopRecording : startRecording}
-                  disabled={sending || !SpeechRecognition}
-                  className={clsx(
-                    "absolute right-12 bottom-2 inline-flex items-center gap-1 rounded-xl px-3 py-2 text-sm transition-colors",
-                    sending || !SpeechRecognition
-                      ? "bg-zinc-700 text-zinc-400 cursor-not-allowed"
-                      : isRecording
-                      ? "bg-red-600 text-white hover:bg-red-700"
-                      : "bg-blue-600 text-white hover:bg-blue-700"
-                  )}
-                >
-                  <Mic className="h-4 w-4" />
-                  {isRecording ? "Dừng" : "Nói"}
-                </button>
-                <button
-                  onClick={sendInput}
-                  disabled={sending || !input.trim()}
-                  className={clsx(
-                    "absolute right-2 bottom-2 inline-flex items-center gap-1 rounded-xl px-3 py-2 text-sm transition-colors",
-                    sending || !input.trim()
-                      ? "bg-zinc-700 text-zinc-400 cursor-not-allowed"
-                      : "bg-white text-zinc-900 hover:bg-zinc-200"
-                  )}
-                >
-                  {sending ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Gửi
-                    </>
-                  ) : (
-                    <>
-                      <Send className="h-4 w-4" /> Gửi
-                    </>
-                  )}
-                </button>
+          {isOpen && (
+            <>
+              <div
+                ref={listRef}
+                className="max-h-[60vh] overflow-y-auto p-3 space-y-3"
+              >
+                {messages.map((m) => (
+                  <MessageBubble key={m.id} msg={m} />
+                ))}
+                {sending && (
+                  <div className="flex items-center gap-2 text-zinc-400 text-sm">
+                    <Loader2 className="h-4 w-4 animate-spin" /> Đang soạn trả
+                    lời...
+                  </div>
+                )}
               </div>
-              <div className="mt-2 text-[11px] text-zinc-500">
-                Nhấn Enter để gửi • Shift+Enter để xuống dòng
+
+              <div className="border-t border-zinc-800 p-3">
+                <div className="relative">
+                  <textarea
+                    ref={textareaRef}
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={onKeyDown}
+                    placeholder="Nhập hoặc nói để hỏi: tìm sản phẩm, hỏi size, xem giảm giá/flash sale, hoặc nhờ phối đồ..."
+                    className="w-full resize-none bg-zinc-800 text-zinc-100 rounded-2xl p-3 pr-20 placeholder:text-zinc-500 outline-none focus:ring-2 focus:ring-zinc-700"
+                    rows={1}
+                  />
+                  <button
+                    onClick={isRecording ? stopRecording : startRecording}
+                    disabled={sending || !SpeechRecognition}
+                    className={clsx(
+                      "absolute right-12 bottom-2 inline-flex items-center gap-1 rounded-xl px-3 py-2 text-sm transition-colors",
+                      sending || !SpeechRecognition
+                        ? "bg-zinc-700 text-zinc-400 cursor-not-allowed"
+                        : isRecording
+                        ? "bg-red-600 text-white hover:bg-red-700"
+                        : "bg-blue-600 text-white hover:bg-blue-700"
+                    )}
+                  >
+                    <Mic className="h-4 w-4" />
+                    {isRecording ? "Dừng" : "Nói"}
+                  </button>
+                  <button
+                    onClick={sendInput}
+                    disabled={sending || !input.trim()}
+                    className={clsx(
+                      "absolute right-2 bottom-2 inline-flex items-center gap-1 rounded-xl px-3 py-2 text-sm transition-colors",
+                      sending || !input.trim()
+                        ? "bg-zinc-700 text-zinc-400 cursor-not-allowed"
+                        : "bg-white text-zinc-900 hover:bg-zinc-200"
+                    )}
+                  >
+                    {sending ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Gửi
+                      </>
+                    ) : (
+                      <>
+                        <Send className="h-4 w-4" /> Gửi
+                      </>
+                    )}
+                  </button>
+                </div>
+                <div className="mt-2 text-[11px] text-zinc-500">
+                  Nhấn Enter để gửi • Shift+Enter để xuống dòng
+                </div>
               </div>
-            </div>
-          </>
-        )}
+            </>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
-
-// ---------------------------------------------
-// Message Bubble + Rich Attachments
-// ---------------------------------------------
 
 function MessageBubble({ msg }: { msg: ChatMessage }) {
   const isUser = msg.role === "user";

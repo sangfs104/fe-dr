@@ -1743,8 +1743,6 @@ function MessageBubble({ msg }: { msg: ChatMessage }) {
 
       utterance.onboundary = (event) => {
         if (event.name === "word" && event.charIndex != null) {
-          const currentText = msg.text.slice(0, event.charIndex);
-          const lastWord = currentText.split(" ").pop() || "";
           setHighlightedText(words.slice(0, wordIndex + 1));
           wordIndex++;
         }
@@ -1881,7 +1879,7 @@ function ProductsGrid({
     <div className="grid grid-cols-1 gap-3">
       {products.map((p) => (
         <ProductCard
-          key={p.id + ((p as ApiProductkrieg).variant ? "-full" : "-basic")}
+          key={p.id + ((p as ApiProductFull).variant ? "-full" : "-basic")}
           product={p}
         />
       ))}

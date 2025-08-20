@@ -652,14 +652,15 @@ import {
   Stars,
   X,
   Mic,
-  MicOff,
-  Volume2,
-  VolumeX,
-  Minimize2,
-  Maximize2,
+  Bot,
+  User,
   ShoppingBag,
-  Palette,
   Zap,
+  Heart,
+  Palette,
+  Wand2,
+  ChevronDown,
+  TrendingUp,
 } from "lucide-react";
 
 type ApiVariant = {
@@ -721,7 +722,7 @@ type ChatMessage = {
   role: ChatRole;
   text: string;
   attachment?: ChatAttachment;
-  timestamp?: Date;
+  timestamp: number;
 };
 
 function clsx(...args: (string | false | null | undefined)[]): string {
@@ -773,32 +774,33 @@ export default function ChatBoxStylistAI({
   }, [apiUrl]);
 
   const [isOpen, setIsOpen] = useState<boolean>(true);
-  const [isMinimized, setIsMinimized] = useState<boolean>(false);
   const [input, setInput] = useState<string>("");
   const [sending, setSending] = useState<boolean>(false);
   const [isRecording, setIsRecording] = useState<boolean>(false);
-  const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
+  const [isMinimized, setIsMinimized] = useState<boolean>(false);
+  const [typingEffect, setTypingEffect] = useState<boolean>(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: crypto.randomUUID(),
       role: "assistant",
       text:
-        "Xin chào! Mình là Stylist AI 👗 Hãy nói cho mình biết bạn muốn tìm sản phẩm gì, hỏi size, xem ưu đãi/flash sale, hoặc mình có thể phối một set đồ theo gu của bạn nhé!",
-      timestamp: new Date(),
+        "Chào bạn! ✨ Tôi là AI Stylist thế hệ mới. Hãy cho tôi biết phong cách bạn muốn khám phá - từ minimalist đến maximalist, từ streetwear đến haute couture. Tôi sẽ tạo ra những outfit hoàn hảo chỉ riêng cho bạn! 🎨",
+      timestamp: Date.now(),
     },
   ]);
 
   const listRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const inputRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (listRef.current && !isMinimized) {
+    if (listRef.current) {
       listRef.current.scrollTo({
         top: listRef.current.scrollHeight,
         behavior: "smooth",
       });
     }
-  }, [messages.length, sending, isMinimized]);
+  }, [messages.length, sending]);
 
   useEffect(() => {
     if (!textareaRef.current) return;
@@ -815,12 +817,13 @@ export default function ChatBoxStylistAI({
       id: crypto.randomUUID(),
       role: "user",
       text: trimmed,
-      timestamp: new Date(),
+      timestamp: Date.now(),
     };
 
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
     setSending(true);
+    setTypingEffect(true);
 
     try {
       const res = await axios.post<ApiResponse>(endpoint, {
@@ -845,15 +848,20 @@ export default function ChatBoxStylistAI({
             }
           : undefined;
 
-      const assistantMsg: ChatMessage = {
-        id: crypto.randomUUID(),
-        role: "assistant",
-        text: data.message || "Mình đã tìm thấy một số gợi ý cho bạn!",
-        attachment,
-        timestamp: new Date(),
-      };
+      // Simulate typing delay for better UX
+      setTimeout(() => {
+        const assistantMsg: ChatMessage = {
+          id: crypto.randomUUID(),
+          role: "assistant",
+          text:
+            data.message || "Tôi đã tìm thấy những gợi ý tuyệt vời cho bạn! ✨",
+          attachment,
+          timestamp: Date.now(),
+        };
 
-      setMessages((prev) => [...prev, assistantMsg]);
+        setMessages((prev) => [...prev, assistantMsg]);
+        setTypingEffect(false);
+      }, 1200);
     } catch (err) {
       console.error("API Error:", err);
       let msg = "Đã có lỗi xảy ra. Vui lòng thử lại.";
@@ -867,9 +875,10 @@ export default function ChatBoxStylistAI({
           id: crypto.randomUUID(),
           role: "assistant",
           text: msg,
-          timestamp: new Date(),
+          timestamp: Date.now(),
         },
       ]);
+      setTypingEffect(false);
     } finally {
       setSending(false);
     }
@@ -907,15 +916,6 @@ export default function ChatBoxStylistAI({
     }
   }, [isRecording]);
 
-  const toggleSpeech = useCallback(() => {
-    if (isSpeaking) {
-      window.speechSynthesis.cancel();
-      setIsSpeaking(false);
-    } else {
-      setIsSpeaking(true);
-    }
-  }, [isSpeaking]);
-
   const handleClose = () => {
     setIsOpen(false);
     if (onClose) onClose();
@@ -935,156 +935,202 @@ export default function ChatBoxStylistAI({
     [sending, sendInput]
   );
 
-  if (!isOpen) return null;
+  const quickActions = [
+    {
+      icon: TrendingUp,
+      label: "Xu hướng hot",
+      action: () =>
+        setInput("Cho tôi xem những xu hướng thời trang hot nhất hiện tại"),
+    },
+    {
+      icon: Heart,
+      label: "Outfit yêu thích",
+      action: () => setInput("Gợi ý outfit cho buổi hẹn hò lãng mạn"),
+    },
+    {
+      icon: Palette,
+      label: "Mix & Match",
+      action: () => setInput("Phối đồ với màu sắc nổi bật"),
+    },
+    {
+      icon: ShoppingBag,
+      label: "Sale hot",
+      action: () => setInput("Có sản phẩm nào đang sale không?"),
+    },
+  ];
 
   return (
     <>
-      {/* Backdrop with blur effect */}
-      <div
-        className="fixed inset-0 backdrop-blur-sm bg-black/20 z-40 transition-opacity duration-300"
-        onClick={handleClose}
-      />
+      {/* Enhanced Backdrop with blur effect */}
+      {isOpen && !isMinimized && (
+        <div
+          className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 transition-all duration-300"
+          onClick={handleClose}
+        />
+      )}
 
-      <div className="fixed bottom-6 right-6 z-50 w-full max-w-md transition-all duration-300 ease-in-out">
+      <div className="fixed bottom-4 right-4 z-50 w-full max-w-md">
         <Toaster
           position="top-right"
           toastOptions={{
-            style: {
-              background: "#18181b",
-              color: "#f4f4f5",
-              border: "1px solid #27272a",
-            },
+            className:
+              "bg-gray-900/90 backdrop-blur-xl text-white border border-gray-700",
+            duration: 4000,
           }}
         />
 
         {/* Main Chat Container */}
         <div
           className={clsx(
-            "rounded-3xl shadow-2xl bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 text-zinc-100 border border-zinc-700/50 overflow-hidden backdrop-blur-xl transition-all duration-500 ease-out",
-            isMinimized ? "h-16" : "h-auto"
+            "rounded-3xl shadow-2xl bg-gradient-to-br from-gray-900/95 via-gray-800/95 to-gray-900/95 backdrop-blur-xl",
+            "text-white border border-gray-700/50 overflow-hidden transition-all duration-500 ease-out",
+            "before:absolute before:inset-0 before:rounded-3xl before:p-[1px] before:bg-gradient-to-r before:from-violet-500/20 before:via-purple-500/20 before:to-pink-500/20 before:content-[''] before:-z-10",
+            isMinimized
+              ? "transform scale-95 opacity-90"
+              : "transform scale-100 opacity-100"
           )}
         >
-          {/* Header with gradient and glassmorphism effect */}
-          <div className="relative p-4 bg-gradient-to-r from-purple-600/20 via-blue-600/20 to-cyan-600/20 border-b border-zinc-700/50 backdrop-blur-sm">
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-blue-500/10 to-cyan-500/10 animate-pulse" />
-            <div className="relative flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="relative">
-                  <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center shadow-lg">
-                    <Sparkles className="h-5 w-5 text-white animate-pulse" />
-                  </div>
-                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full animate-bounce" />
+          {/* Enhanced Header */}
+          <div className="flex items-center justify-between p-4 border-b border-gray-700/50 bg-gradient-to-r from-violet-500/10 via-purple-500/10 to-pink-500/10">
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg">
+                  <Wand2 className="h-5 w-5 text-white" />
                 </div>
-                <div>
-                  <div className="font-bold text-lg bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
-                    {title}
-                  </div>
-                  <div className="text-xs text-zinc-400">
-                    AI Fashion Assistant
-                  </div>
+                <div className="absolute -top-1 -right-1 h-4 w-4 bg-green-400 rounded-full border-2 border-gray-900 flex items-center justify-center">
+                  <div className="h-2 w-2 bg-white rounded-full animate-pulse" />
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={toggleSpeech}
-                  className="p-2 rounded-xl bg-white/10 hover:bg-white/20 transition-all duration-200 backdrop-blur-sm"
-                >
-                  {isSpeaking ? (
-                    <VolumeX className="h-4 w-4" />
-                  ) : (
-                    <Volume2 className="h-4 w-4" />
-                  )}
-                </button>
-                <button
-                  onClick={toggleMinimize}
-                  className="p-2 rounded-xl bg-white/10 hover:bg-white/20 transition-all duration-200 backdrop-blur-sm"
-                >
-                  {isMinimized ? (
-                    <Maximize2 className="h-4 w-4" />
-                  ) : (
-                    <Minimize2 className="h-4 w-4" />
-                  )}
-                </button>
-                <button
-                  onClick={handleClose}
-                  className="p-2 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-400 transition-all duration-200"
-                >
-                  <X className="h-4 w-4" />
-                </button>
+              <div>
+                <div className="font-bold text-lg bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent">
+                  {title}
+                </div>
+                <div className="text-xs text-gray-400 flex items-center gap-1">
+                  <Sparkles className="h-3 w-3" />
+                  AI Fashion Expert
+                </div>
               </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={toggleMinimize}
+                className="p-2 rounded-xl bg-gray-800/50 hover:bg-gray-700/50 transition-all duration-200 hover:scale-105"
+              >
+                <ChevronDown
+                  className={clsx(
+                    "h-4 w-4 transition-transform duration-200",
+                    isMinimized && "rotate-180"
+                  )}
+                />
+              </button>
+              <button
+                onClick={handleClose}
+                className="p-2 rounded-xl bg-gray-800/50 hover:bg-red-500/20 transition-all duration-200 hover:scale-105 group"
+              >
+                <X className="h-4 w-4 group-hover:text-red-400 transition-colors" />
+              </button>
             </div>
           </div>
 
+          {/* Chat Content */}
           {!isMinimized && (
             <>
-              {/* Messages Area with custom scrollbar */}
+              {/* Quick Actions Bar */}
+              <div className="p-3 border-b border-gray-700/30 bg-gray-800/20">
+                <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+                  {quickActions.map((action, index) => (
+                    <button
+                      key={index}
+                      onClick={action.action}
+                      className="flex-shrink-0 flex items-center gap-2 px-3 py-2 rounded-full bg-gradient-to-r from-violet-500/20 to-purple-500/20 
+                               border border-gray-600/30 text-sm hover:from-violet-500/30 hover:to-purple-500/30 transition-all duration-200 hover:scale-105"
+                    >
+                      <action.icon className="h-4 w-4" />
+                      <span className="whitespace-nowrap">{action.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Messages Area */}
               <div
                 ref={listRef}
-                className="max-h-[70vh] overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-zinc-600 scrollbar-track-transparent"
-                style={{
-                  scrollbarWidth: "thin",
-                  scrollbarColor: "#52525b transparent",
-                }}
+                className="max-h-[60vh] overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-track-gray-800 scrollbar-thumb-gray-600 hover:scrollbar-thumb-gray-500"
               >
                 {messages.map((m, index) => (
                   <MessageBubble
                     key={m.id}
                     msg={m}
-                    isLast={index === messages.length - 1}
-                    isSpeaking={isSpeaking}
-                    setIsSpeaking={setIsSpeaking}
+                    isLatest={index === messages.length - 1}
                   />
                 ))}
-                {sending && (
-                  <div className="flex items-center gap-3 text-zinc-400 text-sm animate-fade-in">
-                    <div className="flex space-x-1">
-                      <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" />
-                      <div
-                        className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
-                        style={{ animationDelay: "0.1s" }}
-                      />
-                      <div
-                        className="w-2 h-2 bg-cyan-500 rounded-full animate-bounce"
-                        style={{ animationDelay: "0.2s" }}
-                      />
+
+                {/* Typing Indicator */}
+                {(sending || typingEffect) && (
+                  <div className="flex items-center gap-3 text-gray-400">
+                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-violet-500/20 to-purple-500/20">
+                      <Bot className="h-4 w-4" />
                     </div>
-                    Đang soạn trả lời...
+                    <div className="flex items-center gap-2">
+                      <div className="flex space-x-1">
+                        <div
+                          className="w-2 h-2 bg-violet-400 rounded-full animate-bounce"
+                          style={{ animationDelay: "0ms" }}
+                        />
+                        <div
+                          className="w-2 h-2 bg-purple-400 rounded-full animate-bounce"
+                          style={{ animationDelay: "150ms" }}
+                        />
+                        <div
+                          className="w-2 h-2 bg-pink-400 rounded-full animate-bounce"
+                          style={{ animationDelay: "300ms" }}
+                        />
+                      </div>
+                      <span className="text-sm">
+                        Đang tạo gợi ý tuyệt vời...
+                      </span>
+                    </div>
                   </div>
                 )}
               </div>
 
               {/* Enhanced Input Area */}
-              <div className="border-t border-zinc-700/50 p-4 bg-zinc-900/50 backdrop-blur-sm">
-                <div className="relative group">
-                  <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-cyan-500/20 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-xl" />
-                  <div className="relative">
-                    <textarea
-                      ref={textareaRef}
-                      value={input}
-                      onChange={(e) => setInput(e.target.value)}
-                      onKeyDown={onKeyDown}
-                      placeholder="✨ Nhập hoặc nói để hỏi về thời trang, size, giảm giá..."
-                      className="w-full resize-none bg-zinc-800/50 backdrop-blur-sm text-zinc-100 rounded-3xl p-4 pr-28 placeholder:text-zinc-400 outline-none focus:ring-2 focus:ring-purple-500/50 transition-all duration-300 border border-zinc-700/50"
-                      rows={1}
-                    />
+              <div className="border-t border-gray-700/50 p-4 bg-gradient-to-r from-gray-900/50 to-gray-800/50">
+                <div
+                  ref={inputRef}
+                  className="relative rounded-2xl bg-gray-800/60 backdrop-blur-sm border border-gray-600/30 focus-within:border-violet-500/50 transition-all duration-200"
+                >
+                  <textarea
+                    ref={textareaRef}
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={onKeyDown}
+                    placeholder="Mô tả phong cách bạn muốn, hoặc hỏi về xu hướng, size, giá cả..."
+                    className="w-full resize-none bg-transparent text-white rounded-2xl p-4 pr-24 placeholder:text-gray-400 
+                             outline-none min-h-[52px] max-h-32"
+                    rows={1}
+                  />
 
-                    {/* Voice Recording Button */}
+                  {/* Input Controls */}
+                  <div className="absolute right-2 bottom-2 flex items-center gap-2">
+                    {/* Voice Input */}
                     <button
                       onClick={isRecording ? stopRecording : startRecording}
                       disabled={sending || !SpeechRecognition}
                       className={clsx(
-                        "absolute right-16 bottom-3 p-3 rounded-2xl transition-all duration-300 transform hover:scale-110",
+                        "p-2.5 rounded-xl transition-all duration-200 flex items-center gap-1.5",
                         sending || !SpeechRecognition
-                          ? "bg-zinc-700/50 text-zinc-500 cursor-not-allowed"
+                          ? "bg-gray-700/50 text-gray-400 cursor-not-allowed"
                           : isRecording
-                          ? "bg-gradient-to-r from-red-500 to-pink-500 text-white shadow-lg animate-pulse"
-                          : "bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg hover:shadow-xl"
+                          ? "bg-red-500 text-white shadow-lg shadow-red-500/25 animate-pulse"
+                          : "bg-gradient-to-r from-blue-500 to-cyan-500 text-white hover:shadow-lg hover:shadow-blue-500/25 hover:scale-105"
                       )}
                     >
-                      {isRecording ? (
-                        <MicOff className="h-5 w-5" />
-                      ) : (
-                        <Mic className="h-5 w-5" />
+                      <Mic className="h-4 w-4" />
+                      {SpeechRecognition && (
+                        <span className="text-xs font-medium">
+                          {isRecording ? "●" : "🎤"}
+                        </span>
                       )}
                     </button>
 
@@ -1093,29 +1139,34 @@ export default function ChatBoxStylistAI({
                       onClick={sendInput}
                       disabled={sending || !input.trim()}
                       className={clsx(
-                        "absolute right-3 bottom-3 p-3 rounded-2xl transition-all duration-300 transform hover:scale-110",
+                        "p-2.5 rounded-xl transition-all duration-200 flex items-center gap-1.5 font-medium",
                         sending || !input.trim()
-                          ? "bg-zinc-700/50 text-zinc-500 cursor-not-allowed"
-                          : "bg-gradient-to-r from-purple-500 to-cyan-500 text-white shadow-lg hover:shadow-xl"
+                          ? "bg-gray-700/50 text-gray-400 cursor-not-allowed"
+                          : "bg-gradient-to-r from-violet-500 to-purple-600 text-white shadow-lg shadow-violet-500/25 hover:shadow-xl hover:shadow-violet-500/30 hover:scale-105"
                       )}
                     >
                       {sending ? (
-                        <Loader2 className="h-5 w-5 animate-spin" />
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          <Zap className="h-3 w-3" />
+                        </>
                       ) : (
-                        <Send className="h-5 w-5" />
+                        <>
+                          <Send className="h-4 w-4" />
+                          <Sparkles className="h-3 w-3" />
+                        </>
                       )}
                     </button>
                   </div>
                 </div>
 
-                <div className="mt-3 flex items-center justify-between text-xs text-zinc-500">
+                {/* Helper Text */}
+                <div className="mt-2 text-xs text-gray-500 flex items-center justify-between">
                   <span>Enter để gửi • Shift+Enter xuống dòng</span>
-                  <div className="flex items-center gap-4">
-                    <span className="flex items-center gap-1">
-                      <Zap className="h-3 w-3" />
-                      AI Powered
-                    </span>
-                  </div>
+                  <span className="flex items-center gap-1">
+                    <Sparkles className="h-3 w-3" />
+                    AI-Powered Fashion
+                  </span>
                 </div>
               </div>
             </>
@@ -1128,26 +1179,27 @@ export default function ChatBoxStylistAI({
 
 function MessageBubble({
   msg,
-  isLast,
-  isSpeaking,
-  setIsSpeaking,
+  isLatest,
 }: {
   msg: ChatMessage;
-  isLast: boolean;
-  isSpeaking: boolean;
-  setIsSpeaking: (speaking: boolean) => void;
+  isLatest: boolean;
 }) {
   const isUser = msg.role === "user";
   const [highlightedText, setHighlightedText] = useState<string[]>([]);
+  const [isVisible, setIsVisible] = useState(false);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
   useEffect(() => {
-    if (msg.role === "assistant" && msg.text && isLast && isSpeaking) {
+    setIsVisible(true);
+  }, []);
+
+  useEffect(() => {
+    if (msg.role === "assistant" && msg.text && isLatest) {
       const utterance = new SpeechSynthesisUtterance(msg.text);
       utterance.lang = "vi-VN";
-      utterance.rate = 1;
-      utterance.pitch = 1;
-      utterance.volume = 1;
+      utterance.rate = 0.9;
+      utterance.pitch = 1.1;
+      utterance.volume = 0.8;
 
       const words = msg.text.split(" ");
       let wordIndex = 0;
@@ -1161,7 +1213,6 @@ function MessageBubble({
 
       utterance.onend = () => {
         setHighlightedText([]);
-        setIsSpeaking(false);
         utteranceRef.current = null;
       };
 
@@ -1176,7 +1227,7 @@ function MessageBubble({
         }
       };
     }
-  }, [msg.text, msg.role, isLast, isSpeaking, setIsSpeaking]);
+  }, [msg.text, msg.role, isLatest]);
 
   const renderText = () => {
     if (!msg.text) return null;
@@ -1189,7 +1240,7 @@ function MessageBubble({
             className={clsx(
               "transition-all duration-200",
               highlightedText.includes(word)
-                ? "bg-gradient-to-r from-yellow-400 to-orange-400 text-black px-1 rounded"
+                ? "bg-yellow-400/30 text-yellow-200 px-0.5 rounded"
                 : ""
             )}
           >
@@ -1200,38 +1251,44 @@ function MessageBubble({
     );
   };
 
-  const formatTime = (date?: Date) => {
-    if (!date) return "";
-    return date.toLocaleTimeString("vi-VN", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
   return (
     <div
       className={clsx(
-        "flex items-end gap-3 animate-fade-in-up",
-        isUser ? "justify-end" : "justify-start"
+        "flex transition-all duration-500 ease-out",
+        isUser ? "justify-end" : "justify-start",
+        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
       )}
     >
-      {!isUser && (
-        <div className="w-8 h-8 rounded-2xl bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center flex-shrink-0">
-          <Sparkles className="h-4 w-4 text-white" />
-        </div>
-      )}
-
-      <div className="flex flex-col max-w-[85%]">
+      <div
+        className={clsx("flex gap-3 max-w-[85%]", isUser && "flex-row-reverse")}
+      >
+        {/* Avatar */}
         <div
           className={clsx(
-            "rounded-3xl px-4 py-3 text-sm transition-all duration-300 hover:shadow-lg",
+            "flex-shrink-0 w-8 h-8 rounded-2xl flex items-center justify-center shadow-md",
             isUser
-              ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg"
-              : "bg-zinc-800/50 backdrop-blur-sm text-zinc-100 border border-zinc-700/50"
+              ? "bg-gradient-to-br from-blue-500 to-cyan-500"
+              : "bg-gradient-to-br from-violet-500 to-purple-600"
+          )}
+        >
+          {isUser ? (
+            <User className="h-4 w-4 text-white" />
+          ) : (
+            <Bot className="h-4 w-4 text-white" />
+          )}
+        </div>
+
+        {/* Message Content */}
+        <div
+          className={clsx(
+            "rounded-3xl px-4 py-3 shadow-lg backdrop-blur-sm transition-all duration-200 hover:shadow-xl",
+            isUser
+              ? "bg-gradient-to-br from-blue-500/90 to-cyan-500/90 text-white border border-blue-400/30"
+              : "bg-gradient-to-br from-gray-800/90 to-gray-700/90 text-white border border-gray-600/30"
           )}
         >
           {msg.text && (
-            <div className="whitespace-pre-wrap leading-relaxed">
+            <div className="whitespace-pre-wrap leading-relaxed text-sm font-medium">
               {renderText()}
             </div>
           )}
@@ -1253,25 +1310,21 @@ function MessageBubble({
                 )}
             </div>
           )}
-        </div>
 
-        {msg.timestamp && (
+          {/* Timestamp */}
           <div
             className={clsx(
-              "text-xs text-zinc-500 mt-1 px-2",
+              "mt-2 text-xs opacity-60",
               isUser ? "text-right" : "text-left"
             )}
           >
-            {formatTime(msg.timestamp)}
+            {new Date(msg.timestamp).toLocaleTimeString("vi-VN", {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
           </div>
-        )}
-      </div>
-
-      {isUser && (
-        <div className="w-8 h-8 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center flex-shrink-0">
-          <div className="w-4 h-4 rounded-full bg-white/80" />
         </div>
-      )}
+      </div>
     </div>
   );
 }
@@ -1288,28 +1341,30 @@ function StyleSummary({
   if (!name && !desc && (!keywords || keywords.length === 0)) return null;
 
   return (
-    <div className="rounded-3xl border border-zinc-700/50 bg-gradient-to-br from-zinc-900/50 to-zinc-800/50 p-4 backdrop-blur-sm hover:border-purple-500/30 transition-all duration-300">
-      <div className="flex items-center gap-3 text-sm font-semibold mb-3">
-        <div className="p-2 rounded-xl bg-gradient-to-br from-yellow-500/20 to-orange-500/20">
-          <Stars className="h-5 w-5 text-yellow-400" />
+    <div className="rounded-2xl border border-violet-500/20 bg-gradient-to-br from-violet-500/10 via-purple-500/10 to-pink-500/10 p-4 backdrop-blur-sm">
+      <div className="flex items-center gap-2 text-sm font-bold mb-3">
+        <div className="p-1.5 rounded-lg bg-gradient-to-r from-violet-500 to-purple-600">
+          <Stars className="h-4 w-4 text-white" />
         </div>
-        <span className="bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">
-          {name || "Gu thời trang của bạn"}
+        <span className="bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent">
+          {name || "Phong Cách Của Bạn"}
         </span>
       </div>
 
       {desc && (
-        <p className="text-zinc-300 text-sm leading-relaxed mb-3 pl-11">
+        <p className="text-gray-300 text-sm leading-relaxed mb-3 pl-8">
           {desc}
         </p>
       )}
 
       {keywords && keywords.length > 0 && (
-        <div className="flex flex-wrap gap-2 pl-11">
+        <div className="flex flex-wrap gap-2 pl-8">
           {keywords.map((k, i) => (
             <span
               key={i}
-              className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-purple-500/20 to-blue-500/20 border border-purple-500/30 px-3 py-1 text-xs text-purple-300 hover:from-purple-500/30 hover:to-blue-500/30 transition-all duration-200"
+              className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-violet-500/20 to-purple-500/20 
+                         border border-violet-400/30 px-3 py-1.5 text-xs font-medium text-violet-200 
+                         hover:from-violet-500/30 hover:to-purple-500/30 transition-all duration-200"
             >
               <Tag className="h-3 w-3" />
               {k}
@@ -1323,24 +1378,25 @@ function StyleSummary({
 
 function MixAndMatch({ names }: { names: string[] }) {
   return (
-    <div className="rounded-3xl border border-zinc-700/50 bg-gradient-to-br from-zinc-900/50 to-zinc-800/50 p-4 backdrop-blur-sm hover:border-cyan-500/30 transition-all duration-300">
-      <div className="flex items-center gap-3 text-sm font-semibold mb-3">
-        <div className="p-2 rounded-xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20">
-          <Shirt className="h-5 w-5 text-cyan-400" />
+    <div className="rounded-2xl border border-pink-500/20 bg-gradient-to-br from-pink-500/10 via-rose-500/10 to-purple-500/10 p-4 backdrop-blur-sm">
+      <div className="flex items-center gap-2 text-sm font-bold mb-3">
+        <div className="p-1.5 rounded-lg bg-gradient-to-r from-pink-500 to-rose-600">
+          <Shirt className="h-4 w-4 text-white" />
         </div>
-        <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
-          Set phối đồ gợi ý
+        <span className="bg-gradient-to-r from-pink-400 to-rose-400 bg-clip-text text-transparent">
+          Mix & Match Suggestions
         </span>
       </div>
 
-      <div className="space-y-2 pl-11">
+      <div className="space-y-2 pl-8">
         {names.map((n, i) => (
           <div
             key={i}
-            className="flex items-center gap-2 text-sm text-zinc-300"
+            className="flex items-center gap-2 text-sm text-gray-300 p-2 rounded-lg bg-gray-800/30 
+                       hover:bg-gray-700/40 transition-all duration-200"
           >
-            <div className="w-2 h-2 rounded-full bg-gradient-to-r from-cyan-400 to-blue-400" />
-            {n}
+            <div className="w-2 h-2 rounded-full bg-gradient-to-r from-pink-400 to-rose-400" />
+            <span>{n}</span>
           </div>
         ))}
       </div>
@@ -1379,49 +1435,68 @@ function ProductCard({
     variants.find((v) => v.sale_price != null)?.sale_price ?? null;
   const firstPrice = variants.find((v) => v.price != null)?.price ?? null;
   const displayPrice = basePrice ?? firstSale ?? firstPrice ?? null;
-
   const hasDiscount = firstSale && firstPrice && firstSale < firstPrice;
 
   return (
-    <div className="rounded-3xl overflow-hidden border border-zinc-700/50 bg-gradient-to-br from-zinc-900/50 to-zinc-800/50 backdrop-blur-sm hover:border-purple-500/30 hover:shadow-xl transition-all duration-300 group">
-      <div className="relative aspect-[16/9] bg-zinc-800/50 overflow-hidden">
+    <div className="rounded-2xl overflow-hidden border border-gray-600/30 bg-gradient-to-br from-gray-800/50 to-gray-700/50 backdrop-blur-sm hover:border-violet-500/50 transition-all duration-300 group hover:shadow-lg hover:shadow-violet-500/10">
+      {/* Product Image */}
+      <div className="relative aspect-[16/9] bg-gradient-to-br from-gray-800 to-gray-700 overflow-hidden">
         {cover ? (
           <Image
             src={cover}
             alt={product.name}
-            className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-500"
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
             width={500}
             height={281}
             unoptimized
             loading="lazy"
           />
         ) : (
-          <div className="h-full w-full flex items-center justify-center text-zinc-500">
-            <ShoppingBag className="h-12 w-12 opacity-50" />
+          <div className="h-full w-full flex items-center justify-center text-gray-500 text-xs">
+            <div className="text-center">
+              <ShoppingBag className="h-8 w-8 mx-auto mb-2 opacity-50" />
+              <span>Không có ảnh</span>
+            </div>
           </div>
         )}
 
+        {/* Discount Badge */}
         {hasDiscount && (
-          <div className="absolute top-3 left-3 bg-gradient-to-r from-red-500 to-pink-500 text-white px-3 py-1 rounded-2xl text-xs font-bold animate-pulse">
-            🔥 SALE
+          <div className="absolute top-3 left-3 px-2 py-1 rounded-lg bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold shadow-lg">
+            <span className="flex items-center gap-1">
+              <Zap className="h-3 w-3" />
+              SALE
+            </span>
           </div>
         )}
 
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        {/* Quick Action Overlay */}
+        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+          <div className="flex gap-2">
+            <button className="p-2 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-all duration-200">
+              <Heart className="h-4 w-4 text-white" />
+            </button>
+            <button className="p-2 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-all duration-200">
+              <ShoppingBag className="h-4 w-4 text-white" />
+            </button>
+          </div>
+        </div>
       </div>
 
+      {/* Product Info */}
       <div className="p-4">
-        <h3 className="font-semibold text-zinc-100 line-clamp-2 mb-2 group-hover:text-purple-400 transition-colors duration-200">
+        <div className="font-semibold text-white line-clamp-2 mb-2 group-hover:text-violet-300 transition-colors">
           {product.name}
-        </h3>
+        </div>
 
+        {/* Price Section */}
         {displayPrice != null && (
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-lg font-bold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
+            <span className="text-lg font-bold text-violet-400">
               {formatPrice(displayPrice)}
             </span>
             {hasDiscount && firstPrice && (
-              <span className="text-sm text-zinc-400 line-through">
+              <span className="text-sm text-gray-500 line-through">
                 {formatPrice(firstPrice)}
               </span>
             )}
@@ -1429,85 +1504,93 @@ function ProductCard({
         )}
 
         {product.description && (
-          <p className="text-xs text-zinc-400 line-clamp-2 mb-3">
+          <div className="text-xs text-gray-400 line-clamp-2 mb-3 leading-relaxed">
             {product.description}
-          </p>
+          </div>
         )}
 
+        {/* Variants Table */}
         {hasVariants && variants.length > 0 && (
-          <div className="mt-4 bg-zinc-800/30 rounded-2xl p-3 border border-zinc-700/30">
-            <div className="flex items-center gap-2 mb-3">
-              <Palette className="h-4 w-4 text-purple-400" />
-              <span className="text-sm font-medium text-purple-400">
-                Chi tiết sản phẩm
-              </span>
+          <div className="mt-4">
+            <div className="text-xs font-medium text-gray-300 mb-2 flex items-center gap-1">
+              <Palette className="h-3 w-3" />
+              Tùy chọn sản phẩm
             </div>
-
-            <div className="overflow-x-auto">
-              <table className="min-w-full text-xs">
-                <thead>
-                  <tr className="text-zinc-400 border-b border-zinc-700/30">
-                    <th className="text-left font-medium pr-3 py-2">Size</th>
-                    <th className="text-left font-medium pr-3 py-2">Màu</th>
-                    <th className="text-left font-medium pr-3 py-2">Giá gốc</th>
-                    <th className="text-left font-medium pr-3 py-2">Giá KM</th>
-                    <th className="text-left font-medium pr-3 py-2">Kho</th>
+            <div className="max-h-32 overflow-y-auto scrollbar-thin scrollbar-track-gray-800 scrollbar-thumb-gray-600">
+              <table className="w-full text-xs">
+                <thead className="sticky top-0 bg-gray-800/80 backdrop-blur-sm">
+                  <tr className="text-gray-400">
+                    <th className="text-left font-medium py-2 px-1">Size</th>
+                    <th className="text-left font-medium py-2 px-1">Màu</th>
+                    <th className="text-left font-medium py-2 px-1">Giá</th>
+                    <th className="text-left font-medium py-2 px-1">Sale</th>
+                    <th className="text-left font-medium py-2 px-1">Kho</th>
                   </tr>
                 </thead>
                 <tbody>
                   {variants.map((v, i) => (
                     <tr
                       key={v.id ?? i}
-                      className="text-zinc-300 hover:bg-zinc-700/20 transition-colors duration-200"
+                      className="text-gray-300 hover:bg-gray-700/30 transition-colors duration-200"
                     >
-                      <td className="pr-3 py-2">
-                        <span className="px-2 py-1 bg-zinc-700/50 rounded-lg text-xs">
-                          {v.size ?? "-"}
-                        </span>
+                      <td className="py-2 px-1">
+                        {v.size ? (
+                          <span className="px-2 py-0.5 rounded bg-gray-700/50 text-xs">
+                            {v.size}
+                          </span>
+                        ) : (
+                          <span className="text-gray-500">-</span>
+                        )}
                       </td>
-                      <td className="pr-3 py-2">
-                        <div className="flex items-center gap-2">
-                          {v.color && (
-                            <div className="w-3 h-3 rounded-full bg-gradient-to-br from-purple-400 to-blue-400 border border-zinc-600" />
-                          )}
-                          {v.color ?? "-"}
-                        </div>
+                      <td className="py-2 px-1">
+                        {v.color ? (
+                          <span className="flex items-center gap-1">
+                            <div
+                              className="w-3 h-3 rounded-full border border-gray-600"
+                              style={{ backgroundColor: v.color.toLowerCase() }}
+                            />
+                            <span className="text-xs">{v.color}</span>
+                          </span>
+                        ) : (
+                          <span className="text-gray-500">-</span>
+                        )}
                       </td>
-                      <td className="pr-3 py-2">
+                      <td className="py-2 px-1 font-medium">
                         {v.price != null ? (
-                          <span
-                            className={clsx(
-                              v.sale_price != null && v.sale_price < v.price
-                                ? "line-through text-zinc-500"
-                                : "text-green-400"
-                            )}
-                          >
+                          <span className="text-gray-300">
                             {formatPrice(v.price)}
                           </span>
                         ) : (
-                          "-"
+                          <span className="text-gray-500">-</span>
                         )}
                       </td>
-                      <td className="pr-3 py-2">
+                      <td className="py-2 px-1 font-medium">
                         {v.sale_price != null ? (
-                          <span className="text-red-400 font-medium">
+                          <span className="text-red-400 flex items-center gap-1">
+                            <Zap className="h-2 w-2" />
                             {formatPrice(v.sale_price)}
                           </span>
                         ) : (
-                          "-"
+                          <span className="text-gray-500">-</span>
                         )}
                       </td>
-                      <td className="pr-3 py-2">
-                        <span
-                          className={clsx(
-                            "px-2 py-1 rounded-lg text-xs",
-                            (v.stock_quantity ?? 0) > 0
-                              ? "bg-green-500/20 text-green-400"
-                              : "bg-red-500/20 text-red-400"
-                          )}
-                        >
-                          {v.stock_quantity ?? "-"}
-                        </span>
+                      <td className="py-2 px-1">
+                        {v.stock_quantity != null ? (
+                          <span
+                            className={clsx(
+                              "px-2 py-0.5 rounded text-xs",
+                              v.stock_quantity > 10
+                                ? "bg-green-500/20 text-green-400"
+                                : v.stock_quantity > 0
+                                ? "bg-yellow-500/20 text-yellow-400"
+                                : "bg-red-500/20 text-red-400"
+                            )}
+                          >
+                            {v.stock_quantity > 0 ? v.stock_quantity : "Hết"}
+                          </span>
+                        ) : (
+                          <span className="text-gray-500">-</span>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -1516,65 +1599,19 @@ function ProductCard({
             </div>
           </div>
         )}
+
+        {/* Action Buttons */}
+        <div className="flex gap-2 mt-4">
+          <button className="flex-1 py-2 px-3 rounded-xl bg-gradient-to-r from-violet-500 to-purple-600 text-white text-xs font-medium hover:shadow-lg hover:shadow-violet-500/25 transition-all duration-200 hover:scale-105 flex items-center justify-center gap-1">
+            <ShoppingBag className="h-3 w-3" />
+            Thêm vào giỏ
+          </button>
+          <button className="py-2 px-3 rounded-xl bg-gray-700/50 hover:bg-gray-600/50 text-white text-xs font-medium transition-all duration-200 hover:scale-105 flex items-center justify-center gap-1">
+            <Heart className="h-3 w-3" />
+            Yêu thích
+          </button>
+        </div>
       </div>
     </div>
   );
-}
-
-// Custom CSS for animations and scrollbar
-const customStyles = `
-  @keyframes fade-in {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-
-  @keyframes fade-in-up {
-    from { 
-      opacity: 0; 
-      transform: translateY(20px); 
-    }
-    to { 
-      opacity: 1; 
-      transform: translateY(0); 
-    }
-  }
-
-  .animate-fade-in {
-    animation: fade-in 0.5s ease-out;
-  }
-
-  .animate-fade-in-up {
-    animation: fade-in-up 0.5s ease-out;
-  }
-
-  .scrollbar-thin::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  .scrollbar-thin::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  .scrollbar-thin::-webkit-scrollbar-thumb {
-    background: #52525b;
-    border-radius: 3px;
-  }
-
-  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-    background: #71717a;
-  }
-
-  .line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-`;
-
-// Add styles to document head
-if (typeof document !== "undefined") {
-  const styleElement = document.createElement("style");
-  styleElement.textContent = customStyles;
-  document.head.appendChild(styleElement);
 }

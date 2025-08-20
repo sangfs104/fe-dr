@@ -1738,8 +1738,7 @@ function formatPrice(p?: number | null): string {
 
 const SpeechRecognition =
   typeof window !== "undefined"
-    ? (window as any).SpeechRecognition ||
-      (window as any).webkitSpeechRecognition
+    ? window.SpeechRecognition || window.webkitSpeechRecognition
     : null;
 
 const recognition = SpeechRecognition ? new SpeechRecognition() : null;
@@ -1892,21 +1891,21 @@ export default function ChatBoxStylistAI({
     setIsRecording(true);
     recognition.start();
 
-    recognition.onresult = (event: any) => {
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
       const transcript = Array.from(event.results)
-        .map((result: any) => result[0].transcript)
+        .map((result: SpeechRecognitionResult) => result[0].transcript)
         .join("");
       setInput(transcript);
+    };
+
+    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+      setIsRecording(false);
+      toast.error("Lỗi nhận diện giọng nói: " + event.error);
     };
 
     recognition.onend = () => {
       setIsRecording(false);
       if (input.trim()) sendInput();
-    };
-
-    recognition.onerror = (event: any) => {
-      setIsRecording(false);
-      toast.error("Lỗi nhận diện giọng nói: " + event.error);
     };
   }, [input, sendInput]);
 
@@ -2243,7 +2242,7 @@ function MessageBubble({
         const words = msg.text.split(" ");
         let wordIndex = 0;
 
-        utterance.onboundary = (event: any) => {
+        utterance.onboundary = (event: SpeechSynthesisEvent) => {
           if (event.name === "word" && event.charIndex != null) {
             setHighlightedText(words.slice(0, wordIndex + 1));
             wordIndex++;
@@ -2256,7 +2255,7 @@ function MessageBubble({
         };
 
         utteranceRef.current = utterance;
-        if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        if (typeof window !== "undefined" && window.speechSynthesis) {
           window.speechSynthesis.cancel();
           window.speechSynthesis.speak(utterance);
         }
@@ -2265,7 +2264,11 @@ function MessageBubble({
       }
 
       return () => {
-        if (utteranceRef.current && typeof window !== "undefined") {
+        if (
+          utteranceRef.current &&
+          typeof window !== "undefined" &&
+          window.speechSynthesis
+        ) {
           window.speechSynthesis.cancel();
           utteranceRef.current = null;
           setHighlightedText([]);
@@ -2609,7 +2612,11 @@ function ProductCard({
                           <span className="flex items-center gap-1">
                             <div
                               className="w-3 h-3 rounded-full border border-white/20"
-                              style={{ backgroundColor: v.color.toLowerCase() }}
+                              style={{
+                                backgroundColor: v.color
+                                  ? v.color.toLowerCase()
+                                  : "transparent",
+                              }}
                             />
                             <span className="text-xs">{v.color}</span>
                           </span>
@@ -2677,3 +2684,11 @@ function ProductCard({
     </div>
   );
 }
+
+/* =========================
+   Helpers: no-scrollbar
+========================= */
+/* Add this to globals.css if not already:
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+*/

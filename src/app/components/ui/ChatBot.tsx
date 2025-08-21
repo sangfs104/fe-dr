@@ -2037,7 +2037,7 @@ export default function ChatBoxStylistAI({
             <>
               <div
                 ref={listRef}
-                className="max-h-[65vh] overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-transparent"
+                className="max-h-[65vh] overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-transparent hide-scrollbar"
               >
                 {messages.map((m) => (
                   <MessageBubble
@@ -2144,6 +2144,15 @@ export default function ChatBoxStylistAI({
 
         .scrollbar-track-transparent::-webkit-scrollbar-track {
           background: transparent;
+        }
+        /* Ẩn thanh trượt trên Chrome, Edge, Safari */
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        /* Ẩn thanh trượt trên Firefox */
+        .hide-scrollbar {
+          scrollbar-width: none;
+          -ms-overflow-style: none;
         }
       `}</style>
     </>

@@ -548,17 +548,13 @@ export default function OrderList() {
   const [hoveredStars, setHoveredStars] = useState(0);
   const [showReviewModal, setShowReviewModal] = useState(false);
 
-  const filteredOrders =
-    statusFilter === "all"
-      ? orders
-      : orders.filter((order) => order.status === statusFilter);
-
+  // Sửa lại key cho đúng với status thực tế từ backend ("canceled" 1 chữ L)
   const statusTabs = [
     { key: "all", label: "Tất cả" },
     { key: "pending", label: "Chờ xác nhận" },
     { key: "processing", label: "Đang giao" },
     { key: "paid", label: "Đã hoàn thành" },
-    { key: "cancelled", label: "Đã hủy" },
+    { key: "canceled", label: "Đã hủy" }, // Sửa lại key này
   ];
 
   useEffect(() => {
@@ -577,6 +573,48 @@ export default function OrderList() {
 
     fetchOrders();
   }, []);
+
+  const filteredOrders =
+    statusFilter === "all"
+      ? orders
+      : orders.filter((order) => order.status === statusFilter);
+
+  // Sửa lại key cho đúng với status thực tế từ backend ("canceled" 1 chữ L)
+  const statusCounts: Record<string, number> = {
+    all: orders.length,
+    pending: orders.filter((o) => o.status === "pending").length,
+    processing: orders.filter((o) => o.status === "processing").length,
+    paid: orders.filter((o) => o.status === "paid").length,
+    canceled: orders.filter((o) => o.status === "canceled").length, // Sửa lại key này
+  };
+
+  const handleCancelOrder = async (orderId: number) => {
+    if (window.confirm("Bạn có chắc chắn muốn hủy đơn hàng này?")) {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await axios.post(
+          `${API_BASE_URL}/api/order/cancel/${orderId}`,
+          {},
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        if (res.status === 200) {
+          toast.success("Đơn hàng đã được hủy thành công!");
+          setOrders(
+            orders.map(
+              (order) =>
+                order.id === orderId ? { ...order, status: "canceled" } : order // Sửa lại status này
+            )
+          );
+          setStatusFilter("canceled"); // Chuyển sang tab Đã hủy
+        }
+      } catch (err) {
+        console.error("Lỗi khi hủy đơn hàng:", err);
+        toast.error("Không thể hủy đơn hàng");
+      }
+    }
+  };
 
   const handleSubmitReview = async () => {
     if (!selectedProduct || selectedVariantId === null) return;
@@ -656,67 +694,6 @@ export default function OrderList() {
     }
   };
 
-  // const handleCancelOrder = async (orderId: number) => {
-  //   if (window.confirm("Bạn có chắc chắn muốn hủy đơn hàng này?")) {
-  //     try {
-  //       const token = localStorage.getItem("token");
-  //       const res = await axios.post(
-  //         `${API_BASE_URL}/api/order/cancel/${orderId}`,
-  //         {},
-  //         {
-  //           headers: { Authorization: `Bearer ${token}` },
-  //         }
-  //       );
-  //       if (res.status === 200) {
-  //         toast.success("Đơn hàng đã được hủy thành công!");
-  //         setOrders(
-  //           orders.map((order) =>
-  //             order.id === orderId ? { ...order, status: "cancelled" } : order
-  //           )
-  //         );
-  //       }
-  //     } catch (err) {
-  //       console.error("Lỗi khi hủy đơn hàng:", err);
-  //       toast.error("Không thể hủy đơn hàng");
-  //     }
-  //   }
-  // };
-  // ...existing code...
-  const handleCancelOrder = async (orderId: number) => {
-    if (window.confirm("Bạn có chắc chắn muốn hủy đơn hàng này?")) {
-      try {
-        const token = localStorage.getItem("token");
-        const res = await axios.post(
-          `${API_BASE_URL}/api/order/cancel/${orderId}`,
-          {},
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        if (res.status === 200) {
-          toast.success("Đơn hàng đã được hủy thành công!");
-          setOrders(
-            orders.map((order) =>
-              order.id === orderId ? { ...order, status: "cancelled" } : order
-            )
-          );
-          setStatusFilter("cancelled"); // Thêm dòng này để chuyển sang tab Đã hủy
-        }
-      } catch (err) {
-        console.error("Lỗi khi hủy đơn hàng:", err);
-        toast.error("Không thể hủy đơn hàng");
-      }
-    }
-  };
-  // ...existing code...
-  const statusCounts: Record<string, number> = {
-    all: orders.length,
-    pending: orders.filter((o) => o.status === "pending").length,
-    processing: orders.filter((o) => o.status === "processing").length,
-    paid: orders.filter((o) => o.status === "paid").length,
-    cancelled: orders.filter((o) => o.status === "cancelled").length,
-  };
-
   return (
     <section className="bg-white p-4 sm:p-6 rounded-xl shadow hover:shadow-md transition w-full overflow-x-hidden">
       <h2 className="text-xl font-semibold mb-6 text-orange-600">
@@ -777,7 +754,7 @@ export default function OrderList() {
                       ? "text-blue-500"
                       : order.status === "paid"
                       ? "text-green-600"
-                      : order.status === "cancelled"
+                      : order.status === "canceled"
                       ? "text-red-500"
                       : ""
                   } font-semibold`}
@@ -785,8 +762,8 @@ export default function OrderList() {
                   {order.status === "pending" && "Chờ xác nhận"}
                   {order.status === "processing" && "Đang giao"}
                   {order.status === "paid" && "Đã thanh toán"}
-                  {order.status === "cancelled" && "Đã hủy"}
-                  {!["pending", "processing", "paid", "cancelled"].includes(
+                  {order.status === "canceled" && "Đã hủy"}
+                  {!["pending", "processing", "paid", "canceled"].includes(
                     order.status
                   ) && order.status}
                 </span>
@@ -871,18 +848,10 @@ export default function OrderList() {
                   Hủy đơn
                 </button>
               )}
-              {/* <button className="px-4 py-1 border rounded text-gray-600 hover:bg-gray-100 text-sm">
-                Xem chi tiết
-              </button>
-              <button className="px-4 py-1 bg-orange-500 text-white rounded hover:bg-orange-600 text-sm">
-                Mua lại
-              </button> */}
             </div>
           </div>
         ))}
       </div>
-
-      {/* Review Modal */}
       <Dialog.Root open={showReviewModal} onOpenChange={setShowReviewModal}>
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 transition-opacity duration-300" />

@@ -24,8 +24,8 @@
     "@radix-ui/react-dialog": "^1.1.14",
     "@react-oauth/google": "^0.12.2",
     "@react-spring/three": "^10.0.1",
-    "@react-three/drei": "^10.5.1",
-    "@react-three/fiber": "^9.2.0",
+    "@react-three/drei": "^10.7.3",
+    "@react-three/fiber": "^9.3.0",
     "@reduxjs/toolkit": "^2.8.2",
     "axios": "^1.9.0",
     "canvas-confetti": "^1.9.3",
@@ -54,7 +54,8 @@
     "swiper": "^11.2.8",
     "swr": "^2.3.4",
     "tailwind-merge": "^3.3.0",
-    "tailwind-variants": "^1.0.0"
+    "tailwind-variants": "^1.0.0",
+    "three": "^0.179.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
@@ -63,6 +64,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/react-image-magnify": "^2.7.4",
+    "@types/web": "^0.0.262",
     "autoprefixer": "^10.4.21",
     "eslint": "^9",
     "eslint-config-next": "15.3.2",

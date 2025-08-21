@@ -550,7 +550,7 @@ export default function OrderList() {
 
   const filteredOrders =
     statusFilter === "all"
-      ? orders
+      ? orders.filter((order) => order.status !== "cancelled") // Không hiện đơn đã hủy ở tab "Tất cả"
       : orders.filter((order) => order.status === statusFilter);
 
   const statusTabs = [
@@ -844,12 +844,12 @@ export default function OrderList() {
                   Hủy đơn
                 </button>
               )}
-              <button className="px-4 py-1 border rounded text-gray-600 hover:bg-gray-100 text-sm">
+              {/* <button className="px-4 py-1 border rounded text-gray-600 hover:bg-gray-100 text-sm">
                 Xem chi tiết
               </button>
               <button className="px-4 py-1 bg-orange-500 text-white rounded hover:bg-orange-600 text-sm">
                 Mua lại
-              </button>
+              </button> */}
             </div>
           </div>
         ))}

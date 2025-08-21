@@ -1627,7 +1627,6 @@ import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 import Image from "next/image";
 import {
-  MessageCircle,
   Send,
   Loader2,
   Sparkles,

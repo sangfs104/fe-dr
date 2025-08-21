@@ -692,8 +692,85 @@ export default function VoiceQuickOrderFlexible() {
     localStorage.setItem("hideTooltip", "true");
   };
 
+  // return (
+  //   <div className="fixed bottom-24 right-6 z-50">
+  //     <style>
+  //       {`
+  //         @keyframes fadeInOut {
+  //           0% { opacity: 0; transform: translateY(10px); }
+  //           25% { opacity: 1; transform: translateY(0); }
+  //           75% { opacity: 1; transform: translateY(0); }
+  //           100% { opacity: 0; transform: translateY(10px); }
+  //         }
+
+  //         .fade-in-out {
+  //           animation: fadeInOut 4s ease-in-out;
+  //           animation-iteration-count: 1;
+  //         }
+
+  //         .group:hover .fade-in-out {
+  //           animation: none;
+  //           opacity: 1;
+  //           transform: translateY(0);
+  //         }
+
+  //         .fade-in-out.hidden {
+  //           opacity: 0;
+  //           pointer-events: none;
+  //         }
+
+  //         @media (max-width: 640px) {
+  //           .fade-in-out {
+  //             display: none;
+  //           }
+  //         }
+  //       `}
+  //     </style>
+  //     {!showWidget && (
+  //       <div className="relative group">
+  //         {/* Floating message with fade in/out animation */}
+  //         {showTooltip && (
+  //           <div
+  //             className={`mb-3 px-3 py-2 bg-gradient-to-br from-purple-600 via-pink-500 to-orange-500 text-white text-sm font-semibold rounded-full shadow-xl transform transition-all duration-500 backdrop-blur-sm fade-in-out`}
+  //             style={{
+  //               background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+  //               boxShadow: "0 10px 20px rgba(102, 126, 234, 0.3)",
+  //             }}
+  //           >
+  //             <div className="flex items-center gap-2">
+  //               <Sparkles size={14} className="animate-pulse" />
+  //               {t.clickMe}
+  //               <button
+  //                 onClick={handleHideTooltip}
+  //                 className="ml-2 p-1 bg-white/20 rounded-full hover:bg-white/30 transition-all duration-200"
+  //                 title={t.hideTooltip}
+  //               >
+  //                 <X size={12} />
+  //               </button>
+  //             </div>
+  //             <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-6 border-transparent border-t-purple-500"></div>
+  //           </div>
+  //         )}
+
+  //         {/* Main bot button with modern glassmorphism */}
+  //         <button
+  //           onClick={() => setShowWidget(true)}
+  //           className="relative flex items-center justify-center w-16 h-16 rounded-full p-4 bg-gradient-to-br from-purple-600 via-pink-500 to-orange-500 text-white shadow-2xl transition-all duration-500 hover:scale-110 active:scale-95 backdrop-blur-lg"
+  //           style={{
+  //             background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+  //             boxShadow: "0 25px 50px rgba(102, 126, 234, 0.4)",
+  //           }}
+  //         >
+  //           <Bot size={32} className="relative z-10" />
+  //           <div className="absolute inset-0 rounded-full bg-white opacity-20 animate-ping"></div>
+  //           <div className="absolute -top-2 -right-2 w-4 h-4 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full animate-bounce delay-75 shadow-lg"></div>
+  //           <div className="absolute -bottom-2 -left-2 w-3 h-3 bg-gradient-to-r from-green-400 to-blue-400 rounded-full animate-bounce delay-150 shadow-lg"></div>
+  //           <div className="absolute top-1/2 -right-3 w-2 h-2 bg-gradient-to-r from-pink-400 to-purple-400 rounded-full animate-bounce delay-300 shadow-lg"></div>
+  //         </button>
+  //       </div>
+  //     )}
   return (
-    <div className="fixed bottom-24 right-6 z-50">
+    <div className="fixed bottom-24 right-6 z-50 flex flex-col items-end">
       <style>
         {`
           @keyframes fadeInOut {
@@ -727,7 +804,7 @@ export default function VoiceQuickOrderFlexible() {
         `}
       </style>
       {!showWidget && (
-        <div className="relative group">
+        <div className="relative group flex justify-end">
           {/* Floating message with fade in/out animation */}
           {showTooltip && (
             <div

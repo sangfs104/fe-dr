@@ -88,6 +88,13 @@ function VoiceAssistant() {
           );
           msg.lang = "vi-VN";
           window.speechSynthesis.speak(msg);
+        } else {
+          // Nếu chỉ nói "hey Sang"
+          const msg = new window.SpeechSynthesisUtterance(
+            "Xin chào! Bạn cần Sang giúp gì nào?"
+          );
+          msg.lang = "vi-VN";
+          window.speechSynthesis.speak(msg);
         }
       }
     };
@@ -130,7 +137,7 @@ export default function ClientLayout({
             </div>
           )}
           {!showChatBot && <VoiceQuickOrderTest />}
-          <VoiceAssistant /> {/* Thêm voice assistant ở đây */}
+          <VoiceAssistant />
           {showChatBot && (
             <ChatBoxStylistAI
               onClose={() => setShowChatBot(false)}

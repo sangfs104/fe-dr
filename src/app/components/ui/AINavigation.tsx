@@ -198,7 +198,7 @@ const Avatar3D: React.FC<Avatar3DProps> = ({
 const AINavigation: React.FC<AINavigationProps> = ({ onNavigate }) => {
   const [isActive, setIsActive] = useState<boolean>(false);
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
-  const [isListening, setIsListening] = useState<boolean>(false);
+  const [isListening, setIsListening] = useState<boolean>(false); // Được sử dụng trong UI
   const [transcript, setTranscript] = useState<string>("");
   const [mousePosition, setMousePosition] = useState<MousePosition>({
     x: 50,
@@ -247,7 +247,6 @@ const AINavigation: React.FC<AINavigationProps> = ({ onNavigate }) => {
             setTranscript(finalTranscript);
             setLastInteractionTime(Date.now());
           } else if (interimTranscript) {
-            // Hiển thị interim để UI responsive hơn
             setTranscript(interimTranscript);
           }
         };
@@ -256,7 +255,6 @@ const AINavigation: React.FC<AINavigationProps> = ({ onNavigate }) => {
           console.log("Speech recognition error:", event.error);
           setIsListening(false);
           if (event.error !== "no-speech" && isActive) {
-            // Restart nếu lỗi không phải no-speech
             setTimeout(() => {
               if (isActive && recognitionRef.current) {
                 try {
@@ -272,7 +270,6 @@ const AINavigation: React.FC<AINavigationProps> = ({ onNavigate }) => {
         recognition.onend = (): void => {
           setIsListening(false);
           if (isActive) {
-            // Tự động khởi động lại
             setTimeout(() => {
               if (isActive && recognitionRef.current) {
                 try {
@@ -349,7 +346,6 @@ const AINavigation: React.FC<AINavigationProps> = ({ onNavigate }) => {
         window.location.href = path;
       }
       speak(message, () => {
-        // Sau khi speak xong message điều hướng, đặt timer 30s để hỏi lại
         if (timeoutRef.current) clearTimeout(timeoutRef.current);
         timeoutRef.current = setTimeout(() => {
           if (isActive) {
@@ -394,7 +390,6 @@ const AINavigation: React.FC<AINavigationProps> = ({ onNavigate }) => {
       setTranscript("");
       setLastInteractionTime(Date.now());
     } else {
-      // Nếu không match, có thể xử lý fallback
       speak("Xin lỗi, tôi chưa hiểu lệnh. Bạn có thể nói lại không?");
       setTranscript("");
       setLastInteractionTime(Date.now());
@@ -410,7 +405,7 @@ const AINavigation: React.FC<AINavigationProps> = ({ onNavigate }) => {
       }
     };
 
-    const interval = setInterval(checkIdle, 5000); // Kiểm tra mỗi 5s
+    const interval = setInterval(checkIdle, 5000);
     return () => clearInterval(interval);
   }, [isActive, lastInteractionTime, speak]);
 
@@ -494,7 +489,11 @@ const AINavigation: React.FC<AINavigationProps> = ({ onNavigate }) => {
               isActive ? "text-green-400" : "text-gray-400"
             } transition-colors duration-300`}
           >
-            {isActive ? "Đang lắng nghe..." : "Nhấn vào tôi để kích hoạt"}
+            {isActive
+              ? isListening
+                ? "Đang lắng nghe..."
+                : "Đang chờ lệnh..."
+              : "Nhấn vào tôi để kích hoạt"}
           </div>
           {transcript && (
             <div className="text-xs text-blue-300 mt-1 max-w-48 truncate animate-fade-in">

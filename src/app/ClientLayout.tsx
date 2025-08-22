@@ -126,7 +126,7 @@ export default function ClientLayout({
           {/* Bọc AINavigation trong Suspense để hỗ trợ lazy loading */}
           {showAINavigation && (
             <Suspense fallback={<div>Đang tải AI Điều hướng...</div>}>
-              <AINavigation />
+              <AINavigation onClose={() => setShowAINavigation(false)} />
             </Suspense>
           )}
           <Footer />

@@ -198,6 +198,7 @@ export default function ClientLayout({
         <div className="min-h-screen flex flex-col">
           <Header />
           <main className="flex-1">{children}</main>
+
           <ChatToggle onOpen={() => setShowChatBot(true)} />
           {showCartModal && (
             <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
@@ -212,10 +213,6 @@ export default function ClientLayout({
               apiUrl={`${process.env.NEXT_PUBLIC_API_URL}/api/stylist/analyze`}
             />
           )}
-          {/* Nhúng AINavigation trực tiếp */}
-          {/* <Suspense fallback={<div>Đang tải AI Điều hướng...</div>}>
-            <AINavigation />
-          </Suspense> */}
           <Footer />
         </div>
       </Provider>

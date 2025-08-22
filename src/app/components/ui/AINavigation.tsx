@@ -1,6 +1,10 @@
+"use client";
 import React, { useEffect, useState, useCallback, useRef } from "react";
 
-// Định nghĩa types
+/* =========================
+   Types
+========================= */
+
 interface ParticleProps {
   x: number;
   y: number;
@@ -34,14 +38,26 @@ interface AINavigationProps {
   onNavigate?: (path: string) => void;
 }
 
-// Extend Window interface để hỗ trợ webkitSpeechRecognition
-declare global {
-  interface Window {
-    webkitSpeechRecognition: new () => SpeechRecognition;
-  }
+/* =========================
+   Web Speech helpers (type-safe, no Window augmentation)
+========================= */
+
+type SpeechRecognitionConstructor = new () => SpeechRecognition;
+
+/** Lấy constructor SpeechRecognition an toàn (support cả webkit) */
+function getSpeechRecognitionCtor(): SpeechRecognitionConstructor | null {
+  if (typeof window === "undefined") return null;
+  const w = (window as unknown) as {
+    SpeechRecognition?: SpeechRecognitionConstructor;
+    webkitSpeechRecognition?: SpeechRecognitionConstructor;
+  };
+  return w.SpeechRecognition || w.webkitSpeechRecognition || null;
 }
 
-// Component Particle Effect
+/* =========================
+   Particle
+========================= */
+
 const Particle: React.FC<ParticleProps> = ({ x, y, delay }) => (
   <div
     className="absolute w-1 h-1 bg-blue-400 rounded-full animate-bounce"
@@ -54,7 +70,10 @@ const Particle: React.FC<ParticleProps> = ({ x, y, delay }) => (
   />
 );
 
-// Component Avatar 3D
+/* =========================
+   Avatar 3D
+========================= */
+
 const Avatar3D: React.FC<Avatar3DProps> = ({
   isActive,
   isSpeaking,
@@ -63,7 +82,6 @@ const Avatar3D: React.FC<Avatar3DProps> = ({
   const [isBlinking, setIsBlinking] = useState<boolean>(false);
   const [particles, setParticles] = useState<ParticleData[]>([]);
 
-  // Tạo particles khi active
   useEffect(() => {
     if (isActive) {
       const newParticles: ParticleData[] = Array.from(
@@ -81,24 +99,20 @@ const Avatar3D: React.FC<Avatar3DProps> = ({
     }
   }, [isActive]);
 
-  // Hoạt ảnh chớp mắt
   useEffect(() => {
     const blinkInterval = setInterval(() => {
       setIsBlinking(true);
-      setTimeout(() => setIsBlinking(false), 150);
+      const t = setTimeout(() => setIsBlinking(false), 150);
+      return () => clearTimeout(t);
     }, 3000);
-
     return () => clearInterval(blinkInterval);
   }, []);
 
-  // Tính toán hướng nhìn dựa trên vị trí chuột
   const getEyePosition = (): EyePosition => {
     if (!mousePosition) return { x: 0, y: 0 };
-
     const maxMove = 3;
     const x = (mousePosition.x - 50) * 0.1;
     const y = (mousePosition.y - 50) * 0.1;
-
     return {
       x: Math.max(-maxMove, Math.min(maxMove, x)),
       y: Math.max(-maxMove, Math.min(maxMove, y)),
@@ -109,7 +123,6 @@ const Avatar3D: React.FC<Avatar3DProps> = ({
 
   return (
     <div className="relative w-32 h-32">
-      {/* Particles bay xung quanh */}
       {particles.map((particle: ParticleData) => (
         <Particle
           key={particle.id}
@@ -119,14 +132,11 @@ const Avatar3D: React.FC<Avatar3DProps> = ({
         />
       ))}
 
-      {/* Hiệu ứng ánh sáng khi active */}
       {isActive && (
         <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-400 to-purple-500 opacity-30 animate-pulse" />
       )}
 
-      {/* Khuôn mặt chính */}
       <div className="relative w-full h-full bg-gradient-to-b from-pink-200 to-pink-300 rounded-full shadow-lg border-4 border-white overflow-hidden">
-        {/* Tóc */}
         <div className="absolute -top-2 -left-2 -right-2 h-16 bg-gradient-to-b from-amber-800 to-amber-700 rounded-t-full" />
 
         {/* Mắt trái */}
@@ -134,9 +144,7 @@ const Avatar3D: React.FC<Avatar3DProps> = ({
           {!isBlinking && (
             <div
               className="absolute w-3 h-3 bg-gradient-to-b from-blue-600 to-blue-800 rounded-full top-1 left-0.5 transition-transform duration-100"
-              style={{
-                transform: `translate(${eyePos.x}px, ${eyePos.y}px)`,
-              }}
+              style={{ transform: `translate(${eyePos.x}px, ${eyePos.y}px)` }}
             >
               <div className="absolute w-1 h-1 bg-white rounded-full top-1 left-1" />
             </div>
@@ -151,9 +159,7 @@ const Avatar3D: React.FC<Avatar3DProps> = ({
           {!isBlinking && (
             <div
               className="absolute w-3 h-3 bg-gradient-to-b from-blue-600 to-blue-800 rounded-full top-1 left-0.5 transition-transform duration-100"
-              style={{
-                transform: `translate(${eyePos.x}px, ${eyePos.y}px)`,
-              }}
+              style={{ transform: `translate(${eyePos.x}px, ${eyePos.y}px)` }}
             >
               <div className="absolute w-1 h-1 bg-white rounded-full top-1 left-1" />
             </div>
@@ -163,15 +169,11 @@ const Avatar3D: React.FC<Avatar3DProps> = ({
           )}
         </div>
 
-        {/* Mũi */}
-        <div className="absolute left-1/2 top-12 transform -translate-x-1/2 w-2 h-3 bg-pink-400 rounded-full shadow-sm" />
-
-        {/* Má hồng */}
+        <div className="absolute left-1/2 top-12 -translate-x-1/2 w-2 h-3 bg-pink-400 rounded-full shadow-sm" />
         <div className="absolute left-2 top-14 w-6 h-4 bg-pink-400 rounded-full opacity-50" />
         <div className="absolute right-2 top-14 w-6 h-4 bg-pink-400 rounded-full opacity-50" />
 
-        {/* Miệng */}
-        <div className="absolute left-1/2 top-16 transform -translate-x-1/2">
+        <div className="absolute left-1/2 top-16 -translate-x-1/2">
           {isSpeaking ? (
             <div className="w-6 h-4 bg-red-400 rounded-full animate-pulse border-2 border-red-600" />
           ) : (
@@ -179,17 +181,19 @@ const Avatar3D: React.FC<Avatar3DProps> = ({
           )}
         </div>
 
-        {/* Cằm */}
-        <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-3 h-2 bg-pink-400 rounded-full opacity-30" />
+        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-3 h-2 bg-pink-400 rounded-full opacity-30" />
       </div>
 
-      {/* Viền phát sáng khi active */}
       {isActive && (
         <div className="absolute inset-0 rounded-full border-2 border-blue-400 animate-ping" />
       )}
     </div>
   );
 };
+
+/* =========================
+   AINavigation
+========================= */
 
 const AINavigation: React.FC<AINavigationProps> = ({ onNavigate }) => {
   const [isActive, setIsActive] = useState<boolean>(false);
@@ -209,13 +213,15 @@ const AINavigation: React.FC<AINavigationProps> = ({ onNavigate }) => {
   // Kiểm tra hỗ trợ Speech API
   useEffect(() => {
     const checkSpeechSupport = (): void => {
-      const SpeechRecognition =
-        window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (SpeechRecognition && "speechSynthesis" in window) {
+      const Ctor = getSpeechRecognitionCtor();
+      if (
+        Ctor &&
+        typeof window !== "undefined" &&
+        "speechSynthesis" in window
+      ) {
         setSupportsSpeech(true);
 
-        // Tạo instance recognition
-        const recognition = new SpeechRecognition();
+        const recognition = new Ctor();
         recognition.continuous = true;
         recognition.interimResults = true;
         recognition.lang = "vi-VN";
@@ -227,8 +233,9 @@ const AINavigation: React.FC<AINavigationProps> = ({ onNavigate }) => {
         recognition.onresult = (event: SpeechRecognitionEvent): void => {
           let finalTranscript = "";
           for (let i = event.resultIndex; i < event.results.length; i++) {
-            if (event.results[i].isFinal) {
-              finalTranscript += event.results[i][0].transcript;
+            const res = event.results[i];
+            if (res.isFinal) {
+              finalTranscript += res[0].transcript;
             }
           }
           if (finalTranscript) {
@@ -237,6 +244,7 @@ const AINavigation: React.FC<AINavigationProps> = ({ onNavigate }) => {
         };
 
         recognition.onerror = (event: SpeechRecognitionErrorEvent): void => {
+          // event.error là chuỗi (no-speech, audio-capture, not-allowed, network ...)
           console.log("Speech recognition error:", event.error);
           setIsListening(false);
         };
@@ -253,7 +261,7 @@ const AINavigation: React.FC<AINavigationProps> = ({ onNavigate }) => {
                   console.log("Auto restart error:", error);
                 }
               }
-            }, 100);
+            }, 120);
           }
         };
 
@@ -262,6 +270,7 @@ const AINavigation: React.FC<AINavigationProps> = ({ onNavigate }) => {
     };
 
     checkSpeechSupport();
+    // phụ thuộc vào isActive chỉ để auto-restart logic onend hoạt động đúng
   }, [isActive]);
 
   // Theo dõi vị trí chuột
@@ -292,7 +301,7 @@ const AINavigation: React.FC<AINavigationProps> = ({ onNavigate }) => {
       if (!supportsSpeech) return;
 
       if (speechSynthRef.current) {
-        speechSynthesis.cancel();
+        window.speechSynthesis.cancel();
       }
 
       const utterance = new SpeechSynthesisUtterance(text);
@@ -304,7 +313,7 @@ const AINavigation: React.FC<AINavigationProps> = ({ onNavigate }) => {
       utterance.onend = (): void => setIsSpeaking(false);
 
       speechSynthRef.current = utterance;
-      speechSynthesis.speak(utterance);
+      window.speechSynthesis.speak(utterance);
     },
     [supportsSpeech]
   );
@@ -314,7 +323,6 @@ const AINavigation: React.FC<AINavigationProps> = ({ onNavigate }) => {
       if (onNavigate) {
         onNavigate(path);
       } else {
-        // Fallback navigation
         window.location.href = path;
       }
       speak(message);
@@ -376,7 +384,6 @@ const AINavigation: React.FC<AINavigationProps> = ({ onNavigate }) => {
         try {
           recognitionRef.current.stop();
         } catch (err) {
-          // Ignore cleanup errors
           console.log("Cleanup error:", err);
         }
       }
@@ -403,7 +410,7 @@ const AINavigation: React.FC<AINavigationProps> = ({ onNavigate }) => {
 
   if (!supportsSpeech) {
     return (
-      <div className="fixed bottom-4 right-4 bg-red-500 text-white p-4 rounded-lg max-w-64">
+      <div className="fixed bottom-4 right-4 bg-red-500 text-white p-4 rounded-lg max-w-64 z-50">
         <div className="text-sm font-medium">Không hỗ trợ</div>
         <div className="text-xs">
           Trình duyệt không hỗ trợ nhận diện giọng nói
@@ -414,9 +421,7 @@ const AINavigation: React.FC<AINavigationProps> = ({ onNavigate }) => {
 
   return (
     <div ref={containerRef} className="fixed bottom-20 right-4 z-50">
-      {/* Container chính */}
       <div className="bg-gradient-to-br from-gray-800 via-gray-900 to-black text-white rounded-2xl shadow-2xl p-6 flex flex-col items-center space-y-4 border border-gray-700">
-        {/* Avatar 3D */}
         <div
           className="cursor-pointer transform transition-all duration-300 hover:scale-105"
           onClick={handleAvatarClick}
@@ -428,7 +433,6 @@ const AINavigation: React.FC<AINavigationProps> = ({ onNavigate }) => {
           />
         </div>
 
-        {/* Trạng thái */}
         <div className="text-center">
           <div
             className={`text-sm font-medium ${
@@ -444,7 +448,6 @@ const AINavigation: React.FC<AINavigationProps> = ({ onNavigate }) => {
           )}
         </div>
 
-        {/* Nút điều khiển */}
         <div className="flex space-x-2">
           {isActive ? (
             <button
@@ -463,7 +466,6 @@ const AINavigation: React.FC<AINavigationProps> = ({ onNavigate }) => {
           )}
         </div>
 
-        {/* Nút điều hướng nhanh */}
         <div className="grid grid-cols-2 gap-2 w-full">
           <button
             className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-md text-xs transition-colors"
@@ -491,7 +493,6 @@ const AINavigation: React.FC<AINavigationProps> = ({ onNavigate }) => {
           </button>
         </div>
 
-        {/* Hướng dẫn nhanh */}
         <div className="text-xs text-gray-400 text-center max-w-48">
           <div>Lệnh giọng nói:</div>
           <div>

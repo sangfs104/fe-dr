@@ -1,5 +1,7 @@
 "use client";
 import React, { useEffect, useState, useCallback, useRef } from "react";
+import { useRouter } from "next/navigation";
+import throttle from "lodash.throttle";
 
 /* =========================
    Types
@@ -36,19 +38,51 @@ interface Avatar3DProps {
 
 interface AINavigationProps {
   onNavigate?: (path: string) => void;
-  onClose?: () => void; // Thêm dòng này
+  onClose?: () => void;
 }
 
 /* =========================
-   Web Speech helpers (type-safe, no Window augmentation)
+   Web Speech API Types
 ========================= */
+
+interface SpeechRecognitionResult {
+  isFinal: boolean;
+  [index: number]: { transcript: string; confidence: number };
+}
+
+interface SpeechRecognitionResultList {
+  length: number;
+  [index: number]: SpeechRecognitionResult;
+}
+
+interface SpeechRecognitionEvent extends Event {
+  resultIndex: number;
+  results: SpeechRecognitionResultList;
+}
+
+interface SpeechRecognitionErrorEvent extends Event {
+  error: string;
+  message: string;
+}
+
+interface SpeechRecognition extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  start: () => void;
+  stop: () => void;
+  onstart: (() => void) | null;
+  onresult: ((event: SpeechRecognitionEvent) => void) | null;
+  onerror: ((event: SpeechRecognitionErrorEvent) => void) | null;
+  onend: (() => void) | null;
+}
 
 type SpeechRecognitionConstructor = new () => SpeechRecognition;
 
-/** Lấy constructor SpeechRecognition an toàn (support cả webkit) */
+/** Safely get SpeechRecognition constructor (supports webkit) */
 function getSpeechRecognitionCtor(): SpeechRecognitionConstructor | null {
   if (typeof window === "undefined") return null;
-  const w = (window as unknown) as {
+  const w = window as {
     SpeechRecognition?: SpeechRecognitionConstructor;
     webkitSpeechRecognition?: SpeechRecognitionConstructor;
   };
@@ -56,23 +90,37 @@ function getSpeechRecognitionCtor(): SpeechRecognitionConstructor | null {
 }
 
 /* =========================
-   Particle
+   Custom CSS for Particle Animation
+========================= */
+
+const particleAnimation = `
+@keyframes particleFloat {
+  0% { transform: translateY(0); opacity: 1; }
+  50% { transform: translateY(-10px); opacity: 0.5; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+.particle-float {
+  animation: particleFloat 2s infinite;
+}
+`;
+
+/* =========================
+   Particle Component
 ========================= */
 
 const Particle: React.FC<ParticleProps> = ({ x, y, delay }) => (
   <div
-    className="absolute w-1 h-1 bg-blue-400 rounded-full animate-bounce"
+    className="absolute w-1 h-1 bg-blue-400 rounded-full particle-float"
     style={{
       left: `${x}%`,
       top: `${y}%`,
       animationDelay: `${delay}ms`,
-      animationDuration: "2s",
     }}
   />
 );
 
 /* =========================
-   Avatar 3D
+   Avatar 3D Component
 ========================= */
 
 const Avatar3D: React.FC<Avatar3DProps> = ({
@@ -103,13 +151,13 @@ const Avatar3D: React.FC<Avatar3DProps> = ({
   useEffect(() => {
     const blinkInterval = setInterval(() => {
       setIsBlinking(true);
-      const t = setTimeout(() => setIsBlinking(false), 150);
-      return () => clearTimeout(t);
+      const timeout = setTimeout(() => setIsBlinking(false), 150);
+      return () => clearTimeout(timeout);
     }, 3000);
     return () => clearInterval(blinkInterval);
   }, []);
 
-  const getEyePosition = (): EyePosition => {
+  const getEyePosition = useCallback((): EyePosition => {
     if (!mousePosition) return { x: 0, y: 0 };
     const maxMove = 3;
     const x = (mousePosition.x - 50) * 0.1;
@@ -118,13 +166,14 @@ const Avatar3D: React.FC<Avatar3DProps> = ({
       x: Math.max(-maxMove, Math.min(maxMove, x)),
       y: Math.max(-maxMove, Math.min(maxMove, y)),
     };
-  };
+  }, [mousePosition]);
 
   const eyePos = getEyePosition();
 
   return (
     <div className="relative w-32 h-32">
-      {particles.map((particle: ParticleData) => (
+      <style>{particleAnimation}</style>
+      {particles.map((particle) => (
         <Particle
           key={particle.id}
           x={particle.x}
@@ -132,15 +181,12 @@ const Avatar3D: React.FC<Avatar3DProps> = ({
           delay={particle.delay}
         />
       ))}
-
       {isActive && (
         <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-400 to-purple-500 opacity-30 animate-pulse" />
       )}
-
       <div className="relative w-full h-full bg-gradient-to-b from-pink-200 to-pink-300 rounded-full shadow-lg border-4 border-white overflow-hidden">
         <div className="absolute -top-2 -left-2 -right-2 h-16 bg-gradient-to-b from-amber-800 to-amber-700 rounded-t-full" />
-
-        {/* Mắt trái */}
+        {/* Left Eye */}
         <div className="absolute left-6 top-8 w-4 h-6 bg-white rounded-full shadow-inner">
           {!isBlinking && (
             <div
@@ -154,8 +200,7 @@ const Avatar3D: React.FC<Avatar3DProps> = ({
             <div className="absolute inset-0 bg-pink-300 rounded-full" />
           )}
         </div>
-
-        {/* Mắt phải */}
+        {/* Right Eye */}
         <div className="absolute right-6 top-8 w-4 h-6 bg-white rounded-full shadow-inner">
           {!isBlinking && (
             <div
@@ -169,11 +214,9 @@ const Avatar3D: React.FC<Avatar3DProps> = ({
             <div className="absolute inset-0 bg-pink-300 rounded-full" />
           )}
         </div>
-
         <div className="absolute left-1/2 top-12 -translate-x-1/2 w-2 h-3 bg-pink-400 rounded-full shadow-sm" />
         <div className="absolute left-2 top-14 w-6 h-4 bg-pink-400 rounded-full opacity-50" />
         <div className="absolute right-2 top-14 w-6 h-4 bg-pink-400 rounded-full opacity-50" />
-
         <div className="absolute left-1/2 top-16 -translate-x-1/2">
           {isSpeaking ? (
             <div className="w-6 h-4 bg-red-400 rounded-full animate-pulse border-2 border-red-600" />
@@ -181,10 +224,8 @@ const Avatar3D: React.FC<Avatar3DProps> = ({
             <div className="w-4 h-2 bg-red-400 rounded-full border border-red-500" />
           )}
         </div>
-
         <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-3 h-2 bg-pink-400 rounded-full opacity-30" />
       </div>
-
       {isActive && (
         <div className="absolute inset-0 rounded-full border-2 border-blue-400 animate-ping" />
       )}
@@ -193,10 +234,11 @@ const Avatar3D: React.FC<Avatar3DProps> = ({
 };
 
 /* =========================
-   AINavigation
+   AINavigation Component
 ========================= */
 
 const AINavigation: React.FC<AINavigationProps> = ({ onNavigate, onClose }) => {
+  const router = useRouter();
   const [isActive, setIsActive] = useState<boolean>(false);
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
   const [isListening, setIsListening] = useState<boolean>(false);
@@ -207,28 +249,45 @@ const AINavigation: React.FC<AINavigationProps> = ({ onNavigate, onClose }) => {
   });
   const [supportsSpeech, setSupportsSpeech] = useState<boolean>(false);
   const [lastInteractionTime, setLastInteractionTime] = useState<number>(0);
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [retryCount, setRetryCount] = useState<number>(0);
+  const maxRetries = 3;
 
   const containerRef = useRef<HTMLDivElement>(null);
   const speechSynthRef = useRef<SpeechSynthesisUtterance | null>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Persist isActive state across page navigations (if using full reload)
-  useEffect(() => {
-    const storedActive = localStorage.getItem("aiNavActive");
-    if (storedActive === "true") {
-      setIsActive(true);
-      setLastInteractionTime(Date.now());
-    }
-  }, []);
+  // Throttle mouse movement updates
+  const handleMouseMove = useCallback(
+    throttle((e: MouseEvent) => {
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        const x = ((e.clientX - centerX) / rect.width) * 100 + 50;
+        const y = ((e.clientY - centerY) / rect.height) * 100 + 50;
+        setMousePosition({
+          x: Math.max(0, Math.min(100, x)),
+          y: Math.max(0, Math.min(100, y)),
+        });
+      }
+    }, 100),
+    []
+  );
 
+  // Initialize mouse move listener
   useEffect(() => {
-    localStorage.setItem("aiNavActive", isActive.toString());
-  }, [isActive]);
+    document.addEventListener("mousemove", handleMouseMove);
+    return () => {
+      handleMouseMove.cancel();
+      document.removeEventListener("mousemove", handleMouseMove);
+    };
+  }, [handleMouseMove]);
 
-  // Kiểm tra hỗ trợ Speech API
+  // Check Speech API support
   useEffect(() => {
-    const checkSpeechSupport = (): void => {
+    const checkSpeechSupport = () => {
       const Ctor = getSpeechRecognitionCtor();
       if (
         Ctor &&
@@ -236,17 +295,18 @@ const AINavigation: React.FC<AINavigationProps> = ({ onNavigate, onClose }) => {
         "speechSynthesis" in window
       ) {
         setSupportsSpeech(true);
-
         const recognition = new Ctor();
         recognition.continuous = true;
         recognition.interimResults = true;
         recognition.lang = "vi-VN";
 
-        recognition.onstart = (): void => {
+        recognition.onstart = () => {
           setIsListening(true);
+          setErrorMessage("");
+          setRetryCount(0);
         };
 
-        recognition.onresult = (event: SpeechRecognitionEvent): void => {
+        recognition.onresult = (event: SpeechRecognitionEvent) => {
           let interimTranscript = "";
           let finalTranscript = "";
           for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -265,14 +325,35 @@ const AINavigation: React.FC<AINavigationProps> = ({ onNavigate, onClose }) => {
           }
         };
 
-        recognition.onerror = (event: SpeechRecognitionErrorEvent): void => {
-          console.log("Speech recognition error:", event.error);
+        recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
           setIsListening(false);
-          if (event.error !== "no-speech" && isActive) {
+          if (event.error === "not-allowed") {
+            setErrorMessage(
+              "Microphone bị chặn. Vui lòng cấp quyền sử dụng microphone."
+            );
+          } else if (event.error === "network") {
+            setErrorMessage("Lỗi mạng. Vui lòng kiểm tra kết nối.");
+          } else if (event.error === "no-speech" && isActive) {
+            if (retryCount < maxRetries) {
+              setTimeout(() => {
+                if (isActive && recognitionRef.current) {
+                  try {
+                    recognitionRef.current.start();
+                    setRetryCount((prev) => prev + 1);
+                  } catch (error) {
+                    console.log("Auto restart error:", error);
+                  }
+                }
+              }, 500);
+            } else {
+              setErrorMessage("Không nghe thấy giọng nói. Vui lòng thử lại.");
+            }
+          } else if (isActive) {
             setTimeout(() => {
               if (isActive && recognitionRef.current) {
                 try {
                   recognitionRef.current.start();
+                  setRetryCount((prev) => prev + 1);
                 } catch (error) {
                   console.log("Auto restart error:", error);
                 }
@@ -281,13 +362,14 @@ const AINavigation: React.FC<AINavigationProps> = ({ onNavigate, onClose }) => {
           }
         };
 
-        recognition.onend = (): void => {
+        recognition.onend = () => {
           setIsListening(false);
-          if (isActive) {
+          if (isActive && retryCount < maxRetries) {
             setTimeout(() => {
               if (isActive && recognitionRef.current) {
                 try {
                   recognitionRef.current.start();
+                  setRetryCount((prev) => prev + 1);
                 } catch (error) {
                   console.log("Auto restart error:", error);
                 }
@@ -297,37 +379,17 @@ const AINavigation: React.FC<AINavigationProps> = ({ onNavigate, onClose }) => {
         };
 
         recognitionRef.current = recognition;
+      } else {
+        setErrorMessage("Trình duyệt không hỗ trợ nhận diện giọng nói.");
       }
     };
 
     checkSpeechSupport();
-  }, [isActive]);
+  }, [isActive, retryCount]);
 
-  // Theo dõi vị trí chuột
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent): void => {
-      if (containerRef.current) {
-        const rect = containerRef.current.getBoundingClientRect();
-        const centerX = rect.left + rect.width / 2;
-        const centerY = rect.top + rect.height / 2;
-
-        const x = ((e.clientX - centerX) / rect.width) * 100 + 50;
-        const y = ((e.clientY - centerY) / rect.height) * 100 + 50;
-
-        setMousePosition({
-          x: Math.max(0, Math.min(100, x)),
-          y: Math.max(0, Math.min(100, y)),
-        });
-      }
-    };
-
-    document.addEventListener("mousemove", handleMouseMove);
-    return () => document.removeEventListener("mousemove", handleMouseMove);
-  }, []);
-
-  // Hàm text-to-speech
+  // Text-to-speech function
   const speak = useCallback(
-    (text: string, onEndCallback?: () => void): void => {
+    (text: string, onEndCallback?: () => void) => {
       if (!supportsSpeech) return;
 
       if (speechSynthRef.current) {
@@ -340,8 +402,8 @@ const AINavigation: React.FC<AINavigationProps> = ({ onNavigate, onClose }) => {
       utterance.pitch = 1.1;
       utterance.volume = 1.0;
 
-      utterance.onstart = (): void => setIsSpeaking(true);
-      utterance.onend = (): void => {
+      utterance.onstart = () => setIsSpeaking(true);
+      utterance.onend = () => {
         setIsSpeaking(false);
         if (onEndCallback) onEndCallback();
       };
@@ -352,15 +414,15 @@ const AINavigation: React.FC<AINavigationProps> = ({ onNavigate, onClose }) => {
     [supportsSpeech]
   );
 
+  // Navigation function
   const navigateTo = useCallback(
-    (path: string, message: string): void => {
+    (path: string, message: string) => {
       if (onNavigate) {
         onNavigate(path);
       } else {
-        window.location.href = path;
+        router.push(path);
       }
       speak(message, () => {
-        // Sau khi speak xong, đặt timer 30s để hỏi lại
         if (timeoutRef.current) clearTimeout(timeoutRef.current);
         timeoutRef.current = setTimeout(() => {
           if (isActive) {
@@ -371,12 +433,11 @@ const AINavigation: React.FC<AINavigationProps> = ({ onNavigate, onClose }) => {
       });
       setTranscript("");
       setLastInteractionTime(Date.now());
-      // Không setIsActive(false) để giữ active
     },
-    [onNavigate, speak, isActive]
+    [onNavigate, speak, isActive, router]
   );
 
-  // Xử lý transcript thay đổi
+  // Handle transcript changes
   useEffect(() => {
     if (!transcript || !isActive) return;
 
@@ -401,32 +462,36 @@ const AINavigation: React.FC<AINavigationProps> = ({ onNavigate, onClose }) => {
       setIsActive(false);
       speak("Tạm biệt! Hẹn gặp lại sau.");
       setTranscript("");
-      if (onClose) onClose(); // Thêm dòng này để tắt modal ngoài layout
+      if (onClose) onClose();
     } else if (cmd.includes("xin chào") || cmd.includes("hello")) {
       speak("Xin chào! Tôi có thể giúp bạn điều hướng đi đâu?");
       setTranscript("");
       setLastInteractionTime(Date.now());
     } else {
-      speak("Xin lỗi, tôi chưa hiểu lệnh. Bạn có thể nói lại không?");
+      speak(
+        "Xin lỗi, tôi chưa hiểu lệnh. Hãy nói rõ hơn, ví dụ: 'đi đến giỏ hàng' hoặc 'trang chủ'."
+      );
       setTranscript("");
       setLastInteractionTime(Date.now());
     }
   }, [transcript, isActive, navigateTo, speak, onClose]);
 
-  // Timer để hỏi lại sau 30s không hoạt động
+  // Idle check timer
   useEffect(() => {
     const checkIdle = () => {
-      if (isActive && Date.now() - lastInteractionTime > 30000) {
-        speak("Bạn còn cần giúp đỡ gì không? Muốn đi đâu tiếp?");
+      if (isActive && Date.now() - lastInteractionTime > 30000 && !isSpeaking) {
+        speak(
+          "Bạn còn cần giúp đỡ gì không? Nói 'giỏ hàng', 'trang chủ' hoặc 'nghỉ đi' để tiếp tục."
+        );
         setLastInteractionTime(Date.now());
       }
     };
 
     const interval = setInterval(checkIdle, 5000);
     return () => clearInterval(interval);
-  }, [isActive, lastInteractionTime, speak]);
+  }, [isActive, lastInteractionTime, speak, isSpeaking]);
 
-  // Quản lý speech recognition
+  // Manage speech recognition
   useEffect(() => {
     if (!supportsSpeech || !recognitionRef.current) return;
 
@@ -435,6 +500,7 @@ const AINavigation: React.FC<AINavigationProps> = ({ onNavigate, onClose }) => {
         recognitionRef.current.start();
       } catch (error) {
         console.log("Recognition start error:", error);
+        setErrorMessage("Không thể khởi động nhận diện giọng nói.");
       }
     } else {
       try {
@@ -449,30 +515,45 @@ const AINavigation: React.FC<AINavigationProps> = ({ onNavigate, onClose }) => {
       if (recognitionRef.current) {
         try {
           recognitionRef.current.stop();
-        } catch (err) {
-          console.log("Cleanup error:", err);
+        } catch (error) {
+          console.log("Cleanup error:", error);
         }
       }
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
   }, [isActive, supportsSpeech]);
 
-  const handleAvatarClick = (): void => {
+  const handleAvatarClick = () => {
     if (!isActive) {
       setIsActive(true);
       setLastInteractionTime(Date.now());
-      speak("Xin chào! Tôi đã sẵn sàng. Bạn muốn đi đâu?");
+      speak(
+        "Xin chào! Nói 'giỏ hàng', 'trang chủ' hoặc các lệnh khác để điều hướng."
+      );
       setTranscript("");
+      setErrorMessage("");
+      setRetryCount(0);
     }
   };
 
-  const handleStopListening = (): void => {
+  const handleStopListening = () => {
     setIsActive(false);
     speak("Tạm dừng nghe. Nhấn vào tôi để kích hoạt lại.");
     setTranscript("");
+    setErrorMessage("");
+    setRetryCount(0);
+    if (onClose) onClose();
   };
 
-  const handleQuickNavigate = (path: string, message: string): void => {
+  const handleQuickNavigate = (path: string, message: string) => {
     navigateTo(path, message);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      handleAvatarClick();
+    }
   };
 
   if (!supportsSpeech) {
@@ -480,18 +561,29 @@ const AINavigation: React.FC<AINavigationProps> = ({ onNavigate, onClose }) => {
       <div className="fixed bottom-4 right-4 bg-red-500 text-white p-4 rounded-lg max-w-64 z-50 shadow-xl">
         <div className="text-sm font-medium">Không hỗ trợ</div>
         <div className="text-xs">
-          Trình duyệt không hỗ trợ nhận diện giọng nói
+          {errorMessage || "Trình duyệt không hỗ trợ nhận diện giọng nói."}
         </div>
       </div>
     );
   }
 
   return (
-    <div ref={containerRef} className="fixed bottom-20 right-4 z-50">
+    <div
+      ref={containerRef}
+      className="fixed bottom-20 right-4 z-50 animate-fade-in"
+      role="region"
+      aria-label="AI Navigation Assistant"
+    >
       <div className="bg-gradient-to-br from-gray-800 via-gray-900 to-black text-white rounded-2xl shadow-2xl p-6 flex flex-col items-center space-y-4 border border-gray-700 transform transition-all duration-300 hover:scale-105">
         <div
-          className="cursor-pointer transform transition-all duration-300 hover:scale-110"
+          className="cursor-pointer transform transition-all duration-300 hover:scale-110 outline-none"
           onClick={handleAvatarClick}
+          onKeyDown={handleKeyDown}
+          role="button"
+          tabIndex={0}
+          aria-label={
+            isActive ? "AI đang hoạt động" : "Kích hoạt AI điều hướng"
+          }
         >
           <Avatar3D
             isActive={isActive}
@@ -499,12 +591,12 @@ const AINavigation: React.FC<AINavigationProps> = ({ onNavigate, onClose }) => {
             mousePosition={mousePosition}
           />
         </div>
-
         <div className="text-center">
           <div
             className={`text-sm font-medium ${
               isActive ? "text-green-400" : "text-gray-400"
             } transition-colors duration-300`}
+            aria-live="polite"
           >
             {isActive
               ? isListening
@@ -517,53 +609,61 @@ const AINavigation: React.FC<AINavigationProps> = ({ onNavigate, onClose }) => {
               &quot;{transcript}&quot;
             </div>
           )}
+          {errorMessage && (
+            <div className="text-xs text-red-300 mt-1 max-w-48 animate-fade-in">
+              {errorMessage}
+            </div>
+          )}
         </div>
-
         <div className="flex space-x-2">
           {isActive ? (
             <button
-              className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200 shadow-md"
+              className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200 shadow-md focus:outline-none focus:ring-2 focus:ring-red-400"
               onClick={handleStopListening}
+              aria-label="Dừng AI điều hướng"
             >
               Dừng
             </button>
           ) : (
             <button
-              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200 shadow-md"
+              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200 shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400"
               onClick={handleAvatarClick}
+              aria-label="Kích hoạt AI điều hướng"
             >
               Kích hoạt
             </button>
           )}
         </div>
-
         <div className="grid grid-cols-2 gap-2 w-full">
           <button
-            className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-md text-xs transition-colors duration-200 shadow-sm flex items-center justify-center"
+            className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-md text-xs transition-colors duration-200 shadow-sm flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-blue-400"
             onClick={() => handleQuickNavigate("/cart", "Đang mở giỏ hàng")}
+            aria-label="Điều hướng đến giỏ hàng"
           >
             🛒 Giỏ hàng
           </button>
           <button
-            className="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-md text-xs transition-colors duration-200 shadow-sm flex items-center justify-center"
+            className="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-md text-xs transition-colors duration-200 shadow-sm flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-green-400"
             onClick={() => handleQuickNavigate("/lucky", "Vòng quay may mắn")}
+            aria-label="Điều hướng đến vòng quay may mắn"
           >
             🎰 May mắn
           </button>
           <button
-            className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-2 rounded-md text-xs transition-colors duration-200 shadow-sm flex items-center justify-center"
+            className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-2 rounded-md text-xs transition-colors duration-200 shadow-sm flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-yellow-400"
             onClick={() => handleQuickNavigate("/about", "Trang giới thiệu")}
+            aria-label="Điều hướng đến trang giới thiệu"
           >
             ℹ️ Giới thiệu
           </button>
           <button
-            className="bg-purple-500 hover:bg-purple-600 text-white px-3 py-2 rounded-md text-xs transition-colors duration-200 shadow-sm flex items-center justify-center"
+            className="bg-purple-500 hover:bg-purple-600 text-white px-3 py-2 rounded-md text-xs transition-colors duration-200 shadow-sm flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-purple-400"
             onClick={() => handleQuickNavigate("/blog", "Tin tức mới nhất")}
+            aria-label="Điều hướng đến tin tức"
           >
             📰 Tin tức
           </button>
         </div>
-
         <div className="text-xs text-gray-400 text-center max-w-48">
           <div className="font-medium">Lệnh giọng nói:</div>
           <div>

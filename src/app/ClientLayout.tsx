@@ -65,6 +65,7 @@
 //     </GoogleOAuthProvider>
 //   );
 // }
+
 "use client";
 
 import { Provider } from "react-redux";
@@ -132,7 +133,7 @@ export default function ClientLayout({
           {/* Nút để bật AINavigation */}
           {!showChatBot && !showAINavigation && (
             <button
-              className="fixed bottom-4 right-4 bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-full shadow-lg transition-colors"
+              className="fixed bottom-4 left-4 bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-full shadow-lg transition-colors"
               onClick={() => setShowAINavigation(true)}
               aria-label="Mở AI Điều hướng"
             >
@@ -142,7 +143,7 @@ export default function ClientLayout({
           {/* Nút để tắt AINavigation */}
           {showAINavigation && (
             <button
-              className="fixed bottom-4 right-4 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-full shadow-lg transition-colors"
+              className="fixed bottom-4 left-4 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-full shadow-lg transition-colors"
               onClick={() => setShowAINavigation(false)}
               aria-label="Đóng AI Điều hướng"
             >

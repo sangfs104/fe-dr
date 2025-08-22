@@ -1,10 +1,6 @@
 "use client";
-
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useCallback, useRef } from "react";
-import SpeechRecognition, {
-  useSpeechRecognition,
-} from "react-speech-recognition";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Box, OrbitControls, Text } from "@react-three/drei";
 import * as THREE from "three";
@@ -16,14 +12,8 @@ export default function AINavigation() {
   const router = useRouter();
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
-
-  const {
-    transcript,
-    listening,
-    resetTranscript,
-    browserSupportsSpeechRecognition,
-  } = useSpeechRecognition();
-
+  const [error, setError] = useState<string | null>(null);
+  const [transcript, setTranscript] = useState<string>("");
   const speechSynth = useRef<SpeechSynthesisUtterance | null>(null);
 
   // Initialize speech synthesis
@@ -35,7 +25,6 @@ export default function AINavigation() {
       speechSynth.current.rate = 1;
       speechSynth.current.pitch = 1;
 
-      // Handle end of speech
       speechSynth.current.onend = () => {
         setIsSpeaking(false);
       };
@@ -44,95 +33,127 @@ export default function AINavigation() {
 
   // Speak function
   const speak = useCallback(
-    (text: string) => {
+    (text: string, callback?: () => void) => {
       if (speechSynth.current && !isSpeaking) {
         setIsSpeaking(true);
         speechSynth.current.text = text;
         window.speechSynthesis.speak(speechSynth.current);
+        if (callback) {
+          speechSynth.current.onend = () => {
+            setIsSpeaking(false);
+            callback();
+          };
+        }
       }
     },
     [isSpeaking]
   );
 
-  // Wrap navigateTo in useCallback
+  // Navigate function
   const navigateTo = useCallback(
     (path: string, description: string) => {
-      speak(description); // Speak about the page first
+      speak(description);
       setTimeout(() => {
         router.push(path);
-        setIsListening(false);
-        resetTranscript();
-      }, 2000); // Delay navigation to allow speech to finish (adjust as needed)
+        setTranscript(""); // Reset transcript for next command
+      }, 2000);
     },
-    [router, resetTranscript, speak]
+    [router, speak]
   );
 
-  // On mount, greet and ask user, start listening
-  useEffect(() => {
-    if (!browserSupportsSpeechRecognition) {
-      console.log("Trình duyệt không hỗ trợ nhận diện giọng nói.");
+  // Voice recognition function
+  const askForCommand = useCallback(
+    async (question: string): Promise<string> => {
+      return new Promise((resolve) => {
+        speak(question, () => {
+          const SpeechRecognitionConstructor =
+            window.webkitSpeechRecognition || window.SpeechRecognition;
+          if (!SpeechRecognitionConstructor) {
+            setError(
+              "Trình duyệt không hỗ trợ nhận diện giọng nói. Vui lòng sử dụng Chrome hoặc Edge."
+            );
+            resolve("");
+            return;
+          }
+
+          const recognition = new SpeechRecognitionConstructor();
+          recognition.lang = "vi-VN";
+          recognition.start();
+
+          recognition.onresult = (event: SpeechRecognitionEvent) => {
+            const text = event.results[0][0].transcript.trim().toLowerCase();
+            resolve(text);
+          };
+
+          recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+            setError(`Lỗi nhận diện giọng nói: ${event.error}`);
+            resolve("");
+          };
+
+          recognition.onend = () => {
+            setIsListening(false);
+          };
+        });
+      });
+    },
+    [speak]
+  );
+
+  // Start voice navigation
+  const startVoice = useCallback(async () => {
+    setIsListening(true);
+    setError(null);
+    setTranscript("");
+
+    const command = await askForCommand(
+      "Bạn muốn đi đâu? Ví dụ: đi đến giỏ hàng, vòng quay may mắn, giới thiệu, hoặc tin tức."
+    );
+
+    if (!command) {
+      speak("Không nhận diện được lệnh. Vui lòng thử lại.");
+      setIsListening(false);
       return;
     }
 
-    // Initial greeting and question
-    speak(
-      "Chào bạn! Bạn muốn đi đâu? Ví dụ: đi đến giỏ hàng, vòng quay may mắn, giới thiệu, hoặc tin tức."
-    );
-    setIsListening(true); // Auto start listening after speaking
+    setTranscript(command);
 
-    if (isListening) {
-      SpeechRecognition.startListening({
-        continuous: true,
-        language: "vi-VN",
-      }).catch((err) => {
-        console.log("Lỗi khi khởi động nhận diện giọng nói:", err.message);
-      });
-    }
-
-    return () => {
-      SpeechRecognition.stopListening();
-      if (speechSynth.current) {
-        window.speechSynthesis.cancel();
-      }
-    };
-  }, [isListening, browserSupportsSpeechRecognition, speak]);
-
-  useEffect(() => {
-    if (!listening) return;
-
-    const cmd = transcript.toLowerCase().trim();
-    if (cmd.includes("đi đến giỏ hàng")) {
+    if (command.includes("đi đến giỏ hàng")) {
       navigateTo(
         "/cart",
         "Bạn đang được chuyển đến trang giỏ hàng, nơi bạn có thể xem và quản lý các sản phẩm đã chọn."
       );
-    } else if (cmd.includes("vòng quay may mắn")) {
+    } else if (command.includes("vòng quay may mắn")) {
       navigateTo(
         "/lucky",
         "Bạn đang được chuyển đến trang vòng quay may mắn, nơi bạn có thể thử vận may để nhận quà tặng."
       );
-    } else if (cmd.includes("giới thiệu")) {
+    } else if (command.includes("giới thiệu")) {
       navigateTo(
         "/about",
         "Bạn đang được chuyển đến trang giới thiệu, nơi bạn có thể tìm hiểu thêm về chúng tôi."
       );
-    } else if (cmd.includes("tin tức")) {
+    } else if (command.includes("tin tức")) {
       navigateTo(
         "/blog",
         "Bạn đang được chuyển đến trang tin tức, nơi bạn có thể đọc các bài viết mới nhất."
       );
-    }
-  }, [transcript, listening, navigateTo]);
-
-  const toggleListening = () => {
-    setIsListening(!isListening);
-    if (!isListening) {
-      resetTranscript();
-      speak("Bắt đầu nghe lệnh của bạn.");
     } else {
-      speak("Dừng nghe.");
+      speak("Lệnh không hợp lệ. Vui lòng thử lại.");
+      setIsListening(false);
     }
-  };
+  }, [speak, navigateTo]);
+
+  // On mount, greet and start listening
+  useEffect(() => {
+    speak(
+      "Chào bạn! Bạn muốn đi đâu? Ví dụ: đi đến giỏ hàng, vòng quay may mắn, giới thiệu, hoặc tin tức."
+    );
+    return () => {
+      if (speechSynth.current) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, [speak]);
 
   // 3D Button Component
   function InteractiveBox({
@@ -152,7 +173,7 @@ export default function AINavigation() {
 
     useFrame(() => {
       if (meshRef.current) {
-        meshRef.current.rotation.y += 0.01; // Rotate for 3D effect
+        meshRef.current.rotation.y += 0.01;
       }
     });
 
@@ -184,7 +205,7 @@ export default function AINavigation() {
   }
 
   return (
-    <div className="fixed bottom-20 right-4 z-50 w-80 h-80">
+    <div className="fixed bottom-20 left-4 z-50 w-80 h-80">
       <Canvas>
         <ambientLight intensity={0.5} />
         <pointLight position={[10, 10, 10]} />
@@ -237,12 +258,17 @@ export default function AINavigation() {
           position={[0, -3, 0]}
           color="indigo"
           text={isListening ? "Dừng nghe" : "Nghe giọng nói"}
-          onClick={toggleListening}
+          onClick={startVoice}
         />
       </Canvas>
-      {listening && (
+      {isListening && (
         <div className="absolute bottom-0 text-white bg-gray-800 p-2 rounded">
           Đang nghe: {transcript || "Chưa có lệnh..."}
+        </div>
+      )}
+      {error && (
+        <div className="absolute bottom-10 text-red-500 bg-gray-800 p-2 rounded">
+          Lỗi: {error}
         </div>
       )}
     </div>

@@ -198,7 +198,7 @@ const Avatar3D: React.FC<Avatar3DProps> = ({
 const AINavigation: React.FC<AINavigationProps> = ({ onNavigate }) => {
   const [isActive, setIsActive] = useState<boolean>(false);
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
-  const [isListening, setIsListening] = useState<boolean>(false); // Được sử dụng trong UI
+  const [isListening, setIsListening] = useState<boolean>(false);
   const [transcript, setTranscript] = useState<string>("");
   const [mousePosition, setMousePosition] = useState<MousePosition>({
     x: 50,
@@ -211,6 +211,19 @@ const AINavigation: React.FC<AINavigationProps> = ({ onNavigate }) => {
   const speechSynthRef = useRef<SpeechSynthesisUtterance | null>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Persist isActive state across page navigations (if using full reload)
+  useEffect(() => {
+    const storedActive = localStorage.getItem("aiNavActive");
+    if (storedActive === "true") {
+      setIsActive(true);
+      setLastInteractionTime(Date.now());
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("aiNavActive", isActive.toString());
+  }, [isActive]);
 
   // Kiểm tra hỗ trợ Speech API
   useEffect(() => {
@@ -346,6 +359,7 @@ const AINavigation: React.FC<AINavigationProps> = ({ onNavigate }) => {
         window.location.href = path;
       }
       speak(message, () => {
+        // Sau khi speak xong, đặt timer 30s để hỏi lại
         if (timeoutRef.current) clearTimeout(timeoutRef.current);
         timeoutRef.current = setTimeout(() => {
           if (isActive) {
@@ -356,6 +370,7 @@ const AINavigation: React.FC<AINavigationProps> = ({ onNavigate }) => {
       });
       setTranscript("");
       setLastInteractionTime(Date.now());
+      // Không setIsActive(false) để giữ active
     },
     [onNavigate, speak, isActive]
   );

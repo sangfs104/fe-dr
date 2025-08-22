@@ -37,8 +37,7 @@ interface AINavigationProps {
 // Extend Window interface để hỗ trợ webkitSpeechRecognition
 declare global {
   interface Window {
-    SpeechRecognition: typeof SpeechRecognition;
-    webkitSpeechRecognition: typeof SpeechRecognition;
+    webkitSpeechRecognition: new () => SpeechRecognition;
   }
 }
 

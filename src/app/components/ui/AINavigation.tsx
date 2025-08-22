@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
@@ -17,11 +17,15 @@ export default function AINavigation() {
     browserSupportsSpeechRecognition,
   } = useSpeechRecognition();
 
-  const navigateTo = (path: string) => {
-    router.push(path);
-    setIsListening(false);
-    resetTranscript();
-  };
+  // Wrap navigateTo in useCallback
+  const navigateTo = useCallback(
+    (path: string) => {
+      router.push(path);
+      setIsListening(false);
+      resetTranscript();
+    },
+    [router, resetTranscript]
+  ); // Dependencies: router and resetTranscript
 
   useEffect(() => {
     if (!browserSupportsSpeechRecognition) {

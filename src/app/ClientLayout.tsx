@@ -163,18 +163,18 @@ import { store } from "../store/store";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import Header from "./components/ui/Header";
 import CartModal from "./components/ui/CartModal";
-import { useState, Suspense } from "react";
+import { useState } from "react";
 import Footer from "./components/ui/Footer";
 import VoiceQuickOrderTest from "./components/ui/VoiceQuickOrderTest";
 import ChatToggle from "./components/ui/ChatToggle";
 import ChatBoxStylistAI from "./components/ui/ChatBot";
-import dynamic from "next/dynamic";
+// import dynamic from "next/dynamic";
 
 // Tải AINavigation theo kiểu lazy để tối ưu hóa hiệu suất
-const AINavigation = dynamic(() => import("./components/ui/AINavigation"), {
-  ssr: false, // Tắt server-side rendering cho thành phần 3D
-  loading: () => <div>Đang tải AI Điều hướng...</div>,
-});
+// const AINavigation = dynamic(() => import("./components/ui/AINavigation"), {
+//   ssr: false, // Tắt server-side rendering cho thành phần 3D
+//   loading: () => <div>Đang tải AI Điều hướng...</div>,
+// });
 
 export default function ClientLayout({
   children,
@@ -213,9 +213,9 @@ export default function ClientLayout({
             />
           )}
           {/* Nhúng AINavigation trực tiếp */}
-          <Suspense fallback={<div>Đang tải AI Điều hướng...</div>}>
+          {/* <Suspense fallback={<div>Đang tải AI Điều hướng...</div>}>
             <AINavigation />
-          </Suspense>
+          </Suspense> */}
           <Footer />
         </div>
       </Provider>

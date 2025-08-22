@@ -36,6 +36,7 @@ interface Avatar3DProps {
 
 interface AINavigationProps {
   onNavigate?: (path: string) => void;
+  onClose?: () => void; // Thêm dòng này
 }
 
 /* =========================
@@ -195,7 +196,7 @@ const Avatar3D: React.FC<Avatar3DProps> = ({
    AINavigation
 ========================= */
 
-const AINavigation: React.FC<AINavigationProps> = ({ onNavigate }) => {
+const AINavigation: React.FC<AINavigationProps> = ({ onNavigate, onClose }) => {
   const [isActive, setIsActive] = useState<boolean>(false);
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
   const [isListening, setIsListening] = useState<boolean>(false);
@@ -400,6 +401,7 @@ const AINavigation: React.FC<AINavigationProps> = ({ onNavigate }) => {
       setIsActive(false);
       speak("Tạm biệt! Hẹn gặp lại sau.");
       setTranscript("");
+      if (onClose) onClose(); // Thêm dòng này để tắt modal ngoài layout
     } else if (cmd.includes("xin chào") || cmd.includes("hello")) {
       speak("Xin chào! Tôi có thể giúp bạn điều hướng đi đâu?");
       setTranscript("");
@@ -409,7 +411,7 @@ const AINavigation: React.FC<AINavigationProps> = ({ onNavigate }) => {
       setTranscript("");
       setLastInteractionTime(Date.now());
     }
-  }, [transcript, isActive, navigateTo, speak]);
+  }, [transcript, isActive, navigateTo, speak, onClose]);
 
   // Timer để hỏi lại sau 30s không hoạt động
   useEffect(() => {

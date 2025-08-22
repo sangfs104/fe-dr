@@ -376,8 +376,9 @@ const AINavigation: React.FC<AINavigationProps> = ({ onNavigate }) => {
       if (recognitionRef.current) {
         try {
           recognitionRef.current.stop();
-        } catch (error) {
+        } catch (err) {
           // Ignore cleanup errors
+          console.log("Cleanup error:", err);
         }
       }
     };

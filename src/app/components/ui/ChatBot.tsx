@@ -546,10 +546,12 @@ function VoiceSettingsModal({
 export default function ChatBoxStylistAI({
   apiUrl,
   title = "Stylist AI",
+  onClose, // thêm dòng này
 }: {
   /** Optional override. Defaults to `${process.env.NEXT_PUBLIC_API_URL}/api/stylist/analyze` */
   apiUrl?: string;
   title?: string;
+  onClose?: () => void; // thêm dòng này
 }) {
   const endpoint = useMemo(() => {
     const defaultUrl = `${process.env.NEXT_PUBLIC_API_URL ??
@@ -1011,7 +1013,10 @@ export default function ChatBoxStylistAI({
 
                   {/* Close button */}
                   <button
-                    onClick={() => setIsOpen(false)}
+                    onClick={() => {
+                      setIsOpen(false);
+                      onClose?.(); // gọi hàm này nếu có truyền từ ngoài vào
+                    }}
                     className="p-2 rounded-xl bg-white/10 hover:bg-white/20 transition-colors backdrop-blur-sm"
                   >
                     <X className="h-4 w-4 text-white" />

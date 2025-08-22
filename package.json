@@ -65,6 +65,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/react-image-magnify": "^2.7.4",
+    "@types/react-speech-recognition": "^3.9.6",
     "@types/web": "^0.0.262",
     "autoprefixer": "^10.4.21",
     "eslint": "^9",

@@ -34,7 +34,7 @@ export default function VoiceAI({ onCommand }: VoiceAIProps) {
       SpeechRecognition.startListening({
         continuous: true,
         language: "vi-VN",
-      }).catch((err) => {
+      }).catch((err: Error) => {
         setError("Lỗi khi khởi động nhận diện giọng nói: " + err.message);
       });
     }
@@ -70,7 +70,7 @@ export default function VoiceAI({ onCommand }: VoiceAIProps) {
         {error ? (
           <span className="text-red-400">{error}</span>
         ) : isActive && listening ? (
-          <span>Đang lắng nghe 'Hey Sang'...</span>
+          <span>Đang lắng nghe &apos;Hey Sang&apos;...</span>
         ) : (
           <span>AI Giọng Nói Không Hoạt Động</span>
         )}

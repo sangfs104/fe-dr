@@ -37,11 +37,19 @@ const data = [
   },
 ];
 
+type Voucher = {
+  code: string;
+  discount: number;
+  discount_type: string; // "percent" hoặc "amount"
+  expiry_date: string;
+};
+
 const LuckyWheelClient = () => {
   const [mustSpin, setMustSpin] = useState(false);
   const [prizeIndex, setPrizeIndex] = useState(0);
   const spinningRef = useRef(false);
-  const [voucherCode, setVoucherCode] = useState<string | null>(null);
+
+  const [voucher, setVoucher] = useState<Voucher | null>(null);
   const [showVoucherBox, setShowVoucherBox] = useState(false);
 
   const spinningSound = useRef<HTMLAudioElement | null>(null);
@@ -81,19 +89,25 @@ const LuckyWheelClient = () => {
       let randomIndex: number;
 
       if (json.status === 200 && json.voucher) {
+        // ✅ Backend đã random trúng → chọn ô "Voucher"
         const voucherIndices = data
           .map((d, i) => (d.option === "Voucher" ? i : null))
           .filter((i) => i !== null) as number[];
+
         randomIndex =
           voucherIndices[Math.floor(Math.random() * voucherIndices.length)];
-        setVoucherCode(json.voucher.code);
+
+        setVoucher(json.voucher);
       } else {
+        // ❌ Backend random không trúng → chọn ô "Không trúng"
         const loseIndices = data
           .map((d, i) => (d.option === "Không trúng" ? i : null))
           .filter((i) => i !== null) as number[];
+
         randomIndex =
           loseIndices[Math.floor(Math.random() * loseIndices.length)];
-        setVoucherCode(null);
+
+        setVoucher(null);
       }
 
       setPrizeIndex(randomIndex);
@@ -111,15 +125,14 @@ const LuckyWheelClient = () => {
     spinningRef.current = false;
     spinningSound.current?.pause();
 
-    // Reset thời gian phát nhạc về 0
     if (winSound.current) winSound.current.currentTime = 0;
     if (loseSound.current) loseSound.current.currentTime = 0;
 
-    if (voucherCode) {
+    if (voucher) {
       const existingVouchers = JSON.parse(
         localStorage.getItem("vouchers") || "[]"
       );
-      const newVoucher = { code: voucherCode, date: new Date().toISOString() };
+      const newVoucher = { ...voucher, date: new Date().toISOString() };
       localStorage.setItem(
         "vouchers",
         JSON.stringify([...existingVouchers, newVoucher])
@@ -129,13 +142,13 @@ const LuckyWheelClient = () => {
       setShowVoucherBox(true);
     } else {
       loseSound.current?.play().catch(console.warn);
-      setShowVoucherBox(true); // vẫn hiện modal nhưng nội dung là thua
+      setShowVoucherBox(true);
     }
   };
 
   const handleCopy = () => {
-    if (voucherCode) {
-      navigator.clipboard.writeText(voucherCode);
+    if (voucher) {
+      navigator.clipboard.writeText(voucher.code);
       toast.success("Đã sao chép mã!");
     }
   };
@@ -176,65 +189,87 @@ const LuckyWheelClient = () => {
 
       {showVoucherBox && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[1000]">
-          <div className="p-5 rounded-xl shadow-lg bg-white border border-gray-200 text-center w-80 animate-[fadeIn_0.3s_ease]">
-            {voucherCode ? (
+          <div className="p-6 rounded-2xl shadow-lg bg-white border border-gray-200 text-center w-[420px] animate-[fadeIn_0.3s_ease]">
+            {voucher ? (
               <>
-                <h3 className="text-lg font-bold mb-4 bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent">
-                  Bạn đã nhận được Voucher!
+                <h3 className="text-xl font-bold mb-4 text-center text-neutral-900">
+                  <span className="text-orange-500">Gift Voucher</span>
                 </h3>
 
-                {/* Phiếu mã giảm giá */}
-                <div className="relative w-full">
-                  {/* Răng cưa */}
-                  <div className="absolute -left-2 top-0 bottom-0 flex flex-col justify-between">
-                    {Array.from({ length: 8 }).map((_, i) => (
-                      <span
-                        key={i}
-                        className="w-3 h-3 bg-white border border-orange-500 rounded-full"
-                      ></span>
-                    ))}
-                  </div>
-                  <div className="absolute -right-2 top-0 bottom-0 flex flex-col justify-between">
-                    {Array.from({ length: 8 }).map((_, i) => (
-                      <span
-                        key={i}
-                        className="w-3 h-3 bg-white border border-orange-500 rounded-full"
-                      ></span>
-                    ))}
+                <div className="relative w-full mx-auto bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.06)] border border-amber-400/70 overflow-hidden">
+                  <div className="h-1 bg-gradient-to-r from-amber-300 via-amber-500 to-amber-300" />
+
+                  <div className="px-6 py-6">
+                    <div className="text-center space-y-0.5">
+                      <p className="text-sm tracking-[0.2em] text-orange-500 font-semibold">
+                        VOUCHER
+                      </p>
+                      <p className="text-[13px] text-neutral-500">
+                        Ưu đãi dành riêng cho bạn
+                      </p>
+                    </div>
+
+                    {/* Code voucher */}
+                    <div className="mt-5">
+                      <p className="text-xs uppercase text-neutral-500 mb-1">
+                        Mã giảm giá
+                      </p>
+                      <div className="flex items-center gap-3 justify-center">
+                        <span className="inline-block font-mono text-2xl font-bold tracking-[0.25em] text-orange-500 bg-neutral-50 rounded-lg px-6 py-3 ring-1 ring-neutral-200">
+                          {voucher.code}
+                        </span>
+                        <button
+                          onClick={handleCopy}
+                          className="shrink-0 px-4 py-3 rounded-lg text-sm font-semibold bg-orange-500 text-white hover:bg-orange-600 transition"
+                        >
+                          Sao chép
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Thông tin chi tiết */}
+                    <div className="mt-6 grid grid-cols-2 gap-4 text-[14px]">
+                      <div className="rounded-xl bg-neutral-50 border border-neutral-200 p-4">
+                        <p className="text-neutral-500 mb-0.5">Giảm</p>
+                        <p className="font-semibold text-neutral-900">
+                          {voucher.discount_type === "percent"
+                            ? `${voucher.discount}%`
+                            : new Intl.NumberFormat("vi-VN", {
+                                style: "currency",
+                                currency: "VND",
+                              }).format(voucher.discount)}
+                        </p>
+                      </div>
+                      <div className="rounded-xl bg-neutral-50 border border-neutral-200 p-4">
+                        <p className="text-neutral-500 mb-0.5">Hạn dùng</p>
+                        <p className="font-semibold text-neutral-900">
+                          {new Date(voucher.expiry_date).toLocaleDateString(
+                            "vi-VN"
+                          )}
+                        </p>
+                      </div>
+                    </div>
+
+                    <p className="mt-5 text-[12px] text-neutral-500 text-center">
+                      Áp dụng tại trang thanh toán.
+                    </p>
                   </div>
 
-                  {/* Nội dung phiếu */}
-                  <div className="bg-gradient-to-r from-orange-400 to-orange-500 text-white rounded-lg shadow-lg border border-orange-500 flex items-center justify-between px-4 py-3">
-                    <span className="font-mono font-bold text-lg">
-                      {voucherCode}
-                    </span>
-                    <button
-                      onClick={handleCopy}
-                      className="bg-white text-orange-600 px-3 py-1 rounded-lg text-sm font-semibold hover:bg-gray-100"
-                    >
-                      Sao chép
-                    </button>
-                  </div>
+                  <div className="h-1 bg-gradient-to-r from-amber-300 via-amber-500 to-amber-300" />
                 </div>
-
-                <p className="text-xs text-gray-500 mt-3">
-                  Hãy dùng mã này khi thanh toán để nhận ưu đãi.
-                </p>
               </>
             ) : (
               <>
                 <h3 className="text-lg font-bold text-red-600 mb-2">
                   😢 Chúc bạn may mắn lần sau!
                 </h3>
-                <p className="text-gray-600">
-                  Bạn chưa trúng phần thưởng nào lần này.
-                </p>
+                <p className="text-gray-600">Lượt này hơi đen quay lại nhé.</p>
               </>
             )}
 
             <button
               onClick={() => setShowVoucherBox(false)}
-              className="mt-4 px-4 py-2 rounded-full bg-orange-500 hover:bg-orange-600 text-white font-semibold shadow-md"
+              className="mt-5 px-5 py-2 rounded-full bg-orange-500 hover:bg-orange-600 text-white font-semibold shadow-md"
             >
               Đóng
             </button>

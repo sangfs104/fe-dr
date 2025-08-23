@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import "react-toastify/dist/ReactToastify.css";
@@ -10,9 +9,32 @@ import GoogleLoginButton from "../components/ui/GoogleLoginButton";
 import { motion } from "framer-motion";
 import { DreamToast } from "../components/ui/DreamToast";
 
+interface RegisterForm {
+  name: string;
+  email: string;
+  phone: string;
+  password: string;
+  role: string;
+}
+
+interface ErrorMessages {
+  name: string;
+  email: string;
+  phone: string;
+}
+
+interface ApiErrorResponse {
+  errors?: {
+    name?: string[];
+    email?: string[];
+    phone?: string[];
+  };
+  message?: string;
+}
+
 const RegisterPage = () => {
   const router = useRouter();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<RegisterForm>({
     name: "",
     email: "",
     phone: "",
@@ -20,7 +42,7 @@ const RegisterPage = () => {
     role: "user",
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState({
+  const [errors, setErrors] = useState<ErrorMessages>({
     name: "",
     email: "",
     phone: "",
@@ -31,7 +53,7 @@ const RegisterPage = () => {
   };
 
   const validate = () => {
-    const newErrors = { name: "", email: "", phone: "" };
+    const newErrors: ErrorMessages = { name: "", email: "", phone: "" };
 
     if (!formData.name.trim()) {
       newErrors.name = "Vui lòng nhập họ tên";
@@ -60,19 +82,30 @@ const RegisterPage = () => {
 
     if (!validate()) return;
 
-    setLoading(true); // 🔄 Bắt đầu loading
+    setLoading(true);
 
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/register`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
           body: JSON.stringify(formData),
         }
       );
 
-      const data = await res.json();
+      let data: ApiErrorResponse = {};
+      try {
+        data = await res.json();
+      } catch {
+        const text = await res.text();
+        console.error("Server trả HTML:", text);
+        toast.error("Có lỗi xảy ra từ server");
+        return;
+      }
 
       if (res.ok) {
         toast.success("Đăng ký thành công!");
@@ -80,13 +113,22 @@ const RegisterPage = () => {
           router.push("/login");
         }, 1500);
       } else {
-        toast.error(data.message || "Đăng ký thất bại");
+        if (data.errors) {
+          const newErrors: ErrorMessages = { name: "", email: "", phone: "" };
+          if (data.errors.name) newErrors.name = data.errors.name[0];
+          if (data.errors.email) newErrors.email = data.errors.email[0];
+          if (data.errors.phone) newErrors.phone = data.errors.phone[0];
+          setErrors(newErrors);
+        }
+        if (data.message) {
+          toast.error(data.message);
+        }
       }
     } catch (err) {
       console.error(err);
       toast.error("Lỗi kết nối tới server");
     } finally {
-      setLoading(false); // ✅ Tắt loading sau khi xử lý xong
+      setLoading(false);
     }
   };
 
@@ -101,8 +143,8 @@ const RegisterPage = () => {
   const [loadingGoogle, setLoadingGoogle] = useState(false);
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#f9f9fb] overflow-auto">
-      <main className="flex-grow flex justify-center items-start px-2 py-2">
+    <div className="flex flex-col bg-[#f9f9fb] overflow-auto">
+      <main className="flex justify-center px-2 py-4">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}

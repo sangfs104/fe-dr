@@ -680,9 +680,15 @@ export default function FlashSaleProductList() {
     return () => clearInterval(interval);
   }, [flashSales]);
 
-  if (loading) return <div>Đang tải...</div>;
+  if (loading)
+    return <div className="text-center text-gray-600">Đang tải...</div>;
   if (error) return <div className="text-red-500 text-center">{error}</div>;
-  if (flashSales.length === 0) return <div>Không có dữ liệu flash sale.</div>;
+  if (flashSales.length === 0)
+    return (
+      <div className="text-center text-gray-600">
+        Không có dữ liệu flash sale.
+      </div>
+    );
 
   return (
     <div className="space-y-20 px-6 sm:px-10 md:px-20 lg:px-40 py-6">
@@ -706,17 +712,23 @@ export default function FlashSaleProductList() {
                   key={`${variant.id}-${variant.variant_id}`}
                   className="fire-card group relative bg-white rounded-2xl p-4 shadow hover:shadow-lg transition duration-300"
                 >
-                  {/* Overlay for sold-out items */}
+                  {/* Overlay khi hết hàng */}
                   {isSoldOut && (
-                    <div className="absolute inset-0 bg-gray-200 bg-opacity-40 rounded-2xl flex items-center justify-center">
-                      <span className="text-red-500 font-bold text-lg">
-                        Đã hết hàng
+                    <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-2xl z-10">
+                      <span className="text-white text-2xl font-bold animate-pulse">
+                        HẾT HÀNG
                       </span>
                     </div>
                   )}
 
+                  {/* Tên sản phẩm và trạng thái hết hàng */}
                   <div className="font-semibold text-base mb-2 text-center text-orange-600">
                     {variant.name}
+                    {isSoldOut && (
+                      <span className="text-red-500 text-sm ml-2">
+                        (Hết hàng)
+                      </span>
+                    )}
                   </div>
 
                   <ProductCard
@@ -740,7 +752,7 @@ export default function FlashSaleProductList() {
                           color: "",
                           price: variant.original_price,
                           sale_price: variant.flash_sale_price.toString(),
-                          stock_quantity: availableQuantity, // Sử dụng số lượng còn lại chính xác
+                          stock_quantity: availableQuantity,
                           status: variant.status,
                         },
                       ],
@@ -761,15 +773,18 @@ export default function FlashSaleProductList() {
                       <span className="text-gray-400">/ {totalQuantity}</span>
                     </div>
 
+                    {/* Thanh tiến trình với văn bản "HẾT HÀNG" */}
                     <div className="relative h-3 bg-orange-100 rounded-full overflow-hidden">
                       <div
-                        className={`absolute left-0 top-0 h-full transition-all duration-500 ${
+                        className={`absolute left-0 top-0 h-full transition-all duration-500 flex items-center justify-center ${
                           isSoldOut
-                            ? "bg-gray-400"
+                            ? "bg-gray-400 text-white text-xs font-bold"
                             : "bg-gradient-to-r from-orange-500 to-orange-400"
                         }`}
                         style={{ width: `${Math.min(percentSold, 100)}%` }}
-                      />
+                      >
+                        {isSoldOut && "HẾT HÀNG"}
+                      </div>
                     </div>
 
                     <div
@@ -782,6 +797,18 @@ export default function FlashSaleProductList() {
                         : `${Math.floor(percentSold)}% đã bán`}
                     </div>
                   </div>
+
+                  {/* Nút mua hàng */}
+                  <button
+                    disabled={isSoldOut}
+                    className={`mt-4 w-full px-4 py-2 rounded-lg text-white font-semibold ${
+                      isSoldOut
+                        ? "bg-gray-400 cursor-not-allowed"
+                        : "bg-orange-500 hover:bg-orange-600"
+                    }`}
+                  >
+                    {isSoldOut ? "Hết hàng" : "Mua ngay"}
+                  </button>
                 </div>
               );
             })}

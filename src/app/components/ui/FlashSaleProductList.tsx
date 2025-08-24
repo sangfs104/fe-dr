@@ -799,16 +799,6 @@ export default function FlashSaleProductList() {
                   </div>
 
                   {/* Nút mua hàng */}
-                  <button
-                    disabled={isSoldOut}
-                    className={`mt-4 w-full px-4 py-2 rounded-lg text-white font-semibold ${
-                      isSoldOut
-                        ? "bg-gray-400 cursor-not-allowed"
-                        : "bg-orange-500 hover:bg-orange-600"
-                    }`}
-                  >
-                    {isSoldOut ? "Hết hàng" : "Mua ngay"}
-                  </button>
                 </div>
               );
             })}

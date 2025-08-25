@@ -1,3 +1,82 @@
+// "use client";
+
+// import { useState } from "react";
+// import Image from "next/image";
+// import { toast } from "react-hot-toast";
+// import { DreamToast } from "../components/ui/DreamToast";
+// import { motion, AnimatePresence } from "framer-motion";
+// import GoogleLoginButton from "../components/ui/GoogleLoginButton";
+// import { useRouter } from "next/navigation";
+
+// export default function LoginPage() {
+//   const router = useRouter();
+
+//   const [email, setEmail] = useState("");
+//   const [password, setPassword] = useState("");
+//   const [showPassword, setShowPassword] = useState(false);
+//   const [showForgotModal, setShowForgotModal] = useState(false);
+//   const [forgotEmail, setForgotEmail] = useState("");
+//   const [forgotMessage, setForgotMessage] = useState("");
+//   const [loading, setLoading] = useState(false);
+//   const [loadingGoogle, setLoadingGoogle] = useState(false);
+//   const [emailError, setEmailError] = useState("");
+//   const [passwordError, setPasswordError] = useState("");
+
+//   const togglePassword = () => setShowPassword((prev) => !prev);
+
+//   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+//     e.preventDefault();
+
+//     // Reset lỗi cũ
+//     setEmailError("");
+//     setPasswordError("");
+
+//     let hasError = false;
+
+//     if (!email.trim()) {
+//       setEmailError("Vui lòng nhập email");
+//       hasError = true;
+//     } else if (!/\S+@\S+\.\S+/.test(email)) {
+//       setEmailError("Email không hợp lệ");
+//       hasError = true;
+//     }
+
+//     if (!password) {
+//       setPasswordError("Vui lòng nhập mật khẩu");
+//       hasError = true;
+//     } else if (password.length < 6) {
+//       setPasswordError("Mật khẩu phải có ít nhất 6 ký tự");
+//       hasError = true;
+//     }
+
+//     if (hasError) return;
+
+//     setLoading(true);
+
+//     try {
+//       const res = await fetch(`https://dreams-admin.io.vn/api/login`, {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify({ email, password }),
+//       });
+
+//       const data = await res.json();
+
+//       if (res.ok && data.status === 200) {
+//         localStorage.setItem("token", data.access_token);
+//         localStorage.setItem("user", JSON.stringify(data.user));
+//         toast.success("✅ Đăng nhập thành công!");
+//         setTimeout(() => router.push("/"), 1500);
+//       } else {
+//         toast.error("❌ " + (data.message || "Đăng nhập thất bại"));
+//       }
+//     } catch (err) {
+//       console.error("Login error:", err);
+//       toast.error("❌ Lỗi kết nối đến server");
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
 "use client";
 
 import { useState } from "react";
@@ -7,9 +86,11 @@ import { DreamToast } from "../components/ui/DreamToast";
 import { motion, AnimatePresence } from "framer-motion";
 import GoogleLoginButton from "../components/ui/GoogleLoginButton";
 import { useRouter } from "next/navigation";
+import { useAuth } from "../../context/AuthContext"; // Thêm import này
 
 export default function LoginPage() {
   const router = useRouter();
+  const { setUser } = useAuth(); // Sử dụng setUser từ Context
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -65,6 +146,7 @@ export default function LoginPage() {
       if (res.ok && data.status === 200) {
         localStorage.setItem("token", data.access_token);
         localStorage.setItem("user", JSON.stringify(data.user));
+        setUser(data.user); // Cập nhật user trong Context
         toast.success("✅ Đăng nhập thành công!");
         setTimeout(() => router.push("/"), 1500);
       } else {
@@ -77,7 +159,6 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
-
   const handleForgotPassword = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setForgotMessage("");

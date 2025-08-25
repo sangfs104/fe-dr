@@ -1,3 +1,269 @@
+// "use client";
+
+// import Image from "next/image";
+// import Link from "next/link";
+// import { useRouter } from "next/navigation";
+// import {
+//   ChevronDown,
+//   Search,
+//   User,
+//   Heart,
+//   ShoppingCart,
+//   X,
+//   Menu,
+// } from "lucide-react";
+// import {
+//   useEffect,
+//   useState,
+//   startTransition,
+//   useRef,
+//   useCallback,
+// } from "react";
+
+// import CartModal from "./CartModal";
+// import ImageSearch from "./AISearchCart";
+// import WishlistModal from "./WishlistModal";
+
+// import { useAppSelector, useAppDispatch } from "@/store/hooks";
+// import { fetchWishlist } from "@/store/wishlistSlice";
+
+// type UserInfo = {
+//   id: number;
+//   name: string;
+//   email: string;
+//   phone: string | null;
+//   role: string;
+//   avatar: string | null;
+//   avatar_url?: string | null;
+//   google_id?: string;
+//   day_of_birth?: string | null;
+//   is_active?: string;
+//   created_at?: string;
+//   updated_at?: string;
+// };
+
+// export default function Header() {
+//   const router = useRouter();
+//   const dispatch = useAppDispatch();
+//   const searchInputRef = useRef<HTMLInputElement>(null);
+//   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+//   const [language, setLanguage] = useState<"vi" | "en">("vi");
+//   const [showCartModal, setShowCartModal] = useState(false);
+//   const [showImageSearch, setShowImageSearch] = useState(false);
+//   const [loading, setLoading] = useState(false);
+//   const [keyword, setKeyword] = useState("");
+//   const [user, setUser] = useState<UserInfo | null>(null);
+//   const [showWishlistModal, setShowWishlistModal] = useState(false);
+//   const [hasMounted, setHasMounted] = useState(false);
+//   const [isScrolled, setIsScrolled] = useState(false);
+//   const [showSearchSuggestions, setShowSearchSuggestions] = useState(false);
+//   const [searchSuggestions, setSearchSuggestions] = useState<string[]>([]);
+//   const [isSearchFocused, setIsSearchFocused] = useState(false);
+//   const [showNotification, setShowNotification] = useState(false);
+//   const [headerAnimation, setHeaderAnimation] = useState("");
+//   const [cartPulse, setCartPulse] = useState(false);
+//   const [wishlistPulse, setWishlistPulse] = useState(false);
+//   const [showMobileMenu, setShowMobileMenu] = useState(false);
+
+//   const wishlistItems = useAppSelector((state) => state.wishlist.items);
+//   const cartItems = useAppSelector((state) => state.cart.items);
+//   const prevCartCount = useRef(0);
+//   const prevWishlistCount = useRef(0);
+
+//   const wishlistCount = hasMounted ? wishlistItems.length : 0;
+//   const totalQty = hasMounted
+//     ? cartItems.reduce((sum, item) => sum + item.quantity, 0)
+//     : 0;
+
+//   // Scroll handling
+//   useEffect(() => {
+//     let lastScrollY = window.scrollY;
+
+//     const handleScroll = () => {
+//       const currentScrollY = window.scrollY;
+
+//       if (currentScrollY > 100) {
+//         setIsScrolled(true);
+//       } else {
+//         setIsScrolled(false);
+//       }
+
+//       if (currentScrollY > lastScrollY && currentScrollY > 200) {
+//         setHeaderAnimation("translate-y-[-100%]");
+//       } else {
+//         setHeaderAnimation("translate-y-0");
+//       }
+
+//       lastScrollY = currentScrollY;
+//     };
+
+//     window.addEventListener("scroll", handleScroll, { passive: true });
+//     return () => window.removeEventListener("scroll", handleScroll);
+//   }, []);
+
+//   // Search suggestions
+//   useEffect(() => {
+//     const mockSuggestions = [
+//       "Áo thun nam",
+//       "Áo khoác nữ",
+//       "Giày sneaker",
+//       "Túi xách",
+//       "Quần jeans",
+//       "Váy midi",
+//       "Áo sơ mi",
+//       "Phụ kiện thời trang",
+//     ];
+
+//     if (searchTimeoutRef.current) {
+//       clearTimeout(searchTimeoutRef.current);
+//     }
+
+//     if (keyword.trim() && isSearchFocused) {
+//       searchTimeoutRef.current = setTimeout(() => {
+//         const filtered = mockSuggestions.filter((item) =>
+//           item.toLowerCase().includes(keyword.toLowerCase())
+//         );
+//         setSearchSuggestions(filtered.slice(0, 5));
+//         setShowSearchSuggestions(filtered.length > 0);
+//       }, 300);
+//     } else {
+//       setShowSearchSuggestions(false);
+//     }
+
+//     return () => {
+//       if (searchTimeoutRef.current) {
+//         clearTimeout(searchTimeoutRef.current);
+//       }
+//     };
+//   }, [keyword, isSearchFocused]);
+
+//   // Pulse animations for cart/wishlist
+//   useEffect(() => {
+//     if (hasMounted && totalQty > prevCartCount.current) {
+//       setCartPulse(true);
+//       setTimeout(() => setCartPulse(false), 600);
+//     }
+//     prevCartCount.current = totalQty;
+//   }, [totalQty, hasMounted]);
+
+//   useEffect(() => {
+//     if (hasMounted && wishlistCount > prevWishlistCount.current) {
+//       setWishlistPulse(true);
+//       setTimeout(() => setWishlistPulse(false), 600);
+//     }
+//     prevWishlistCount.current = wishlistCount;
+//   }, [wishlistCount, hasMounted]);
+
+//   // Auto-close modals on outside click
+//   useEffect(() => {
+//     const handleClickOutside = (event: MouseEvent) => {
+//       const target = event.target as Element;
+//       if (showSearchSuggestions && !target.closest(".search-container")) {
+//         setShowSearchSuggestions(false);
+//         setIsSearchFocused(false);
+//       }
+//       if (showMobileMenu && !target.closest(".mobile-menu")) {
+//         setShowMobileMenu(false);
+//       }
+//     };
+
+//     document.addEventListener("click", handleClickOutside);
+//     return () => document.removeEventListener("click", handleClickOutside);
+//   }, [showSearchSuggestions, showMobileMenu]);
+
+//   // Save search history
+//   const saveSearchHistory = useCallback((query: string) => {
+//     if (typeof window !== "undefined") {
+//       const history = JSON.parse(localStorage.getItem("searchHistory") || "[]");
+//       const updatedHistory = [
+//         query,
+//         ...history.filter((h: string) => h !== query),
+//       ].slice(0, 10);
+//       localStorage.setItem("searchHistory", JSON.stringify(updatedHistory));
+//     }
+//   }, []);
+
+//   // Welcome notification
+//   useEffect(() => {
+//     if (hasMounted && user && !localStorage.getItem("welcomeShown")) {
+//       setTimeout(() => {
+//         setShowNotification(true);
+//         localStorage.setItem("welcomeShown", "true");
+//         setTimeout(() => setShowNotification(false), 5000);
+//       }, 1000);
+//     }
+//   }, [user, hasMounted]);
+
+//   useEffect(() => {
+//     setHasMounted(true);
+//   }, []);
+
+//   useEffect(() => {
+//     if (hasMounted) {
+//       const storedUser = localStorage.getItem("user");
+//       if (storedUser) {
+//         try {
+//           setUser(JSON.parse(storedUser));
+//         } catch (err) {
+//           console.error("Failed to parse user from localStorage", err);
+//         }
+//       }
+//       dispatch(fetchWishlist());
+//     }
+//   }, [hasMounted, dispatch]);
+
+//   const handleLinkClick = (href: string) => {
+//     setLoading(true);
+//     setShowMobileMenu(false);
+//     startTransition(() => {
+//       router.push(href);
+//       setLoading(false);
+//     });
+//   };
+
+//   const handleSearch = (query: string) => {
+//     if (query.trim()) {
+//       saveSearchHistory(query.trim());
+//       router.push(`/search?query=${encodeURIComponent(query.trim())}`);
+//       setKeyword("");
+//       setShowSearchSuggestions(false);
+//       setIsSearchFocused(false);
+//     }
+//   };
+
+//   const handleSuggestionClick = (suggestion: string) => {
+//     setKeyword(suggestion);
+//     handleSearch(suggestion);
+//   };
+
+//   return (
+//     <div className="w-full bg-white">
+//       {/* Welcome Notification */}
+//       {showNotification && user && (
+//         <div className="fixed top-4 right-4 z-[100] transform transition-all duration-500 ease-out animate-slide-in-right max-w-[90%] sm:max-w-md">
+//           <div className="bg-[tomato] text-white px-4 sm:px-6 py-3 rounded-lg shadow-lg flex items-center gap-3">
+//             <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+//               👋
+//             </div>
+//             <div>
+//               <p className="font-semibold text-sm sm:text-base">
+//                 Chào mừng {user.name}!
+//               </p>
+//               <p className="text-xs sm:text-sm opacity-90">
+//                 Khám phá những sản phẩm mới nhất
+//               </p>
+//             </div>
+//             <button
+//               onClick={() => setShowNotification(false)}
+//               className="ml-2 hover:bg-white/20 rounded-full p-1 transition-colors"
+//             >
+//               <X className="w-4 h-4" />
+//             </button>
+//           </div>
+//         </div>
+//       )}
+//o tren oke
 "use client";
 
 import Image from "next/image";
@@ -19,41 +285,40 @@ import {
   useRef,
   useCallback,
 } from "react";
-
 import CartModal from "./CartModal";
 import ImageSearch from "./AISearchCart";
 import WishlistModal from "./WishlistModal";
-
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { fetchWishlist } from "@/store/wishlistSlice";
+import { useAuth } from "../../../context/AuthContext"; // Thêm import này
 
-type UserInfo = {
-  id: number;
-  name: string;
-  email: string;
-  phone: string | null;
-  role: string;
-  avatar: string | null;
-  avatar_url?: string | null;
-  google_id?: string;
-  day_of_birth?: string | null;
-  is_active?: string;
-  created_at?: string;
-  updated_at?: string;
-};
+// type UserInfo = {
+//   id: number;
+//   name: string;
+//   email: string;
+//   phone: string | null;
+//   role: string;
+//   avatar: string | null;
+//   avatar_url?: string | null;
+//   google_id?: string;
+//   day_of_birth?: string | null;
+//   is_active?: string;
+//   created_at?: string;
+//   updated_at?: string;
+// };
 
 export default function Header() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const searchInputRef = useRef<HTMLInputElement>(null);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const { user } = useAuth(); // Sử dụng user từ Context
 
   const [language, setLanguage] = useState<"vi" | "en">("vi");
   const [showCartModal, setShowCartModal] = useState(false);
   const [showImageSearch, setShowImageSearch] = useState(false);
   const [loading, setLoading] = useState(false);
   const [keyword, setKeyword] = useState("");
-  const [user, setUser] = useState<UserInfo | null>(null);
   const [showWishlistModal, setShowWishlistModal] = useState(false);
   const [hasMounted, setHasMounted] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -197,18 +462,7 @@ export default function Header() {
 
   useEffect(() => {
     setHasMounted(true);
-  }, []);
-
-  useEffect(() => {
     if (hasMounted) {
-      const storedUser = localStorage.getItem("user");
-      if (storedUser) {
-        try {
-          setUser(JSON.parse(storedUser));
-        } catch (err) {
-          console.error("Failed to parse user from localStorage", err);
-        }
-      }
       dispatch(fetchWishlist());
     }
   }, [hasMounted, dispatch]);
@@ -263,7 +517,6 @@ export default function Header() {
           </div>
         </div>
       )}
-
       {/* Top Bar */}
       <div className="overflow-hidden whitespace-nowrap bg-[tomato] text-white text-xs sm:text-sm text-center py-2 font-semibold">
         <div className="inline-block animate-marquee hover:animation-pause">

@@ -166,7 +166,7 @@ import CartModal from "./components/ui/CartModal";
 import { useState } from "react";
 import Footer from "./components/ui/Footer";
 import VoiceQuickOrderTest from "./components/ui/VoiceQuickOrderTest";
-import ChatToggle from "./components/ui/ChatToggle";
+// import ChatToggle from "./components/ui/ChatToggle";
 import ChatBoxStylistAI from "./components/ui/ChatBot";
 // import dynamic from "next/dynamic";
 
@@ -199,7 +199,7 @@ export default function ClientLayout({
           <Header />
           <main className="flex-1">{children}</main>
 
-          <ChatToggle onOpen={() => setShowChatBot(true)} />
+          {/* <ChatToggle onOpen={() => setShowChatBot(true)} /> */}
           {showCartModal && (
             <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
               <CartModal onClose={() => setShowCartModal(false)} />

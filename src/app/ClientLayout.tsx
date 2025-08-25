@@ -182,7 +182,7 @@ export default function ClientLayout({
   children: React.ReactNode;
 }) {
   const [showCartModal, setShowCartModal] = useState(false);
-  const [showChatBot, setShowChatBot] = useState(false);
+  const [showChatBot] = useState(false);
 
   // Kiểm tra Google Client ID
   const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
@@ -207,16 +207,10 @@ export default function ClientLayout({
           )}
           {/* Chỉ hiển thị VoiceQuickOrderTest nếu không có ChatBot */}
           {!showChatBot && <VoiceQuickOrderTest />}
-          {showChatBot && (
-            <ChatBoxStylistAI
-              onClose={() => setShowChatBot(false)}
-              apiUrl={`${process.env.NEXT_PUBLIC_API_URL}/api/stylist/analyze`}
-            />
-          )}
+          <ChatBoxStylistAI />
           <Footer />
         </div>
       </Provider>
     </GoogleOAuthProvider>
   );
 }
-//sua ne

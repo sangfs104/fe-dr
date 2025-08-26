@@ -458,9 +458,12 @@ export default function ProductDetailClient({
             {/* Main image */}
             <motion.div
               variants={imageVariants}
-              className="relative w-full bg-gradient-to-br from-gray-50 via-white to-gray-100 rounded-2xl lg:rounded-3xl overflow-hidden shadow-lg sm:shadow-xl lg:shadow-2xl order-1 lg:order-2"
+              className="relative w-full h-full bg-gradient-to-br from-gray-50 via-white to-gray-100 rounded-2xl lg:rounded-3xl overflow-hidden shadow-lg sm:shadow-xl lg:shadow-2xl order-1 lg:order-2"
+              initial="hidden"
+              animate="visible"
+              layout
             >
-              {/* Image navigation */}
+              {/* Điều hướng hình ảnh */}
               {product.images && product.images.length > 1 && (
                 <>
                   <motion.button
@@ -488,97 +491,17 @@ export default function ProductDetailClient({
                 </>
               )}
 
-              {/* Action buttons
-              <div className="absolute top-2 sm:top-4 right-2 sm:right-4 z-10 flex gap-1 sm:gap-2">
-                <motion.button
-                  whileHover={{ scale: 1.1, rotate: 5 }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={() => setIsLiked(!isLiked)}
-                  className="p-2 sm:p-3 bg-white/90 backdrop-blur-sm rounded-full shadow-lg transition-all duration-300"
-                >
-                  <Heart
-                    size={16}
-                    className={`sm:w-5 sm:h-5 transition-all duration-300 ${
-                      isLiked
-                        ? "text-red-500 fill-red-500 animate-pulse"
-                        : "text-gray-600 hover:text-red-400"
-                    }`}
-                  />
-                </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.1, rotate: -5 }}
-                  whileTap={{ scale: 0.9 }}
-                  className="p-2 sm:p-3 bg-white/90 backdrop-blur-sm rounded-full shadow-lg"
-                >
-                  <Share2
-                    size={16}
-                    className="sm:w-5 sm:h-5 text-gray-600 hover:text-blue-500 transition-colors"
-                  />
-                </motion.button>
-              </div> */}
-
-              {/* Auto-play indicator */}
-              {product.images && product.images.length > 1 && (
-                <motion.div
-                  className="absolute bottom-2 sm:bottom-4 left-2 sm:left-4 z-10"
-                  animate={isAutoPlay ? { scale: [1, 1.05, 1] } : {}}
-                  transition={{ repeat: Infinity, duration: 2 }}
-                >
-                  <div
-                    className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 sm:py-2 rounded-full text-xs font-medium transition-all duration-300 ${
-                      isAutoPlay
-                        ? "bg-green-500/90 text-white shadow-lg"
-                        : "bg-gray-500/90 text-white"
-                    }`}
-                  >
-                    {isAutoPlay ? (
-                      <>
-                        <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white rounded-full animate-pulse" />
-                        <span className="hidden sm:inline">Auto Play</span>
-                      </>
-                    ) : (
-                      <>
-                        <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white rounded-full" />
-                        <span className="hidden sm:inline">Paused</span>
-                      </>
-                    )}
-                  </div>
-                </motion.div>
-              )}
-
-              {/* Progress indicator */}
-              {product.images && product.images.length > 1 && (
-                <div className="absolute bottom-2 sm:bottom-4 right-2 sm:right-4 z-10">
-                  <div className="flex gap-1">
-                    {product.images.map((_, idx) => (
-                      <motion.div
-                        key={idx}
-                        className={`h-1 rounded-full transition-all duration-300 cursor-pointer ${
-                          idx === currentImageIndex
-                            ? "w-6 sm:w-8 bg-white shadow-lg"
-                            : "w-1.5 sm:w-2 bg-white/50"
-                        }`}
-                        whileHover={{ scale: 1.2 }}
-                        onClick={() =>
-                          handleImageClick(product.images[idx], idx)
-                        }
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Main image with loading state */}
-              <div className="relative aspect-square">
+              {/* Hình ảnh chính với hiệu ứng toàn diện */}
+              <div className="relative w-full h-full">
                 {mainImg ? (
                   <AnimatePresence mode="wait">
                     <motion.div
                       key={mainImg}
-                      initial={{ opacity: 0, scale: 0.9, rotateY: 15 }}
+                      initial={{ opacity: 0, scale: 0.8, rotateY: -15 }}
                       animate={{ opacity: 1, scale: 1, rotateY: 0 }}
-                      exit={{ opacity: 0, scale: 1.1, rotateY: -15 }}
+                      exit={{ opacity: 0, scale: 1.1, rotateY: 15 }}
                       transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
-                      className="w-full h-full relative"
+                      className="absolute inset-0"
                       onAnimationStart={() => setIsImageLoading(true)}
                       onAnimationComplete={() => setIsImageLoading(false)}
                     >
@@ -594,8 +517,13 @@ export default function ProductDetailClient({
                             width: 1200,
                             height: 1800,
                           },
-                          enlargedImageContainerStyle: { zIndex: 999 },
+                          enlargedImageContainerStyle: {
+                            zIndex: 999,
+                            width: "100%",
+                            height: "100%",
+                          },
                           enlargedImageContainerClassName: "rounded-2xl",
+                          enlargedImagePosition: "over",
                         }}
                       />
                       {isImageLoading && (
@@ -616,7 +544,7 @@ export default function ProductDetailClient({
                         }}
                       />
                       <p className="text-gray-500 font-medium text-sm sm:text-base">
-                        Loading...
+                        Đang tải...
                       </p>
                     </div>
                   </div>

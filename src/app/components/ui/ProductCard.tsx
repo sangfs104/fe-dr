@@ -318,12 +318,12 @@ export default function ProductCard({
                 <>
                   {/* Sale price with gradient */}
                   <span className="text-xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
-                    ₫
-                    {Number(selectedVariant.sale_price).toLocaleString("vi-VN")}
+                    {Number(selectedVariant.sale_price).toLocaleString("vi-VN")}{" "}
+                    đ
                   </span>
                   {/* Original price */}
                   <span className="text-sm text-gray-500 line-through bg-gray-100 px-1.5 py-0.5 rounded">
-                    ₫{selectedVariant.price.toLocaleString("vi-VN")}
+                    {selectedVariant.price.toLocaleString("vi-VN")} đ
                   </span>
                   {/* Savings amount */}
                   <span className="text-xs text-green-600 font-medium bg-green-50 px-1.5 py-0.5 rounded">

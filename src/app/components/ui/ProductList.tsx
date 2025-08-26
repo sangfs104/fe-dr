@@ -299,7 +299,7 @@ export default function ProductCard({ product }: { product: Product }) {
                   </span>
                   {/* Original price */}
                   <span className="text-sm text-gray-500 line-through bg-gray-100 px-1.5 py-0.5 rounded">
-                    ₫{selectedVariant.price.toLocaleString("vi-VN")}
+                    {selectedVariant.price.toLocaleString("vi-VN")}đ
                   </span>
                   {/* Savings amount */}
                   <span className="text-xs text-green-600 font-medium bg-green-50 px-1.5 py-0.5 rounded">

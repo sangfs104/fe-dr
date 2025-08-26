@@ -335,7 +335,7 @@ export default function ProductCard({
                 </>
               ) : (
                 <span className="text-xl font-bold text-gray-800">
-                  ₫{selectedVariant?.price?.toLocaleString("vi-VN") || "—"}
+                  {selectedVariant?.price?.toLocaleString("vi-VN") || "—"} đ
                 </span>
               )}
             </div>

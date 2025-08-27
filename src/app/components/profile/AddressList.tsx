@@ -479,7 +479,6 @@ export default function AddressList() {
       const sorted = ((result.data || []) as Address[]).sort(
         (a, b) => b.is_default - a.is_default
       );
-
       setAddresses(sorted);
     } catch (error) {
       toast.error("Lỗi khi lấy địa chỉ!");
@@ -551,16 +550,9 @@ export default function AddressList() {
 
       if (res.ok || res.status === 204) {
         toast.success("Đặt địa chỉ làm mặc định thành công!");
-
-        // Highlight địa chỉ mới được đặt làm mặc định
         setHighlightedId(id);
-
         await fetchAddresses();
-
-        // Tự động tắt highlight sau 3 giây
-        setTimeout(() => {
-          setHighlightedId(null);
-        }, 3000);
+        setTimeout(() => setHighlightedId(null), 3000);
       } else {
         const result = await res.json();
         toast.error(
@@ -616,46 +608,40 @@ export default function AddressList() {
           {addresses.map((addr) => (
             <div
               key={addr.id}
-              className={`border rounded-lg p-3 sm:p-4 text-xs sm:text-sm relative break-words transition-all duration-500 ${
+              className={`relative rounded-xl p-4 transition-all duration-500 break-words ${
                 addr.is_default === 1
-                  ? `border-[4px] border-orange-600 bg-gradient-to-r from-orange-100 via-orange-50 to-white shadow-2xl transform scale-105 hover:shadow-3xl hover:scale-108 ${
+                  ? `border-[3px] border-orange-500 bg-gradient-to-r from-orange-100 via-white to-orange-50 shadow-[0_0_20px_rgba(255,115,0,0.4)] transform scale-105 ${
                       highlightedId === addr.id
-                        ? "animate-pulse shadow-3xl ring-4 ring-orange-400 ring-opacity-60 bg-gradient-to-r from-orange-200 via-orange-100 to-white scale-110"
+                        ? "animate-pulse ring-4 ring-orange-300"
                         : ""
                     }`
-                  : "border-gray-200 hover:border-orange-300 hover:shadow-md transform hover:scale-[1.01]"
+                  : "border border-gray-200 hover:border-orange-300 hover:shadow-md transform hover:scale-[1.01]"
               }`}
             >
+              {/* Badge mặc định */}
               {addr.is_default === 1 && (
-                <div
-                  className={`absolute top-1 sm:top-2 right-1 sm:right-2 bg-gradient-to-r from-orange-600 to-orange-400 text-white px-3 py-1.5 text-xs rounded-full shadow-lg transform transition-all duration-300 ${
-                    highlightedId === addr.id
-                      ? "animate-bounce scale-125 bg-gradient-to-r from-orange-500 to-red-400"
-                      : ""
-                  }`}
-                >
-                  <span className="flex items-center gap-1">
-                    <span className="text-yellow-200 text-sm">⭐</span>
-                    <span className="font-bold">Mặc định</span>
-                  </span>
+                <div className="absolute -top-3 -left-3 bg-orange-600 text-white px-3 py-1 rounded-tr-xl rounded-bl-xl text-xs font-bold shadow-md">
+                  🌟 Địa chỉ mặc định
                 </div>
               )}
 
+              {/* Nội dung địa chỉ */}
               <p
-                className={`text-gray-800 font-semibold transition-colors duration-300 ${
-                  addr.is_default === 1 ? "text-lg font-bold" : ""
-                } ${highlightedId === addr.id ? "text-orange-700" : ""}`}
+                className={`font-semibold text-sm sm:text-base mb-1 ${
+                  addr.is_default === 1 ? "text-orange-700" : "text-gray-800"
+                }`}
               >
                 {addr.adress}
               </p>
-              <p className="text-gray-500 mt-1 sm:mt-1.5">
+              <p className="text-gray-500 text-xs sm:text-sm">
                 Ngày tạo: {new Date(addr.created_at).toLocaleDateString()}
               </p>
 
+              {/* Nút đặt làm mặc định */}
               {addr.is_default !== 1 && (
                 <button
                   onClick={() => handleSetDefault(addr.id)}
-                  className="mt-2 sm:mt-3 inline-block bg-gradient-to-r from-orange-100 to-orange-50 text-orange-600 px-3 py-1 rounded-full text-[10px] sm:text-xs font-semibold hover:from-orange-200 hover:to-orange-100 hover:shadow-md transform hover:scale-105 transition-all duration-200 disabled:from-gray-100 disabled:to-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
+                  className="mt-2 sm:mt-3 inline-block bg-gradient-to-r from-orange-100 to-orange-50 text-orange-600 px-3 py-1 rounded-full text-[10px] sm:text-xs font-semibold hover:from-orange-200 hover:to-orange-100 hover:shadow-md transform hover:scale-105 transition-all duration-200 disabled:opacity-50"
                   disabled={defaultLoadingId === addr.id}
                 >
                   {defaultLoadingId === addr.id ? (

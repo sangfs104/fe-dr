@@ -282,7 +282,7 @@ export default function AddressList() {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/addresses/${id}/set-default`,
         {
-          method: "PATCH",
+          method: "POST",
           headers: {
             Authorization: `Bearer ${token}`,
             Accept: "application/json",

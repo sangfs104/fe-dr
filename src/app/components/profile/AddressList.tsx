@@ -385,7 +385,6 @@
 // }
 "use client";
 import { useEffect, useState } from "react";
-import { toast } from "react-hot-toast";
 
 type Address = {
   id: number;
@@ -406,7 +405,7 @@ export default function AddressList() {
   const fetchAddresses = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
-      toast.error("Không tìm thấy token!");
+      alert("Không tìm thấy token!");
       setLoading(false);
       return;
     }
@@ -423,7 +422,7 @@ export default function AddressList() {
       const result = await res.json();
       setAddresses(result.data || []);
     } catch (error) {
-      toast.error("Lỗi khi lấy địa chỉ!");
+      alert("Lỗi khi lấy địa chỉ!");
       console.error("Lỗi khi lấy địa chỉ:", error);
     } finally {
       setLoading(false);
@@ -456,14 +455,14 @@ export default function AddressList() {
 
       const result = await res.json();
       if (res.ok) {
-        toast.success("Thêm địa chỉ thành công!");
+        alert("Thêm địa chỉ thành công!");
         setNewAddress("");
         fetchAddresses();
       } else {
-        toast.error("Lỗi: " + result.message);
+        alert("Lỗi: " + result.message);
       }
     } catch (error) {
-      toast.error("Lỗi khi thêm địa chỉ!");
+      alert("Lỗi khi thêm địa chỉ!");
       console.error("Lỗi khi thêm địa chỉ:", error);
     } finally {
       setSubmitting(false);
@@ -473,7 +472,7 @@ export default function AddressList() {
   const handleSetDefault = async (id: number) => {
     const token = localStorage.getItem("token");
     if (!token) {
-      toast.error("Không tìm thấy token!");
+      alert("Không tìm thấy token!");
       console.log("No token found");
       return;
     }
@@ -495,22 +494,19 @@ export default function AddressList() {
       console.log("Set default response headers:", [...res.headers.entries()]); // Debug headers
 
       if (res.ok || res.status === 204) {
-        console.log("Set default success, showing toast"); // Debug
-        toast.success("Đặt địa chỉ làm mặc định thành công!", {
-          duration: 3000,
-          position: "top-right",
-        });
+        console.log("Set default success, showing alert"); // Debug
+        alert("Đặt địa chỉ làm mặc định thành công!");
         await fetchAddresses(); // Cập nhật danh sách địa chỉ
       } else {
         const result = await res.json();
         console.log("Set default error response:", result); // Debug
-        toast.error(
+        alert(
           "Lỗi: " + (result.message || "Không thể cập nhật địa chỉ mặc định!")
         );
       }
     } catch (error) {
       console.error("Lỗi khi gọi API set-default:", error);
-      toast.error("Lỗi khi cập nhật địa chỉ mặc định!");
+      alert("Lỗi khi cập nhật địa chỉ mặc định!");
     } finally {
       setDefaultLoadingId(null);
     }

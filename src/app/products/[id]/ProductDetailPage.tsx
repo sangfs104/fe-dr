@@ -2445,7 +2445,7 @@ export default function ProductDetailClient({
 
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pt-4 sm:pt-6 border-t border-blue-200 gap-4 sm:gap-0">
                     <div className="flex items-center gap-3 sm:gap-4">
-                      <span className="text-gray-700 font-semibold text-base sm:text-lg">
+                      <span className="text-gray-700 font-semibold text-sm sm:text-base">
                         Số lượng:
                       </span>
                       <div className="flex items-center bg-white border-2 border-blue-200 rounded-xl sm:rounded-2xl overflow-hidden shadow-md">
@@ -2523,7 +2523,7 @@ export default function ProductDetailClient({
                 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={handleAddToCart}
-                className="flex-1 relative bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 hover:from-blue-700 hover:via-blue-600 hover:to-blue-700 text-white px-6 sm:px-8 py-4 sm:py-5 rounded-xl sm:rounded-2xl font-bold text-base sm:text-lg shadow-xl transition-all duration-300 overflow-hidden group"
+                className="flex-1 relative bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 hover:from-blue-700 hover:via-blue-600 hover:to-blue-700 text-white px-4 sm:px-5 py-2 sm:py-3 rounded-xl sm:rounded-2xl font-bold text-base sm:text-lg shadow-xl transition-all duration-300 overflow-hidden group"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
                 <div className="relative flex items-center justify-center gap-2 sm:gap-3">
@@ -2556,7 +2556,7 @@ export default function ProductDetailClient({
                 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={handleBuyNow}
-                className="px-6 sm:px-8 py-4 sm:py-5 bg-white border-2 border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900 rounded-xl sm:rounded-2xl font-bold text-base sm:text-lg transition-all duration-300 shadow-lg"
+                className="px-4 sm:px-5 py-2 sm:py-3 bg-white border-2 border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900 rounded-xl sm:rounded-2xl font-bold text-base sm:text-lg transition-all duration-300 shadow-lg"
               >
                 Mua ngay
               </motion.button>

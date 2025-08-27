@@ -1350,7 +1350,7 @@ export default function OrderList() {
                         ))}
                       </select>
                     </div> */}
-                    <div className="space-y-4">
+                    {/* <div className="space-y-4">
                       <label className="block text-base font-semibold text-gray-700">
                         Lý do trả hàng
                       </label>
@@ -1366,7 +1366,42 @@ export default function OrderList() {
                           </option>
                         ))}
                       </select>
+                    </div> */}
+
+                    <div className="space-y-4">
+                      <label className="block text-base font-semibold text-gray-700">
+                        Lý do trả hàng
+                      </label>
+                      {returnReason ? (
+                        <div className="flex items-center justify-between bg-gray-100 p-3 rounded-lg">
+                          <p className="text-sm text-gray-800">
+                            {returnReason}
+                          </p>
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="px-3 py-1 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600 transition-all duration-200"
+                            onClick={() => setReturnReason("")}
+                          >
+                            Sửa
+                          </motion.button>
+                        </div>
+                      ) : (
+                        <select
+                          className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                          value={returnReason}
+                          onChange={(e) => setReturnReason(e.target.value)}
+                        >
+                          <option value="">Chọn lý do</option>
+                          {returnReasons.map((reason) => (
+                            <option key={reason} value={reason}>
+                              {reason}
+                            </option>
+                          ))}
+                        </select>
+                      )}
                     </div>
+
                     <div className="space-y-4">
                       <label className="block text-base font-semibold text-gray-700">
                         Phương thức hoàn tiền

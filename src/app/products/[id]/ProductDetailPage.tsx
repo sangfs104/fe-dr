@@ -2942,3 +2942,1447 @@
 //     </>
 //   );
 // }
+"use client";
+import { useAppDispatch } from "@/store/hooks";
+import { addToCart } from "@/store/cartSlice";
+import { Variants } from "framer-motion";
+import {
+  Star,
+  X,
+  ShoppingCart,
+  Zap,
+  Shield,
+  Truck,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import Image from "next/image";
+import { motion, AnimatePresence, useInView } from "framer-motion";
+import ReactImageMagnify from "react-image-magnify";
+import { toast } from "react-hot-toast";
+import * as Dialog from "@radix-ui/react-dialog";
+import AddToCartModal from "../../components/ui/AddToCartModal";
+
+interface Review {
+  id: number;
+  rating: number;
+  comment: string;
+  created_at: string;
+  user: {
+    id: number;
+    name: string;
+  };
+}
+interface ProductDetailClientProps {
+  product: Product;
+  reviews: Review[];
+}
+interface ProductImage {
+  id: number;
+  product_id: number;
+  name: string;
+}
+
+interface ProductVariant {
+  id: number;
+  product_id: number;
+  img_id: number;
+  size: string;
+  price: number;
+  sale_price: string | null;
+  stock_quantity: number;
+  status: string;
+  final_price?: number;
+}
+
+interface Product {
+  id: number;
+  name: string;
+  description: string;
+  status: string;
+  category: { id: number; name: string };
+  img: ProductImage[];
+  variant: ProductVariant[];
+  images: string[];
+}
+
+function getColorByName(name: string): string {
+  const colors = [
+    "bg-gradient-to-br from-red-500 to-pink-600",
+    "bg-gradient-to-br from-blue-500 to-indigo-600",
+    "bg-gradient-to-br from-green-500 to-emerald-600",
+    "bg-gradient-to-br from-purple-500 to-violet-600",
+    "bg-gradient-to-br from-pink-500 to-rose-600",
+    "bg-gradient-to-br from-indigo-500 to-blue-600",
+    "bg-gradient-to-br from-yellow-500 to-orange-600",
+    "bg-gradient-to-br from-rose-500 to-pink-600",
+    "bg-gradient-to-br from-teal-500 to-cyan-600",
+    "bg-gradient-to-br from-cyan-500 to-blue-600",
+  ];
+  const index = name.charCodeAt(0) % colors.length;
+  return colors[index];
+}
+
+function getEffectivePrice(variant: ProductVariant) {
+  if (variant.final_price && variant.final_price > 0) {
+    return variant.final_price;
+  }
+  if (variant.sale_price && Number(variant.sale_price) > 0) {
+    return Number(variant.sale_price);
+  }
+  return variant.price;
+}
+
+// Animation variants
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.2,
+    },
+  },
+};
+
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 30, scale: 0.95 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      type: "spring",
+      stiffness: 100,
+      damping: 15,
+    },
+  },
+};
+const imageVariants: Variants = {
+  hidden: { opacity: 0, scale: 0.8, rotateY: -15 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    rotateY: 0,
+    transition: {
+      type: "spring",
+      stiffness: 100,
+      damping: 20,
+    },
+  },
+};
+
+const priceAnimationVariants: Variants = {
+  hidden: { scale: 0, opacity: 0 },
+  visible: {
+    scale: 1,
+    opacity: 1,
+    transition: {
+      type: "spring",
+      stiffness: 200,
+      damping: 15,
+    },
+  },
+};
+
+export default function ProductDetailClient({
+  product,
+  reviews: initialReviews,
+}: ProductDetailClientProps) {
+  const dispatch = useAppDispatch();
+  const [comment, setComment] = useState("");
+  const [rating, setRating] = useState(5);
+  const [reviews, setReviews] = useState(initialReviews);
+  const [mainImg, setMainImg] = useState<string>("");
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
+    null
+  );
+  const [quantity, setQuantity] = useState<number>(1);
+  const [showModal, setShowModal] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isAutoPlay, setIsAutoPlay] = useState(true);
+  const [isImageLoading, setIsImageLoading] = useState(true);
+  const [hoveredStars, setHoveredStars] = useState(0);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const reviewRef = useRef(null);
+  const isInViewRef = useInView(reviewRef);
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  // Auto-cycle through images with smooth transitions
+  const nextImage = useCallback(() => {
+    if (product.images && product.images.length > 1) {
+      setCurrentImageIndex((prev) => {
+        const nextIndex = (prev + 1) % product.images.length;
+        setMainImg(product.images[nextIndex]);
+        return nextIndex;
+      });
+    }
+  }, [product.images]);
+
+  const prevImage = useCallback(() => {
+    if (product.images && product.images.length > 1) {
+      setCurrentImageIndex((prev) => {
+        const prevIndex = prev === 0 ? product.images.length - 1 : prev - 1;
+        setMainImg(product.images[prevIndex]);
+        return prevIndex;
+      });
+    }
+  }, [product.images]);
+
+  // Auto-play functionality
+  useEffect(() => {
+    if (isAutoPlay && product.images && product.images.length > 1) {
+      intervalRef.current = setInterval(nextImage, 4000);
+    }
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [isAutoPlay, nextImage, product.images]);
+
+  // Initialize main image
+  useEffect(() => {
+    if (product.images && product.images.length > 0) {
+      setMainImg(product.images[0]);
+      setCurrentImageIndex(0);
+    } else if (product.img && product.img.length > 0) {
+      setMainImg(`/img/${product.img[0].name}`);
+    }
+    if (product.variant.length > 0) {
+      setSelectedVariant(product.variant[0]);
+    }
+  }, [product]);
+
+  const handleImageClick = (imgUrl: string, index: number) => {
+    setIsImageLoading(true);
+    setMainImg(imgUrl);
+    setCurrentImageIndex(index);
+    setIsAutoPlay(false);
+    // Resume autoplay after 8 seconds
+    setTimeout(() => setIsAutoPlay(true), 8000);
+  };
+
+  const handleVariantSelect = (v: ProductVariant) => {
+    setSelectedVariant(v);
+    setQuantity(1);
+
+    if (
+      product.images &&
+      product.images.length > 0 &&
+      product.img &&
+      product.img.length > 0
+    ) {
+      const foundIndex = product.img.findIndex((img) => img.id === v.img_id);
+      if (foundIndex !== -1 && foundIndex < product.images.length) {
+        setMainImg(product.images[foundIndex]);
+        setCurrentImageIndex(foundIndex);
+        return;
+      }
+    }
+
+    if (product.images && product.images.length > 0) {
+      setMainImg(product.images[0]);
+      setCurrentImageIndex(0);
+    }
+  };
+
+  const handleAddToCart = () => {
+    if (!selectedVariant) {
+      toast.error("Vui lòng chọn kích thước", {
+        icon: "⚠️",
+        style: {
+          borderRadius: "16px",
+          background: "#FEF2F2",
+          color: "#DC2626",
+          border: "1px solid #FECACA",
+        },
+      });
+      return;
+    }
+    dispatch(
+      addToCart({
+        productId: product.id,
+        variantId: selectedVariant.id,
+        name: product.name,
+        img: mainImg,
+        price: getEffectivePrice(selectedVariant),
+        sale_price: selectedVariant.sale_price,
+        size: selectedVariant.size,
+        quantity,
+        variantList: product.variant,
+      })
+    );
+    toast.success("Đã thêm vào giỏ hàng!", {
+      icon: "🛒",
+      style: {
+        borderRadius: "16px",
+        background: "#F0FDF4",
+        color: "#16A34A",
+        border: "1px solid #BBF7D0",
+      },
+    });
+    setShowModal(true);
+  };
+  const handleBuyNow = () => {
+    if (!selectedVariant) {
+      toast.error("Vui lòng chọn kích thước", {
+        icon: "⚠️",
+        style: {
+          borderRadius: "16px",
+          background: "#FEF2F2",
+          color: "#DC2626",
+          border: "1px solid #FECACA",
+        },
+      });
+      return;
+    }
+
+    // Add the selected product to the cart
+    dispatch(
+      addToCart({
+        productId: product.id,
+        variantId: selectedVariant.id,
+        name: product.name,
+        img: mainImg,
+        price: getEffectivePrice(selectedVariant),
+        sale_price: selectedVariant.sale_price,
+        size: selectedVariant.size,
+        quantity,
+        variantList: product.variant,
+      })
+    );
+
+    // Redirect to the payment page with the selected product ID
+    window.location.href = `/payment?ids=${product.id}`;
+  };
+  const handleSubmitReview = async () => {
+    const token =
+      typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    if (!token) {
+      toast.error("Bạn cần đăng nhập để bình luận!");
+      return;
+    }
+    if (!comment.trim()) {
+      toast.error("Vui lòng nhập nội dung bình luận!");
+      return;
+    }
+    try {
+      const res = await fetch(`${apiUrl}/api/review`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          product_id: product.id,
+          rating,
+          comment,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast.success("Đánh giá thành công!", {
+          icon: "⭐",
+          style: {
+            borderRadius: "16px",
+            background: "#F0FDF4",
+            color: "#16A34A",
+          },
+        });
+        setComment("");
+        await fetchReviews();
+      } else {
+        toast.error(data.message || "Có lỗi khi gửi đánh giá");
+      }
+    } catch {
+      toast.error("Có lỗi khi gửi đánh giá");
+    }
+  };
+
+  const fetchReviews = async () => {
+    const res = await fetch(`${apiUrl}/api/review/${product.id}`);
+    const data = await res.json();
+    setReviews(data.data);
+  };
+
+  const calculateAverageRating = () => {
+    if (reviews.length === 0) return 0;
+    const total = reviews.reduce((sum, review) => {
+      // Giới hạn rating trong khoảng 1-5 để tránh lỗi dữ liệu
+      const validRating = Math.min(5, Math.max(1, review.rating));
+      return sum + validRating;
+    }, 0);
+    return (total / reviews.length).toFixed(1);
+  };
+
+  const getDiscountPercentage = (variant: ProductVariant) => {
+    if (variant.sale_price && Number(variant.sale_price) > 0) {
+      return Math.round((1 - Number(variant.sale_price) / variant.price) * 100);
+    }
+    return 0;
+  };
+
+  return (
+    <>
+      <motion.div
+        className="w-full px-3 sm:px-4 md:px-6 lg:px-8 xl:px-12 2xl:px-20 py-4 sm:py-6 lg:py-8 max-w-7xl mx-auto"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 xl:gap-16">
+          {/* Image Section */}
+          <motion.div
+            variants={itemVariants}
+            className="flex flex-col lg:flex-row gap-4 sm:gap-6 order-1 lg:order-1"
+          >
+            {/* Thumbnails */}
+            <div className="flex lg:flex-col gap-2 sm:gap-3 overflow-x-auto lg:overflow-visible lg:max-h-[500px] xl:max-h-[600px] scrollbar-thin pr-1 order-2 lg:order-1">
+              {(product.images || []).map((imgUrl, idx) => {
+                const isActive = currentImageIndex === idx;
+                return (
+                  <motion.div
+                    key={imgUrl}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className={`relative rounded-xl lg:rounded-2xl overflow-hidden cursor-pointer transition-all duration-500 flex-shrink-0 ${
+                      isActive
+                        ? "ring-2 sm:ring-4 ring-blue-500/50 shadow-lg sm:shadow-xl shadow-blue-200/50"
+                        : "ring-1 sm:ring-2 ring-gray-200 hover:ring-gray-300 shadow-sm sm:shadow-md hover:shadow-lg"
+                    }`}
+                    onClick={() => handleImageClick(imgUrl, idx)}
+                    layout
+                  >
+                    <Image
+                      src={imgUrl}
+                      alt={`Thumbnail ${idx}`}
+                      width={60}
+                      height={60}
+                      className="object-cover w-[50px] h-[50px] sm:w-[60px] sm:h-[60px] lg:w-[70px] lg:h-[70px] xl:w-[80px] xl:h-[80px] rounded-xl lg:rounded-2xl"
+                      unoptimized
+                    />
+                    {isActive && (
+                      <motion.div
+                        layoutId="activeIndicator"
+                        className="absolute inset-0 bg-gradient-to-t from-blue-500/30 to-transparent rounded-xl lg:rounded-2xl"
+                        initial={false}
+                        transition={{
+                          type: "spring",
+                          stiffness: 300,
+                          damping: 30,
+                        }}
+                      />
+                    )}
+                    <div className="absolute bottom-1 right-1">
+                      <div
+                        className={`w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full transition-all duration-300 ${
+                          isActive ? "bg-blue-500 shadow-md" : "bg-gray-300"
+                        }`}
+                      />
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+
+            {/* Main image */}
+            <motion.div
+              variants={imageVariants}
+              className="relative w-full h-full bg-gradient-to-br from-gray-50 via-white to-gray-100 rounded-2xl lg:rounded-3xl overflow-hidden shadow-lg sm:shadow-xl lg:shadow-2xl order-1 lg:order-2"
+              initial="hidden"
+              animate="visible"
+              layout
+            >
+              {/* Điều hướng hình ảnh */}
+              {product.images && product.images.length > 1 && (
+                <>
+                  <motion.button
+                    whileHover={{ scale: 1.1, x: -2 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={prevImage}
+                    className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-20 p-1.5 sm:p-2 bg-white/90 backdrop-blur-sm rounded-full shadow-md hover:shadow-lg transition-all duration-300"
+                  >
+                    <ChevronLeft
+                      size={14}
+                      className="sm:w-4 sm:h-4 text-gray-700"
+                    />
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.1, x: 2 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={nextImage}
+                    className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-20 p-1.5 sm:p-2 bg-white/90 backdrop-blur-sm rounded-full shadow-md hover:shadow-lg transition-all duration-300"
+                  >
+                    <ChevronRight
+                      size={14}
+                      className="sm:w-4 sm:h-4 text-gray-700"
+                    />
+                  </motion.button>
+                </>
+              )}
+
+              {/* Hình ảnh chính với hiệu ứng toàn diện */}
+              <div className="relative w-full h-full">
+                {mainImg ? (
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={mainImg}
+                      initial={{ opacity: 0, scale: 0.8, rotateY: -15 }}
+                      animate={{ opacity: 1, scale: 1, rotateY: 0 }}
+                      exit={{ opacity: 0, scale: 1.1, rotateY: 15 }}
+                      transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
+                      className="absolute inset-0"
+                      onAnimationStart={() => setIsImageLoading(true)}
+                      onAnimationComplete={() => setIsImageLoading(false)}
+                    >
+                      <ReactImageMagnify
+                        {...{
+                          smallImage: {
+                            alt: product.name,
+                            isFluidWidth: true,
+                            src: mainImg,
+                          },
+                          largeImage: {
+                            src: mainImg,
+                            width: 1200,
+                            height: 1800,
+                          },
+                          enlargedImageContainerStyle: {
+                            zIndex: 999,
+                            width: "100%",
+                            height: "100%",
+                          },
+                          enlargedImageContainerClassName: "rounded-2xl",
+                          enlargedImagePosition: "over",
+                        }}
+                      />
+                      {isImageLoading && (
+                        <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-pulse rounded-2xl lg:rounded-3xl" />
+                      )}
+                    </motion.div>
+                  </AnimatePresence>
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl lg:rounded-3xl flex items-center justify-center">
+                    <div className="text-center">
+                      <motion.div
+                        className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-300 rounded-full mx-auto mb-3"
+                        animate={{ rotate: 360 }}
+                        transition={{
+                          repeat: Infinity,
+                          duration: 2,
+                          ease: "linear",
+                        }}
+                      />
+                      <p className="text-gray-500 font-medium text-xs sm:text-sm">
+                        Đang tải...
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+
+          {/* Product Info */}
+          <motion.div
+            variants={itemVariants}
+            className="flex flex-col gap-3 sm:gap-4 order-2 lg:order-2"
+          >
+            {/* Header */}
+            <div className="space-y-2 sm:space-y-3">
+              <motion.h1
+                className="text-lg sm:text-xl lg:text-2xl font-bold tracking-tight bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent leading-tight"
+                initial={{ opacity: 0, x: -30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3, duration: 0.8 }}
+              >
+                {product.name}
+              </motion.h1>
+
+              <motion.div
+                className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4 }}
+              >
+                <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-0.5">
+                    {[...Array(5)].map((_, i) => (
+                      <Star
+                        key={i}
+                        size={14}
+                        className={`sm:w-[16px] sm:h-[16px] transition-all duration-300 ${
+                          i < Math.floor(Number(calculateAverageRating()))
+                            ? "text-yellow-400 fill-yellow-400 drop-shadow-sm"
+                            : "text-gray-300"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <span className="text-xs text-gray-600 font-medium">
+                    {calculateAverageRating()} ({reviews.length} đánh giá)
+                  </span>
+                </div>
+                <div className="hidden sm:block h-3 w-px bg-gray-300"></div>
+                <motion.span
+                  className="px-2 sm:px-3 py-1 bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 rounded-full text-xs font-semibold border border-blue-200 inline-block w-fit"
+                  whileHover={{ scale: 1.05 }}
+                >
+                  {product.category.name}
+                </motion.span>
+              </motion.div>
+
+              <motion.p
+                className="text-gray-600 leading-relaxed text-xs sm:text-sm"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+              >
+                {product.description}
+              </motion.p>
+            </div>
+
+            {/* Trust Badges */}
+            <motion.div
+              className="flex flex-wrap gap-1 sm:gap-2"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+            >
+              <motion.div
+                className="flex items-center gap-1 px-2 sm:px-3 py-1 sm:py-2 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg sm:rounded-xl border border-green-200"
+                whileHover={{
+                  scale: 1.05,
+                  boxShadow: "0 4px 12px rgba(34, 197, 94, 0.15)",
+                }}
+              >
+                <Shield
+                  size={12}
+                  className="sm:w-[14px] sm:h-[14px] text-green-600"
+                />
+                <span className="text-xs text-green-700 font-semibold">
+                  Bảo hành 12 tháng
+                </span>
+              </motion.div>
+              <motion.div
+                className="flex items-center gap-1 px-2 sm:px-3 py-1 sm:py-2 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg sm:rounded-xl border border-blue-200"
+                whileHover={{
+                  scale: 1.05,
+                  boxShadow: "0 4px 12px rgba(59, 130, 246, 0.15)",
+                }}
+              >
+                <Truck
+                  size={12}
+                  className="sm:w-[14px] sm:h-[14px] text-blue-600"
+                />
+                <span className="text-xs text-blue-700 font-semibold">
+                  Giao hàng miễn phí
+                </span>
+              </motion.div>
+            </motion.div>
+
+            {/* Size Selection */}
+            <motion.div
+              className="space-y-2 sm:space-y-3"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.7 }}
+            >
+              <div className="flex items-center justify-between">
+                <p className="text-base sm:text-lg font-bold text-gray-900">
+                  Chọn kích thước:
+                </p>
+                <Dialog.Root>
+                  <Dialog.Trigger asChild>
+                    <motion.button
+                      className="text-xs text-blue-600 hover:text-blue-700 font-semibold hover:underline transition-all duration-300 flex items-center gap-0.5"
+                      whileHover={{ scale: 1.05 }}
+                    >
+                      <span>Bảng Size</span>
+                      <ChevronRight size={12} className="sm:w-3 sm:h-3" />
+                    </motion.button>
+                  </Dialog.Trigger>
+                  <Dialog.Portal>
+                    <Dialog.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40" />
+                    <Dialog.Content className="fixed z-50 top-1/2 left-1/2 w-[95vw] sm:w-[90vw] max-w-4xl -translate-x-1/2 -translate-y-1/2 bg-white px-3 sm:px-6 py-3 sm:py-5 rounded-xl sm:rounded-2xl shadow-xl max-h-[90vh] overflow-auto">
+                      <motion.div
+                        initial={{ scale: 0.9, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 300,
+                          damping: 30,
+                        }}
+                      >
+                        <div className="flex justify-between items-center border-b pb-2 sm:pb-3 mb-3 sm:mb-5">
+                          <Dialog.Title className="text-base sm:text-xl font-bold text-gray-900">
+                            Bảng thông tin chi tiết
+                          </Dialog.Title>
+                          <Dialog.Close asChild>
+                            <motion.button
+                              className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-all duration-200"
+                              whileHover={{ scale: 1.1, rotate: 90 }}
+                              whileTap={{ scale: 0.9 }}
+                            >
+                              <X size={16} className="sm:w-5 sm:h-5" />
+                            </motion.button>
+                          </Dialog.Close>
+                        </div>
+
+                        <div className="overflow-auto rounded-lg sm:rounded-xl border border-gray-200 shadow-md max-h-[60vh]">
+                          <table className="min-w-full text-xs">
+                            <thead className="bg-gradient-to-r from-gray-50 via-white to-gray-50">
+                              <tr>
+                                <th className="px-2 sm:px-4 py-2 sm:py-3 text-left font-bold text-gray-900 border-b-2 border-gray-200">
+                                  Size
+                                </th>
+                                <th className="px-2 sm:px-4 py-2 sm:py-3 text-right font-bold text-gray-900 border-b-2 border-gray-200">
+                                  Giá gốc
+                                </th>
+                                <th className="px-2 sm:px-4 py-2 sm:py-3 text-right font-bold text-gray-900 border-b-2 border-gray-200 hidden sm:table-cell">
+                                  Giá khuyến mãi
+                                </th>
+                                <th className="px-2 sm:px-4 py-2 sm:py-3 text-center font-bold text-gray-900 border-b-2 border-gray-200">
+                                  Số lượng
+                                </th>
+                                <th className="px-2 sm:px-4 py-2 sm:py-3 text-center font-bold text-gray-900 border-b-2 border-gray-200 hidden md:table-cell">
+                                  Trạng thái
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {product.variant.map((v, index) => (
+                                <motion.tr
+                                  key={v.id}
+                                  className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-300"
+                                  initial={{ opacity: 0, x: -20 }}
+                                  animate={{ opacity: 1, x: 0 }}
+                                  transition={{ delay: index * 0.1 }}
+                                  whileHover={{ scale: 1.01 }}
+                                >
+                                  <td className="px-2 sm:px-4 py-2 sm:py-3 border-b border-gray-100">
+                                    <span className="px-1.5 sm:px-2 py-0.5 bg-gradient-to-r from-gray-100 to-gray-200 rounded-full font-semibold text-gray-800 text-xs">
+                                      Size {v.size}
+                                    </span>
+                                  </td>
+                                  <td className="px-2 sm:px-4 py-2 sm:py-3 text-right border-b border-gray-100 font-semibold">
+                                    <div className="flex flex-col sm:block">
+                                      <span>
+                                        {v.price.toLocaleString("vi-VN")} ₫
+                                      </span>
+                                      {v.sale_price && (
+                                        <span className="text-red-600 font-bold text-xs sm:hidden">
+                                          {parseInt(
+                                            v.sale_price
+                                          ).toLocaleString("vi-VN")}{" "}
+                                          ₫
+                                        </span>
+                                      )}
+                                    </div>
+                                  </td>
+                                  <td className="px-2 sm:px-4 py-2 sm:py-3 text-right border-b border-gray-100 hidden sm:table-cell">
+                                    {v.sale_price ? (
+                                      <span className="text-red-600 font-bold">
+                                        {parseInt(v.sale_price).toLocaleString(
+                                          "vi-VN"
+                                        )}{" "}
+                                        ₫
+                                      </span>
+                                    ) : (
+                                      <span className="text-gray-400">-</span>
+                                    )}
+                                  </td>
+                                  <td className="px-2 sm:px-4 py-2 sm:py-3 text-center border-b border-gray-100">
+                                    <span
+                                      className={`px-1.5 sm:px-2 py-0.5 rounded-full text-xs font-bold ${
+                                        v.stock_quantity > 10
+                                          ? "bg-green-100 text-green-700"
+                                          : v.stock_quantity > 0
+                                          ? "bg-yellow-100 text-yellow-700"
+                                          : "bg-red-100 text-red-700"
+                                      }`}
+                                    >
+                                      {v.stock_quantity}
+                                    </span>
+                                  </td>
+                                  <td className="px-2 sm:px-4 py-2 sm:py-3 text-center border-b border-gray-100 hidden md:table-cell">
+                                    <span
+                                      className={`px-1.5 sm:px-2 py-0.5 rounded-full text-xs font-bold ${
+                                        v.status === "còn hàng"
+                                          ? "bg-green-100 text-green-700"
+                                          : "bg-red-100 text-red-700"
+                                      }`}
+                                    >
+                                      {v.status}
+                                    </span>
+                                  </td>
+                                </motion.tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </motion.div>
+                    </Dialog.Content>
+                  </Dialog.Portal>
+                </Dialog.Root>
+              </div>
+
+              <div className="flex flex-wrap gap-1 sm:gap-2">
+                {product.variant.map((v, index) => {
+                  const isSelected = selectedVariant?.size === v.size;
+                  const isOutOfStock = v.stock_quantity === 0;
+                  const isLowStock =
+                    v.stock_quantity <= 5 && v.stock_quantity > 0;
+                  return (
+                    <motion.button
+                      key={v.id}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{
+                        delay: 0.1 * index,
+                        type: "spring",
+                        stiffness: 200,
+                      }}
+                      whileHover={
+                        !isOutOfStock
+                          ? {
+                              scale: 1.05,
+                              y: -2,
+                              boxShadow: "0 5px 15px rgba(59, 130, 246, 0.2)",
+                            }
+                          : {}
+                      }
+                      whileTap={!isOutOfStock ? { scale: 0.95 } : {}}
+                      onClick={() => {
+                        if (!isOutOfStock) {
+                          handleVariantSelect(v);
+                        }
+                      }}
+                      className={`relative px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl text-xs font-bold border-2 transition-all duration-300 ${
+                        isSelected
+                          ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white border-blue-500 shadow-md shadow-blue-200"
+                          : isOutOfStock
+                          ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
+                          : "bg-white text-blue-600 border-blue-200 hover:border-blue-400 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50"
+                      }`}
+                      disabled={isOutOfStock}
+                    >
+                      <span>Size {v.size}</span>
+                      {isOutOfStock && (
+                        <motion.div
+                          className="absolute inset-0 bg-gray-200/80 rounded-lg sm:rounded-xl flex items-center justify-center"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: 0.2 }}
+                        >
+                          <span className="text-xs font-bold text-gray-500">
+                            Hết hàng
+                          </span>
+                        </motion.div>
+                      )}
+                      {isLowStock && !isSelected && (
+                        <motion.div
+                          className="absolute -top-1 -right-1 w-2 h-2 sm:w-2.5 sm:h-2.5 bg-red-500 rounded-full"
+                          animate={{ scale: [1, 1.3, 1] }}
+                          transition={{ repeat: Infinity, duration: 1.5 }}
+                        />
+                      )}
+                      {getDiscountPercentage(v) > 0 && (
+                        <motion.div
+                          className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-xs font-bold px-1 py-0.5 rounded-full"
+                          initial={{ scale: 0, rotate: -12 }}
+                          animate={{ scale: 1, rotate: -12 }}
+                          transition={{
+                            delay: 0.3,
+                            type: "spring",
+                            stiffness: 200,
+                          }}
+                        >
+                          -{getDiscountPercentage(v)}%
+                        </motion.div>
+                      )}
+                    </motion.button>
+                  );
+                })}
+              </div>
+            </motion.div>
+
+            {/* Price and Variant Info */}
+            <AnimatePresence>
+              {selectedVariant && (
+                <motion.div
+                  className="p-3 sm:p-4 bg-gradient-to-br from-white via-blue-50/30 to-indigo-50/30 rounded-xl sm:rounded-2xl border-2 border-blue-100 shadow-md"
+                  variants={priceAnimationVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="hidden"
+                  layout
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4 gap-3 sm:gap-0">
+                    <div>
+                      <motion.p
+                        className="text-xl sm:text-2xl font-bold text-gray-900"
+                        key={selectedVariant.id}
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 200,
+                          damping: 15,
+                        }}
+                      >
+                        {getEffectivePrice(selectedVariant).toLocaleString(
+                          "vi-VN"
+                        )}{" "}
+                        ₫
+                      </motion.p>
+                      <AnimatePresence>
+                        {selectedVariant.sale_price &&
+                          Number(selectedVariant.sale_price) > 0 && (
+                            <motion.div
+                              className="flex items-center gap-1 sm:gap-2 mt-1"
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -10 }}
+                            >
+                              <span className="text-xs text-gray-500 line-through">
+                                {selectedVariant.price.toLocaleString("vi-VN")}{" "}
+                                ₫
+                              </span>
+                              <motion.span
+                                className="px-1 sm:px-2 py-0.5 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-full text-xs font-bold shadow-md"
+                                animate={{ scale: [1, 1.05, 1] }}
+                                transition={{ repeat: Infinity, duration: 2 }}
+                              >
+                                -{getDiscountPercentage(selectedVariant)}%
+                              </motion.span>
+                            </motion.div>
+                          )}
+                      </AnimatePresence>
+                    </div>
+                    <div className="text-left sm:text-right">
+                      <p className="text-xs text-gray-600 font-medium">
+                        Còn lại
+                      </p>
+                      <motion.p
+                        className={`text-base sm:text-lg font-bold ${
+                          selectedVariant.stock_quantity > 10
+                            ? "text-green-600"
+                            : selectedVariant.stock_quantity > 0
+                            ? "text-yellow-600"
+                            : "text-red-600"
+                        }`}
+                        animate={
+                          selectedVariant.stock_quantity <= 5
+                            ? { scale: [1, 1.1, 1] }
+                            : {}
+                        }
+                        transition={{ repeat: Infinity, duration: 1.5 }}
+                      >
+                        {selectedVariant.stock_quantity}
+                      </motion.p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pt-3 sm:pt-4 border-t border-blue-200 gap-3 sm:gap-0">
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <span className="text-gray-700 font-semibold text-sm sm:text-base">
+                        Số lượng:
+                      </span>
+                      <div className="flex items-center bg-white border-2 border-blue-200 rounded-lg sm:rounded-xl overflow-hidden shadow-sm">
+                        <motion.button
+                          whileHover={{
+                            scale: 1.1,
+                            backgroundColor: "#EFF6FF",
+                          }}
+                          whileTap={{ scale: 0.9 }}
+                          onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                          className="px-3 sm:px-4 py-1.5 sm:py-2 hover:bg-blue-50 text-gray-700 font-bold transition-all duration-200"
+                          disabled={quantity <= 1}
+                        >
+                          -
+                        </motion.button>
+                        <motion.span
+                          className="px-4 sm:px-6 py-1.5 sm:py-2 font-bold text-gray-900 text-sm sm:text-base min-w-[50px] sm:min-w-[70px] text-center bg-gradient-to-r from-blue-50 to-indigo-50"
+                          key={quantity}
+                          animate={{ scale: [1, 1.2, 1] }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          {quantity}
+                        </motion.span>
+                        <motion.button
+                          whileHover={{
+                            scale: 1.1,
+                            backgroundColor: "#EFF6FF",
+                          }}
+                          whileTap={{ scale: 0.9 }}
+                          onClick={() =>
+                            setQuantity((q) =>
+                              Math.min(selectedVariant.stock_quantity, q + 1)
+                            )
+                          }
+                          className="px-3 sm:px-4 py-1.5 sm:py-2 hover:bg-blue-50 text-gray-700 font-bold transition-all duration-200"
+                          disabled={quantity >= selectedVariant.stock_quantity}
+                        >
+                          +
+                        </motion.button>
+                      </div>
+                    </div>
+                    <div className="text-left sm:text-right">
+                      <p className="text-xs text-gray-600 font-medium">
+                        Tổng cộng
+                      </p>
+                      <motion.p
+                        className="text-lg sm:text-xl font-bold text-blue-600"
+                        key={quantity * getEffectivePrice(selectedVariant)}
+                        animate={{ scale: [1, 1.1, 1] }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        {(
+                          getEffectivePrice(selectedVariant) * quantity
+                        ).toLocaleString("vi-VN")}{" "}
+                        ₫
+                      </motion.p>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Action Buttons */}
+            <motion.div
+              className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-3 sm:pt-4"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.8 }}
+            >
+              <motion.button
+                whileHover={{
+                  scale: 1.02,
+                  boxShadow: "0 10px 20px rgba(59, 130, 246, 0.3)",
+                  y: -2,
+                }}
+                whileTap={{ scale: 0.98 }}
+                onClick={handleAddToCart}
+                className="flex-1 relative bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 hover:from-blue-700 hover:via-blue-600 hover:to-blue-700 text-white px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl font-bold text-xs sm:text-sm shadow-md transition-all duration-300 overflow-hidden group"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent transform -skew-x-12 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
+                <div className="relative flex items-center justify-center gap-1 sm:gap-2">
+                  <motion.div
+                    animate={{ rotate: [0, 15, -15, 0] }}
+                    transition={{
+                      repeat: Infinity,
+                      duration: 2,
+                      ease: "easeInOut",
+                    }}
+                  >
+                    <ShoppingCart size={14} className="sm:w-4 sm:h-4" />
+                  </motion.div>
+                  <span>Thêm vào giỏ hàng</span>
+                  <motion.div
+                    animate={{ scale: [1, 1.2, 1] }}
+                    transition={{ repeat: Infinity, duration: 1.5 }}
+                  >
+                    <Zap size={12} className="sm:w-3 sm:h-3" />
+                  </motion.div>
+                </div>
+              </motion.button>
+
+              <motion.button
+                whileHover={{
+                  scale: 1.02,
+                  boxShadow: "0 5px 15px rgba(0, 0, 0, 0.1)",
+                  y: -2,
+                  backgroundColor: "#F3F4F6",
+                }}
+                whileTap={{ scale: 0.98 }}
+                onClick={handleBuyNow}
+                className="px-3 sm:px-4 py-2 sm:py-2.5 bg-white border-2 border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900 rounded-lg sm:rounded-xl font-bold text-xs sm:text-sm transition-all duration-300 shadow-md"
+              >
+                Mua ngay
+              </motion.button>
+            </motion.div>
+          </motion.div>
+        </div>
+
+        {/* Review Section */}
+        <motion.div
+          ref={reviewRef}
+          initial={{ opacity: 0, y: 60 }}
+          animate={isInViewRef ? { opacity: 1, y: 0 } : { opacity: 0, y: 60 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="mt-10 sm:mt-12 lg:mt-16 space-y-4 sm:space-y-6 lg:space-y-8"
+        >
+          {/* Write Review */}
+          <div className="bg-gradient-to-br from-white via-blue-50/50 to-indigo-50/50 rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6 border-2 border-blue-100 shadow-md">
+            <motion.h2
+              className="text-base sm:text-lg font-bold mb-4 sm:mb-6 text-gray-900 flex items-center gap-2 sm:gap-3"
+              initial={{ opacity: 0, x: -20 }}
+              animate={
+                isInViewRef ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }
+              }
+              transition={{ delay: 0.3 }}
+            >
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-md">
+                <Star
+                  size={16}
+                  className="sm:w-5 sm:h-5 text-white fill-white"
+                />
+              </div>
+              Viết đánh giá của bạn
+            </motion.h2>
+
+            <div className="space-y-4 sm:space-y-6">
+              <div>
+                <label className="block text-sm sm:text-base font-semibold text-gray-700 mb-2 sm:mb-3">
+                  Đánh giá của bạn:
+                </label>
+                <div className="flex items-center gap-0.5 sm:gap-1">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <motion.button
+                      key={star}
+                      whileHover={{ scale: 1.2, rotate: 15 }}
+                      whileTap={{ scale: 1.4, rotate: -15 }}
+                      onClick={() => setRating(star)}
+                      onMouseEnter={() => setHoveredStars(star)}
+                      onMouseLeave={() => setHoveredStars(0)}
+                      className="p-1 rounded-full hover:bg-yellow-50 transition-all duration-200"
+                    >
+                      <Star
+                        size={24}
+                        className={`sm:w-7 sm:h-7 transition-all duration-300 ${
+                          (hoveredStars > 0
+                          ? star <= hoveredStars
+                          : rating >= star)
+                            ? "text-yellow-400 fill-yellow-400 drop-shadow-lg"
+                            : "text-gray-300 hover:text-yellow-200"
+                        }`}
+                      />
+                    </motion.button>
+                  ))}
+                  <span className="ml-2 sm:ml-3 text-sm text-gray-600 font-semibold">
+                    ({hoveredStars > 0 ? hoveredStars : rating} sao)
+                  </span>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm sm:text-base font-semibold text-gray-700 mb-2 sm:mb-3">
+                  Nhận xét của bạn:
+                </label>
+                <motion.textarea
+                  initial={{ scale: 0.98, opacity: 0.8 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  whileFocus={{ scale: 1.02 }}
+                  transition={{ duration: 0.3 }}
+                  className="w-full border-2 border-blue-200 rounded-lg sm:rounded-xl p-3 sm:p-4 text-xs sm:text-sm focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-500 transition-all duration-300 resize-none shadow-md hover:shadow-lg bg-white"
+                  rows={3}
+                  placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm này..."
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                />
+              </div>
+
+              <motion.button
+                whileHover={{
+                  scale: 1.02,
+                  boxShadow: "0 10px 20px rgba(59, 130, 246, 0.3)",
+                  y: -2,
+                }}
+                whileTap={{ scale: 0.98 }}
+                onClick={handleSubmitReview}
+                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 sm:px-8 py-2 sm:py-3 rounded-lg sm:rounded-xl font-bold text-xs sm:text-sm shadow-md transition-all duration-300"
+              >
+                Gửi đánh giá
+              </motion.button>
+            </div>
+          </div>
+
+          {/* Reviews Display */}
+          <div className="bg-white rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6 border-2 border-gray-200 shadow-md">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-8 gap-3 sm:gap-0">
+              <motion.h2
+                className="text-base sm:text-lg font-bold text-gray-900 flex items-center gap-2 sm:gap-3"
+                initial={{ opacity: 0, x: -20 }}
+                animate={
+                  isInViewRef ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }
+                }
+                transition={{ delay: 0.4 }}
+              >
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-purple-500 to-pink-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-md">
+                  💬
+                </div>
+                Đánh giá từ khách hàng
+              </motion.h2>
+              {reviews.length > 0 && (
+                <motion.div
+                  className="text-left sm:text-right"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={
+                    isInViewRef
+                      ? { opacity: 1, scale: 1 }
+                      : { opacity: 0, scale: 0.8 }
+                  }
+                  transition={{ delay: 0.5 }}
+                >
+                  <div className="flex items-center gap-1 sm:gap-2 justify-start sm:justify-end">
+                    <Star
+                      size={16}
+                      className="sm:w-5 sm:h-5 text-yellow-400 fill-yellow-400"
+                    />
+                    <span className="text-xl sm:text-2xl font-bold text-gray-900">
+                      {calculateAverageRating()}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-600 font-medium">
+                    {reviews.length} đánh giá
+                  </p>
+                </motion.div>
+              )}
+            </div>
+
+            {reviews.length === 0 ? (
+              <motion.div
+                className="text-center py-8 sm:py-12 lg:py-16"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={
+                  isInViewRef
+                    ? { opacity: 1, scale: 1 }
+                    : { opacity: 0, scale: 0.9 }
+                }
+                transition={{ duration: 0.6 }}
+              >
+                <motion.div
+                  className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-gray-100 via-gray-200 to-gray-300 rounded-full mx-auto mb-3 sm:mb-4 flex items-center justify-center shadow-md"
+                  animate={{ rotate: 360 }}
+                  transition={{
+                    repeat: Infinity,
+                    duration: 20,
+                    ease: "linear",
+                  }}
+                >
+                  <Star size={24} className="sm:w-8 sm:h-8 text-gray-400" />
+                </motion.div>
+                <p className="text-gray-500 text-base sm:text-lg font-semibold mb-1">
+                  Chưa có đánh giá nào...
+                </p>
+                <p className="text-gray-400 text-sm">
+                  Hãy là người đầu tiên đánh giá sản phẩm này!
+                </p>
+              </motion.div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
+                {reviews.map((review, index) => (
+                  <motion.div
+                    key={review.id}
+                    initial={{ opacity: 0, y: 30, scale: 0.9 }}
+                    animate={
+                      isInViewRef
+                        ? { opacity: 1, y: 0, scale: 1 }
+                        : { opacity: 0, y: 30, scale: 0.9 }
+                    }
+                    transition={{ delay: index * 0.1 + 0.3 }}
+                    whileHover={{
+                      y: -4,
+                      boxShadow: "0 10px 20px rgba(0,0,0,0.1)",
+                      scale: 1.02,
+                    }}
+                    className="bg-gradient-to-br from-white to-gray-50 border-2 border-gray-200 rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-md transition-all duration-500 hover:border-blue-200"
+                  >
+                    <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+                      <motion.div
+                        className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl ${getColorByName(
+                          review.user.name
+                        )} text-white flex items-center justify-center font-bold text-base sm:text-lg shadow-md`}
+                        whileHover={{ scale: 1.1, rotate: 10 }}
+                        transition={{ type: "spring", stiffness: 300 }}
+                      >
+                        {review.user.name.charAt(0)}
+                      </motion.div>
+                      <div className="flex-1">
+                        <p className="font-bold text-gray-800 text-sm sm:text-base">
+                          {review.user.name}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {new Date(review.created_at).toLocaleDateString(
+                            "vi-VN"
+                          )}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-0.5 mb-3 sm:mb-4">
+                      {Array.from({
+                        length: Math.min(5, Math.max(1, review.rating)),
+                      }).map((_, i) => (
+                        <motion.div
+                          key={i}
+                          initial={{ scale: 0, rotate: -180 }}
+                          animate={{ scale: 1, rotate: 0 }}
+                          transition={{
+                            delay: i * 0.1 + 0.5,
+                            type: "spring",
+                            stiffness: 200,
+                          }}
+                        >
+                          <Star
+                            size={14}
+                            className="sm:w-4 sm:h-4 text-yellow-400 fill-yellow-400 drop-shadow-sm"
+                          />
+                        </motion.div>
+                      ))}
+                      {Array.from({
+                        length: 5 - Math.min(5, Math.max(1, review.rating)),
+                      }).map((_, i) => (
+                        <Star
+                          key={i}
+                          size={14}
+                          className="sm:w-4 sm:h-4 text-gray-300"
+                        />
+                      ))}
+                    </div>
+
+                    <p className="text-gray-700 leading-relaxed text-xs sm:text-sm line-clamp-4">
+                      {review.comment}
+                    </p>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </div>
+        </motion.div>
+      </motion.div>
+
+      {/* Enhanced Modal */}
+      <AddToCartModal
+        open={showModal}
+        onClose={() => setShowModal(false)}
+        productName={product.name}
+        quantity={quantity}
+        price={selectedVariant ? getEffectivePrice(selectedVariant) : 0}
+        salePrice={selectedVariant?.sale_price}
+        image={mainImg}
+      />
+
+      <style jsx>{`
+        @keyframes shimmer {
+          0% {
+            transform: translateX(-200%) skewX(-12deg);
+          }
+          100% {
+            transform: translateX(200%) skewX(-12deg);
+          }
+        }
+        .animate-shimmer {
+          animation: shimmer 2s infinite;
+        }
+        .scrollbar-thin {
+          scrollbar-width: thin;
+          scrollbar-color: #cbd5e0 #f7fafc;
+        }
+        .scrollbar-thin::-webkit-scrollbar {
+          width: 4px;
+        }
+        .scrollbar-thin::-webkit-scrollbar-track {
+          background: #f7fafc;
+          border-radius: 6px;
+        }
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+          background: linear-gradient(to bottom, #cbd5e0, #a0aec0);
+          border-radius: 6px;
+        }
+        .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+          background: linear-gradient(to bottom, #a0aec0, #718096);
+        }
+        .line-clamp-4 {
+          display: -webkit-box;
+          -webkit-line-clamp: 4;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+
+        /* Responsive breakpoints */
+        @media (max-width: 640px) {
+          .scrollbar-thin::-webkit-scrollbar {
+            width: 2px;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .line-clamp-4 {
+            -webkit-line-clamp: 3;
+          }
+        }
+
+        /* Handle very small screens */
+        @media (max-width: 320px) {
+          .container-sm {
+            padding-left: 0.5rem;
+            padding-right: 0.5rem;
+          }
+
+          .text-xs-responsive {
+            font-size: 0.75rem;
+          }
+
+          .gap-xs-responsive {
+            gap: 0.25rem;
+          }
+        }
+
+        /* Landscape orientation for mobile */
+        @media (max-height: 500px) and (orientation: landscape) {
+          .mobile-landscape-optimize {
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+          }
+
+          .mobile-landscape-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+          }
+        }
+
+        /* High DPI displays */
+        @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+          .high-dpi-shadow {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+          }
+        }
+
+        /* Dark mode support for system preference */
+        @media (prefers-color-scheme: dark) {
+          .dark-mode-support {
+            /* Add dark mode styles if needed */
+          }
+        }
+
+        /* Reduced motion for accessibility */
+        @media (prefers-reduced-motion: reduce) {
+          * {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+          }
+        }
+
+        /* Focus styles for keyboard navigation */
+        .focus-visible:focus-visible {
+          outline: 2px solid #3b82f6;
+          outline-offset: 2px;
+        }
+
+        /* Improved contrast for accessibility */
+        @media (prefers-contrast: high) {
+          .high-contrast {
+            border-width: 2px;
+            font-weight: 600;
+          }
+        }
+      `}</style>
+    </>
+  );
+}

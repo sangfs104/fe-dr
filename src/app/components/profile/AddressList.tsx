@@ -1,21 +1,16 @@
 "use client";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { DreamToast } from "../ui/DreamToast";
+import { DreamToast } from "../ui/DreamToast"; // Đường dẫn tùy theo cấu trúc dự án
 
 type Address = {
   id: number;
-  address: string; // Corrected from 'adress'
+  adress: string;
   user_id: number;
   is_default: number;
   created_at: string;
   updated_at: string;
 };
-
-interface ApiResponse {
-  data?: Address[];
-  message?: string;
-}
 
 export default function AddressList() {
   const [addresses, setAddresses] = useState<Address[]>([]);
@@ -39,10 +34,11 @@ export default function AddressList() {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      const result: ApiResponse = await res.json();
-      const sorted = (result.data || []).sort(
-        (a: Address, b: Address) => b.is_default - a.is_default
+      const result = await res.json();
+      const sorted = ((result.data || []) as Address[]).sort(
+        (a, b) => b.is_default - a.is_default
       );
+
       setAddresses(sorted);
     } catch (error) {
       toast.error("Lỗi khi lấy địa chỉ!");
@@ -72,7 +68,7 @@ export default function AddressList() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ address: newAddress }), // Corrected from 'adress'
+          body: JSON.stringify({ adress: newAddress }),
         }
       );
 
@@ -182,7 +178,7 @@ export default function AddressList() {
                 </div>
               )}
 
-              <p className="text-gray-800 font-semibold">{addr.address}</p>
+              <p className="text-gray-800 font-semibold">{addr.adress}</p>
               <p className="text-gray-500 mt-1 sm:mt-1.5">
                 Ngày tạo: {new Date(addr.created_at).toLocaleDateString()}
               </p>

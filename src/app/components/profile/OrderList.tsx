@@ -544,6 +544,7 @@
 //     </section>
 //   );
 // }
+
 "use client";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -1332,6 +1333,23 @@ export default function OrderList() {
                       </div>
                     </div>
 
+                    {/* <div className="space-y-4">
+                      <label className="block text-base font-semibold text-gray-700">
+                        Lý do trả hàng
+                      </label>
+                      <select
+                        className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                        value={returnReason}
+                        onChange={(e) => setReturnReason(e.target.value)}
+                      >
+                        <option value="">Chọn lý do</option>
+                        {returnReasons.map((reason) => (
+                          <option key={reason} value={reason}>
+                            {reason}
+                          </option>
+                        ))}
+                      </select>
+                    </div> */}
                     <div className="space-y-4">
                       <label className="block text-base font-semibold text-gray-700">
                         Lý do trả hàng
@@ -1349,7 +1367,6 @@ export default function OrderList() {
                         ))}
                       </select>
                     </div>
-
                     <div className="space-y-4">
                       <label className="block text-base font-semibold text-gray-700">
                         Phương thức hoàn tiền

@@ -289,16 +289,20 @@ export default function AddressList() {
           },
         }
       );
-      const result = await res.json();
-      if (res.ok) {
+
+      console.log("Set default response status:", res.status); // Debug
+      if (res.ok || res.status === 204) {
         toast.success("Đặt địa chỉ làm mặc định thành công!");
-        fetchAddresses();
+        await fetchAddresses(); // Cập nhật danh sách địa chỉ
       } else {
-        toast.error("Lỗi: " + (result.message || "Không thể cập nhật!"));
+        const result = await res.json();
+        toast.error(
+          "Lỗi: " + (result.message || "Không thể cập nhật địa chỉ mặc định!")
+        );
       }
     } catch (error) {
       toast.error("Lỗi khi cập nhật địa chỉ mặc định!");
-      console.error(error);
+      console.error("Lỗi khi gọi API set-default:", error);
     } finally {
       setDefaultLoadingId(null);
     }

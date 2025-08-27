@@ -438,7 +438,6 @@
 //     </section>
 //   );
 // }
-
 "use client";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -480,6 +479,7 @@ export default function AddressList() {
       const sorted = ((result.data || []) as Address[]).sort(
         (a, b) => b.is_default - a.is_default
       );
+
       setAddresses(sorted);
     } catch (error) {
       toast.error("Lỗi khi lấy địa chỉ!");
@@ -553,7 +553,9 @@ export default function AddressList() {
         toast.success("Đặt địa chỉ làm mặc định thành công!");
         setHighlightedId(id);
         await fetchAddresses();
-        setTimeout(() => setHighlightedId(null), 3000);
+        setTimeout(() => {
+          setHighlightedId(null);
+        }, 3000);
       } else {
         const result = await res.json();
         toast.error(
@@ -606,43 +608,58 @@ export default function AddressList() {
         </p>
       ) : (
         <div className="space-y-3 sm:space-y-4">
-          {addresses.map((addr) => (
-            <div
-              key={addr.id}
-              className={`relative rounded-xl p-4 transition-all duration-500 break-words ${
-                addr.is_default === 1
-                  ? `border-[4px] border-yellow-400 bg-gradient-to-r from-yellow-50 via-white to-yellow-100 shadow-[0_0_25px_rgba(255,215,0,0.5)] transform scale-110 ${
-                      highlightedId === addr.id
-                        ? "animate-pulse ring-4 ring-yellow-200"
-                        : ""
-                    }`
-                  : "border border-gray-200 hover:border-gray-300 hover:shadow-md transform hover:scale-[1.02]"
-              }`}
-            >
-              {/* Badge mặc định */}
-              {addr.is_default === 1 && (
-                <div className="absolute -top-3 -left-3 bg-yellow-600 text-white px-3 py-1 rounded-tr-xl rounded-bl-xl text-xs font-bold shadow-md">
-                  🌟 Địa chỉ mặc định
-                </div>
-              )}
-
-              {/* Nội dung địa chỉ */}
-              <p
-                className={`font-semibold text-sm sm:text-base mb-1 ${
-                  addr.is_default === 1 ? "text-yellow-800" : "text-gray-800"
+          {/* Địa chỉ mặc định */}
+          {addresses
+            .filter((addr) => addr.is_default === 1)
+            .map((addr) => (
+              <div
+                key={addr.id}
+                className={`border-[3px] border-orange-700 rounded-lg p-3 sm:p-4 text-xs sm:text-sm bg-gradient-to-r from-orange-100 to-orange-50 shadow-xl relative break-words transition-all duration-500 ${
+                  highlightedId === addr.id
+                    ? "animate-pulse ring-4 ring-orange-300 ring-opacity-50 scale-105"
+                    : ""
                 }`}
               >
-                {addr.adress}
-              </p>
-              <p className="text-gray-500 text-xs sm:text-sm">
-                Ngày tạo: {new Date(addr.created_at).toLocaleDateString()}
-              </p>
+                <div
+                  className={`absolute top-1 sm:top-2 right-1 sm:right-2 bg-gradient-to-r from-orange-600 to-orange-500 text-white px-3 py-1.5 text-xs rounded-full shadow-md transform transition-all duration-300 ${
+                    highlightedId === addr.id
+                      ? "animate-bounce scale-110 bg-gradient-to-r from-orange-500 to-red-500"
+                      : ""
+                  }`}
+                >
+                  <span className="flex items-center gap-1">
+                    <span className="text-yellow-200">⭐</span>
+                    <span className="font-semibold">Mặc định</span>
+                  </span>
+                </div>
+                <p
+                  className={`text-gray-800 font-bold text-base sm:text-lg transition-colors duration-300 ${
+                    highlightedId === addr.id ? "text-orange-700" : ""
+                  }`}
+                >
+                  {addr.adress}
+                </p>
+                <p className="text-gray-500 mt-1 sm:mt-1.5">
+                  Ngày tạo: {new Date(addr.created_at).toLocaleDateString()}
+                </p>
+              </div>
+            ))}
 
-              {/* Nút đặt làm mặc định */}
-              {addr.is_default !== 1 && (
+          {/* Địa chỉ không mặc định */}
+          {addresses
+            .filter((addr) => addr.is_default !== 1)
+            .map((addr) => (
+              <div
+                key={addr.id}
+                className="border border-gray-200 rounded-lg p-3 sm:p-4 text-xs sm:text-sm hover:border-orange-300 hover:shadow-md hover:scale-[1.01] transition-all duration-200 break-words"
+              >
+                <p className="text-gray-700 font-medium">{addr.adress}</p>
+                <p className="text-gray-500 mt-1 sm:mt-1.5">
+                  Ngày tạo: {new Date(addr.created_at).toLocaleDateString()}
+                </p>
                 <button
                   onClick={() => handleSetDefault(addr.id)}
-                  className="mt-2 sm:mt-3 inline-block bg-gradient-to-r from-gray-100 to-gray-50 text-gray-600 px-3 py-1 rounded-full text-[10px] sm:text-xs font-semibold hover:from-gray-200 hover:to-gray-100 hover:shadow-md transform hover:scale-105 transition-all duration-200 disabled:opacity-50"
+                  className="mt-2 sm:mt-3 inline-block bg-gradient-to-r from-yellow-400 to-orange-400 text-white px-3 py-1 rounded-full text-[10px] sm:text-xs font-semibold hover:from-yellow-500 hover:to-orange-500 hover:shadow-md transform hover:scale-105 transition-all duration-200 disabled:from-gray-100 disabled:to-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed"
                   disabled={defaultLoadingId === addr.id}
                 >
                   {defaultLoadingId === addr.id ? (
@@ -654,9 +671,8 @@ export default function AddressList() {
                     "Đặt làm mặc định"
                   )}
                 </button>
-              )}
-            </div>
-          ))}
+              </div>
+            ))}
         </div>
       )}
     </section>

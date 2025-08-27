@@ -383,8 +383,11 @@
 //     </section>
 //   );
 // }
+
 "use client";
 import { useEffect, useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 type Address = {
   id: number;
@@ -405,7 +408,7 @@ export default function AddressList() {
   const fetchAddresses = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
-      alert("Không tìm thấy token!");
+      toast.error("Không tìm thấy token!");
       setLoading(false);
       return;
     }
@@ -414,15 +417,16 @@ export default function AddressList() {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/addresses`,
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
       const result = await res.json();
-      setAddresses(result.data || []);
+      const sorted = (result.data || []).sort(
+        (a: Address, b: Address) => b.is_default - a.is_default
+      );
+      setAddresses(sorted);
     } catch (error) {
-      alert("Lỗi khi lấy địa chỉ!");
+      toast.error("Lỗi khi lấy địa chỉ!");
       console.error("Lỗi khi lấy địa chỉ:", error);
     } finally {
       setLoading(false);
@@ -455,14 +459,14 @@ export default function AddressList() {
 
       const result = await res.json();
       if (res.ok) {
-        alert("Thêm địa chỉ thành công!");
+        toast.success("Thêm địa chỉ thành công!");
         setNewAddress("");
         fetchAddresses();
       } else {
-        alert("Lỗi: " + result.message);
+        toast.error("Lỗi: " + result.message);
       }
     } catch (error) {
-      alert("Lỗi khi thêm địa chỉ!");
+      toast.error("Lỗi khi thêm địa chỉ!");
       console.error("Lỗi khi thêm địa chỉ:", error);
     } finally {
       setSubmitting(false);
@@ -472,8 +476,7 @@ export default function AddressList() {
   const handleSetDefault = async (id: number) => {
     const token = localStorage.getItem("token");
     if (!token) {
-      alert("Không tìm thấy token!");
-      console.log("No token found");
+      toast.error("Không tìm thấy token!");
       return;
     }
 
@@ -490,23 +493,18 @@ export default function AddressList() {
         }
       );
 
-      console.log("Set default response status:", res.status); // Debug
-      console.log("Set default response headers:", [...res.headers.entries()]); // Debug headers
-
       if (res.ok || res.status === 204) {
-        console.log("Set default success, showing alert"); // Debug
-        alert("Đặt địa chỉ làm mặc định thành công!");
-        await fetchAddresses(); // Cập nhật danh sách địa chỉ
+        toast.success("Đặt địa chỉ làm mặc định thành công!");
+        await fetchAddresses();
       } else {
         const result = await res.json();
-        console.log("Set default error response:", result); // Debug
-        alert(
+        toast.error(
           "Lỗi: " + (result.message || "Không thể cập nhật địa chỉ mặc định!")
         );
       }
     } catch (error) {
+      toast.error("Lỗi khi cập nhật địa chỉ mặc định!");
       console.error("Lỗi khi gọi API set-default:", error);
-      alert("Lỗi khi cập nhật địa chỉ mặc định!");
     } finally {
       setDefaultLoadingId(null);
     }
@@ -514,6 +512,7 @@ export default function AddressList() {
 
   return (
     <section className="bg-white p-4 sm:p-6 md:p-8 rounded-xl shadow-sm space-y-4 sm:space-y-6">
+      <ToastContainer position="bottom-right" autoClose={3000} />
       <h2 className="text-lg sm:text-xl font-semibold text-orange-600">
         Danh sách địa chỉ nhận hàng
       </h2>
@@ -552,15 +551,15 @@ export default function AddressList() {
           {addresses.map((addr) => (
             <div
               key={addr.id}
-              className={`border rounded-lg p-3 sm:p-4 text-xs sm:text-sm relative break-words ${
+              className={`border rounded-lg p-3 sm:p-4 text-xs sm:text-sm relative break-words transition-all duration-300 ${
                 addr.is_default === 1
-                  ? "border-orange-500 bg-orange-50"
+                  ? "border-orange-500 bg-orange-50 shadow-md"
                   : "hover:border-orange-300"
               }`}
             >
               {addr.is_default === 1 && (
-                <div className="absolute top-1 sm:top-2 right-1 sm:right-2 bg-orange-500 text-white px-1 sm:px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs rounded">
-                  Mặc định
+                <div className="absolute top-1 sm:top-2 right-1 sm:right-2 bg-orange-500 text-white px-2 py-1 text-xs rounded shadow-md animate-pulse">
+                  ⭐ Mặc định
                 </div>
               )}
 

@@ -481,6 +481,7 @@ export default function AddressList() {
       );
 
       setAddresses(sorted);
+      console.log("Addresses data:", sorted); // Debug để xem dữ liệu
     } catch (error) {
       toast.error("Lỗi khi lấy địa chỉ!");
       console.error("Lỗi khi lấy địa chỉ:", error);
@@ -578,6 +579,7 @@ export default function AddressList() {
   return (
     <section className="bg-white p-4 sm:p-6 md:p-8 rounded-xl shadow-sm space-y-4 sm:space-y-6">
       <DreamToast />
+
       <div className="flex items-center gap-3">
         <div className="w-1 h-8 bg-gradient-to-b from-orange-500 to-orange-600 rounded-full"></div>
         <h2 className="text-lg sm:text-xl font-bold text-gray-800">
@@ -639,87 +641,87 @@ export default function AddressList() {
           </p>
         </div>
       ) : (
-        <div className="space-y-3 sm:space-y-4">
-          {addresses.map((addr) => (
-            <div
-              key={addr.id}
-              className={`relative break-words transition-all duration-300 ${
-                addr.is_default === 1
-                  ? `
-                    /* Địa chỉ mặc định - Design đặc biệt */
-                    bg-gradient-to-r from-orange-50 via-orange-25 to-amber-50
-                    border-3 border-orange-400 
-                    shadow-lg hover:shadow-xl
-                    transform hover:scale-[1.02]
-                    rounded-xl
-                    ${
-                      highlightedId === addr.id
-                        ? "animate-pulse shadow-2xl ring-4 ring-orange-300 ring-opacity-60 scale-[1.03] border-orange-500"
-                        : ""
-                    }
-                  `
-                  : `
-                    /* Địa chỉ thường */
-                    bg-white 
-                    border-2 border-gray-200 
-                    hover:border-orange-300 hover:shadow-md 
-                    transform hover:scale-[1.01]
-                    rounded-lg
-                  `
-              }`}
-            >
-              {/* Header với icon và badge mặc định */}
-              <div className="flex items-start justify-between p-3 sm:p-4">
-                <div className="flex items-start gap-3 flex-1">
-                  {addr.is_default === 1 ? (
-                    <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center shadow-md">
-                      <span className="text-white text-sm font-bold">🏠</span>
+        <div className="space-y-4">
+          {addresses.map((addr) => {
+            // Debug log
+            console.log(`Address ${addr.id}: is_default = ${addr.is_default}`);
+
+            // Kiểm tra địa chỉ mặc định (is_default = 1)
+            const isDefault = addr.is_default === 1;
+
+            return (
+              <div
+                key={addr.id}
+                className={`relative p-4 rounded-xl transition-all duration-300 ${
+                  isDefault
+                    ? /* ĐỊA CHỈ MẶC ĐỊNH - SIÊU NỔI BẬT */
+                      `bg-gradient-to-br from-orange-100 via-orange-50 to-yellow-50 
+                       border-4 border-orange-500 
+                       shadow-xl 
+                       transform scale-105
+                       ${
+                         highlightedId === addr.id
+                           ? "animate-pulse ring-4 ring-orange-400 ring-opacity-50"
+                           : ""
+                       }
+                      `
+                    : /* ĐỊA CHỈ THƯỜNG - ĐƠN GIẢN */
+                      `bg-white 
+                       border border-gray-200 
+                       hover:border-orange-300 hover:shadow-md
+                      `
+                }`}
+              >
+                {/* Header với icon */}
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    {isDefault ? (
+                      /* Icon cho địa chỉ mặc định */
+                      <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center shadow-lg">
+                        <span className="text-white text-lg font-bold">🏠</span>
+                      </div>
+                    ) : (
+                      /* Icon cho địa chỉ thường */
+                      <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                        <span className="text-gray-400 text-lg">📍</span>
+                      </div>
+                    )}
+
+                    <div>
+                      <p
+                        className={`font-semibold text-base ${
+                          isDefault ? "text-orange-800" : "text-gray-800"
+                        }`}
+                      >
+                        {addr.adress}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        📅{" "}
+                        {new Date(addr.created_at).toLocaleDateString("vi-VN")}
+                      </p>
                     </div>
-                  ) : (
-                    <div className="flex-shrink-0 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-                      <span className="text-gray-400 text-sm">📍</span>
+                  </div>
+
+                  {/* Badge MẶC ĐỊNH */}
+                  {isDefault && (
+                    <div
+                      className={`transition-all duration-300 ${
+                        highlightedId === addr.id ? "animate-bounce" : ""
+                      }`}
+                    >
+                      <div className="bg-gradient-to-r from-red-500 to-orange-500 text-white px-4 py-2 text-xs font-bold rounded-full shadow-lg flex items-center gap-2">
+                        <span className="text-yellow-200 text-sm">⭐</span>
+                        <span>MẶC ĐỊNH</span>
+                      </div>
                     </div>
                   )}
-
-                  <div className="flex-1 min-w-0">
-                    <p
-                      className={`font-semibold text-sm sm:text-base leading-relaxed ${
-                        addr.is_default === 1
-                          ? "text-orange-800"
-                          : "text-gray-800"
-                      } ${highlightedId === addr.id ? "text-orange-900" : ""}`}
-                    >
-                      {addr.adress}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      📅 {new Date(addr.created_at).toLocaleDateString("vi-VN")}
-                    </p>
-                  </div>
                 </div>
 
-                {/* Badge mặc định */}
-                {addr.is_default === 1 && (
-                  <div
-                    className={`flex-shrink-0 ml-3 transition-all duration-300 ${
-                      highlightedId === addr.id
-                        ? "animate-bounce scale-110"
-                        : ""
-                    }`}
-                  >
-                    <div className="bg-gradient-to-r from-orange-600 to-orange-500 text-white px-3 py-1.5 text-xs font-bold rounded-full shadow-lg flex items-center gap-1.5">
-                      <span className="text-yellow-200 text-sm">⭐</span>
-                      <span>MẶC ĐỊNH</span>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Nút hành động cho địa chỉ không mặc định */}
-              {addr.is_default !== 1 && (
-                <div className="px-3 sm:px-4 pb-3 sm:pb-4">
+                {/* Nút đặt làm mặc định (chỉ hiện với địa chỉ thường) */}
+                {!isDefault && (
                   <button
                     onClick={() => handleSetDefault(addr.id)}
-                    className="w-full sm:w-auto bg-gradient-to-r from-orange-100 to-orange-50 text-orange-700 px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold hover:from-orange-200 hover:to-orange-100 hover:shadow-md transform hover:scale-105 transition-all duration-200 disabled:from-gray-100 disabled:to-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none border border-orange-200 hover:border-orange-300"
+                    className="w-full bg-gradient-to-r from-orange-100 to-orange-50 text-orange-700 px-4 py-3 rounded-lg text-sm font-semibold hover:from-orange-200 hover:to-orange-100 hover:shadow-md transform hover:scale-105 transition-all duration-200 border border-orange-200 hover:border-orange-300 disabled:from-gray-100 disabled:to-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed disabled:transform-none"
                     disabled={defaultLoadingId === addr.id}
                   >
                     {defaultLoadingId === addr.id ? (
@@ -728,24 +730,23 @@ export default function AddressList() {
                         <span>Đang cập nhật...</span>
                       </span>
                     ) : (
-                      <span className="flex items-center justify-center gap-1">
+                      <span className="flex items-center justify-center gap-2">
                         <span>⭐</span>
-                        <span>Đặt làm mặc định</span>
+                        <span>Đặt làm địa chỉ mặc định</span>
                       </span>
                     )}
                   </button>
-                </div>
-              )}
+                )}
 
-              {/* Đường viền đặc biệt cho địa chỉ mặc định */}
-              {addr.is_default === 1 && (
-                <div className="absolute inset-0 rounded-xl pointer-events-none">
-                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-400 via-orange-500 to-orange-400 rounded-t-xl"></div>
-                  <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-orange-400 via-orange-500 to-orange-400 rounded-b-xl"></div>
-                </div>
-              )}
-            </div>
-          ))}
+                {/* Đường viền nổi bật cho địa chỉ mặc định */}
+                {isDefault && (
+                  <div className="absolute inset-0 rounded-xl pointer-events-none">
+                    <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-orange-400 via-red-500 to-orange-400 rounded-t-xl"></div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
     </section>

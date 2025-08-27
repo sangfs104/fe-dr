@@ -577,7 +577,10 @@ export default function OrderList() {
   const [comment, setComment] = useState("");
   const [hoveredStars, setHoveredStars] = useState(0);
   const [showReviewModal, setShowReviewModal] = useState(false);
-  const [reviewedItems, setReviewedItems] = useState<Set<string>>(new Set());
+  const [reviewedItems, setReviewedItems] = useState<Set<string>>(() => {
+    const saved = localStorage.getItem("reviewedItems");
+    return saved ? new Set(JSON.parse(saved)) : new Set();
+  });
 
   const statusTabs = [
     { key: "all", label: "Tất cả" },
@@ -603,6 +606,10 @@ export default function OrderList() {
 
     fetchOrders();
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem("reviewedItems", JSON.stringify([...reviewedItems]));
+  }, [reviewedItems]);
 
   const filteredOrders =
     statusFilter === "all"
@@ -689,7 +696,7 @@ export default function OrderList() {
       });
       const data = await res.json();
       if (res.ok) {
-        toast.success("Đã gửi đánh giá thành công!", {
+        toast.success("Bạn đã gửi đánh giá!", {
           icon: "⭐",
           style: {
             borderRadius: "16px",
@@ -728,7 +735,7 @@ export default function OrderList() {
   const handleReviewButtonClick = (product: Product, variantId: number) => {
     const reviewKey = `${product.id}-${variantId}`;
     if (reviewedItems.has(reviewKey)) {
-      toast.error("Bạn đã đánh giá sản phẩm này rồi!", {
+      toast.error("Bạn đã đánh giá rồi!", {
         icon: "⚠️",
         style: {
           borderRadius: "16px",

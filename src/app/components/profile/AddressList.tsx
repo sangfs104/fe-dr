@@ -201,9 +201,7 @@ export default function AddressList() {
   const [loading, setLoading] = useState(true);
   const [newAddress, setNewAddress] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [highlightedAddressId, setHighlightedAddressId] = useState<
-    number | null
-  >(null);
+  const [defaultLoadingId, setDefaultLoadingId] = useState<number | null>(null);
 
   const fetchAddresses = async () => {
     const token = localStorage.getItem("token");
@@ -274,12 +272,17 @@ export default function AddressList() {
 
   const handleSetDefault = async (id: number) => {
     const token = localStorage.getItem("token");
-    if (!token) return;
+    if (!token) {
+      toast.error("Không tìm thấy token!");
+      return;
+    }
+
+    setDefaultLoadingId(id);
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/addresses/${id}/set-default`,
         {
-          method: "POST",
+          method: "PATCH",
           headers: {
             Authorization: `Bearer ${token}`,
             Accept: "application/json",
@@ -288,28 +291,7 @@ export default function AddressList() {
       );
       const result = await res.json();
       if (res.ok) {
-        toast.success(
-          <div className="flex items-center gap-2">
-            <svg
-              className="w-5 h-5 text-green-500"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
-            <span>Đã đặt địa chỉ làm mặc định!</span>
-          </div>,
-          { duration: 3000 }
-        );
-        setHighlightedAddressId(id); // Kích hoạt hiệu ứng nổi bật
-        setTimeout(() => setHighlightedAddressId(null), 1000); // Tắt hiệu ứng sau 1 giây
+        toast.success("Đặt địa chỉ làm mặc định thành công!");
         fetchAddresses();
       } else {
         toast.error("Lỗi: " + (result.message || "Không thể cập nhật!"));
@@ -317,6 +299,8 @@ export default function AddressList() {
     } catch (error) {
       toast.error("Lỗi khi cập nhật địa chỉ mặc định!");
       console.error(error);
+    } finally {
+      setDefaultLoadingId(null);
     }
   };
 
@@ -364,7 +348,7 @@ export default function AddressList() {
                 addr.is_default === 1
                   ? "border-orange-500 bg-orange-50"
                   : "hover:border-orange-300"
-              } ${highlightedAddressId === addr.id ? "pulse" : ""}`}
+              }`}
             >
               {addr.is_default === 1 && (
                 <div className="absolute top-1 sm:top-2 right-1 sm:right-2 bg-orange-500 text-white px-1 sm:px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs rounded">
@@ -380,9 +364,12 @@ export default function AddressList() {
               {addr.is_default !== 1 && (
                 <button
                   onClick={() => handleSetDefault(addr.id)}
-                  className="mt-2 sm:mt-3 inline-block text-orange-600 text-[10px] sm:text-xs font-semibold hover:underline"
+                  className="mt-2 sm:mt-3 inline-block text-orange-600 text-[10px] sm:text-xs font-semibold hover:underline disabled:text-gray-400 disabled:cursor-not-allowed"
+                  disabled={defaultLoadingId === addr.id}
                 >
-                  Đặt làm mặc định
+                  {defaultLoadingId === addr.id
+                    ? "Đang cập nhật..."
+                    : "Đặt làm mặc định"}
                 </button>
               )}
             </div>

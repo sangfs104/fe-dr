@@ -529,8 +529,8 @@ export default function ProductCard({
 
   // Hàm định dạng tiền tệ
   const formatVND = (price: number | string | undefined) => {
-    if (!price) return "₫—";
-    return `₫${Number(price).toLocaleString("vi-VN")}`;
+    if (!price) return "—₫";
+    return `${Number(price).toLocaleString("vi-VN")}₫`;
   };
 
   return (

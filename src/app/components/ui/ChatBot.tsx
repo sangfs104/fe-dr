@@ -10,6 +10,7 @@ import React, {
 import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
+import toast from "react-hot-toast";
 import {
   MessageCircle,
   Send,
@@ -23,7 +24,6 @@ import {
   Bot,
   User,
   Zap,
-  Heart,
   ShoppingBag,
   Palette,
   Mic,
@@ -37,6 +37,8 @@ import {
   Maximize2,
   Headphones,
 } from "lucide-react";
+import { useAppDispatch } from "@/store/hooks";
+import { addToCart } from "@/store/cartSlice";
 
 // ---------------------------------------------
 // Types matching your Laravel API responses
@@ -46,12 +48,12 @@ type ApiVariant = {
   id: number;
   product_id?: number;
   img_id?: number | null;
-  size?: string | null;
-  color?: string | null;
-  price?: number | null;
+  size: string;
+  color?: string;
+  price: number;
   sale_price?: number | null;
-  stock_quantity?: number | null;
-  status?: number | null;
+  stock_quantity: number;
+  status?: number;
 };
 
 type ApiCategory = {
@@ -82,7 +84,44 @@ type ApiResponse = {
   description?: string | null;
   keywords?: string[] | null;
   products?: (ApiProductBasic | ApiProductFull)[] | null;
-  mix_and_match?: string[] | null;
+  mix_and_match?: (string | MixAndMatchItem)[] | null;
+};
+
+// ---------------------------------------------
+// Additional type for MixAndMatch
+// ---------------------------------------------
+
+type MixAndMatchItem = {
+  name: string;
+  productIds?: number[];
+};
+
+// ---------------------------------------------
+// CartItem type to match cartSlice.ts
+// ---------------------------------------------
+
+type ProductVariant = {
+  id: number;
+  product_id?: number;
+  img_id?: number | null;
+  size: string;
+  color?: string;
+  price: number;
+  sale_price?: string | null | undefined;
+  stock_quantity: number;
+  status?: number;
+};
+
+type CartItem = {
+  productId: number;
+  variantId: number;
+  name: string;
+  img: string;
+  price: number;
+  sale_price: string | null | undefined;
+  size: string;
+  quantity: number;
+  variantList: ProductVariant[];
 };
 
 // ---------------------------------------------
@@ -97,7 +136,7 @@ type ChatAttachment = {
   description?: string | null | undefined;
   keywords?: string[] | null | undefined;
   products?: (ApiProductBasic | ApiProductFull)[] | null | undefined;
-  mix_and_match?: string[] | null | undefined;
+  mix_and_match?: (string | MixAndMatchItem)[] | null | undefined;
 };
 
 type ChatMessage = {
@@ -165,7 +204,6 @@ interface SpeechRecognitionConstructor {
   new (): SpeechRecognition;
 }
 
-// Extend Window interface to avoid `any` for SpeechRecognition
 interface ExtendedWindow {
   SpeechRecognition?: SpeechRecognitionConstructor;
   webkitSpeechRecognition?: SpeechRecognitionConstructor;
@@ -204,7 +242,6 @@ function formatTime(timestamp: number): string {
   return messageTime.toLocaleDateString("vi-VN");
 }
 
-// Hàm merge triệt để để gộp mảng ApiResponse thành một object, tránh lặp array
 function mergeResponses(responses: ApiResponse[]): ApiResponse {
   return responses.reduce((acc, curr) => {
     const merged: ApiResponse = { ...acc };
@@ -213,13 +250,20 @@ function mergeResponses(responses: ApiResponse[]): ApiResponse {
         switch (key) {
           case "keywords":
           case "mix_and_match":
-            const currentKeywords = merged[
-              key as "keywords" | "mix_and_match"
-            ] as string[] | null | undefined;
-            const newKeywords = value as string[];
-            merged[key as "keywords" | "mix_and_match"] = Array.from(
-              new Set([...(currentKeywords || []), ...newKeywords])
-            );
+            const currentItems = merged[key as "keywords" | "mix_and_match"] as
+              | (string | MixAndMatchItem)[]
+              | null
+              | undefined;
+            const newItems = value as (string | MixAndMatchItem)[];
+            if (key === "keywords") {
+              merged.keywords = Array.from(
+                new Set([...(currentItems || []), ...newItems])
+              ) as string[];
+            } else if (key === "mix_and_match") {
+              merged.mix_and_match = Array.from(
+                new Set([...(currentItems || []), ...newItems])
+              ) as (string | MixAndMatchItem)[];
+            }
             break;
           case "products":
             const currentProducts = merged.products as
@@ -246,6 +290,23 @@ function mergeResponses(responses: ApiResponse[]): ApiResponse {
     return merged;
   }, {} as ApiResponse);
 }
+
+// Utility to map ApiVariant to ProductVariant
+const mapApiVariantToProductVariant = (
+  apiVariant: ApiVariant,
+  productId: number
+): ProductVariant => ({
+  id: apiVariant.id,
+  product_id: apiVariant.product_id ?? productId,
+  img_id: apiVariant.img_id ?? null,
+  size: apiVariant.size || "N/A",
+  color: apiVariant.color || "",
+  price: apiVariant.price || 0,
+  sale_price:
+    apiVariant.sale_price != null ? String(apiVariant.sale_price) : null,
+  stock_quantity: apiVariant.stock_quantity || 0,
+  status: apiVariant.status || 1,
+});
 
 // ---------------------------------------------
 // Voice Settings Modal Component
@@ -546,12 +607,9 @@ function VoiceSettingsModal({
 export default function ChatBoxStylistAI({
   apiUrl,
   title = "Stylist AI",
-  onClose, // thêm dòng này
 }: {
-  /** Optional override. Defaults to `${process.env.NEXT_PUBLIC_API_URL}/api/stylist/analyze` */
   apiUrl?: string;
   title?: string;
-  onClose?: () => void; // thêm dòng này
 }) {
   const endpoint = useMemo(() => {
     const defaultUrl = `${process.env.NEXT_PUBLIC_API_URL ??
@@ -600,14 +658,13 @@ export default function ChatBoxStylistAI({
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const synthesisRef = useRef<SpeechSynthesis | null>(null);
   const currentUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
-  const isSpeakingRef = useRef<boolean>(false); // Track speaking state to prevent overlaps
+  const isSpeakingRef = useRef<boolean>(false);
 
   // Initialize speech synthesis and recognition
   useEffect(() => {
     if (typeof window !== "undefined" && "speechSynthesis" in window) {
       synthesisRef.current = window.speechSynthesis;
 
-      // Load available voices
       const loadVoices = () => {
         const voices = window.speechSynthesis.getVoices();
         setAvailableVoices(voices);
@@ -674,7 +731,6 @@ export default function ChatBoxStylistAI({
     el.style.height = `${Math.min(120, el.scrollHeight)}px`;
   }, [input, isMinimized]);
 
-  // Speech-to-Text functions
   const startListening = useCallback(() => {
     if (recognitionRef.current && !isListening) {
       try {
@@ -694,7 +750,6 @@ export default function ChatBoxStylistAI({
     }
   }, [isListening]);
 
-  // Text-to-Speech functions
   const speakText = useCallback(
     (text: string, messageId?: string) => {
       if (
@@ -704,7 +759,6 @@ export default function ChatBoxStylistAI({
       )
         return;
 
-      // Cancel any existing speech
       synthesisRef.current.cancel();
       isSpeakingRef.current = true;
 
@@ -714,7 +768,6 @@ export default function ChatBoxStylistAI({
       utterance.pitch = voiceSettings.pitch;
       utterance.volume = voiceSettings.volume;
 
-      // Set selected voice if available
       if (voiceSettings.voice && availableVoices.length > 0) {
         const selectedVoice = availableVoices.find(
           (voice) => voice.name === voiceSettings.voice
@@ -911,7 +964,6 @@ export default function ChatBoxStylistAI({
               <MessageCircle className="h-6 w-6 relative z-10" />
             </button>
 
-            {/* Status indicators */}
             <div className="absolute -top-1 -right-1 flex flex-col gap-1">
               <div className="w-3 h-3 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full animate-pulse" />
               {voiceSettings.enabled && (
@@ -921,7 +973,6 @@ export default function ChatBoxStylistAI({
               )}
             </div>
 
-            {/* Floating hint */}
             <div className="absolute bottom-full right-0 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
               <div className="bg-black/80 text-white text-xs py-1 px-2 rounded-lg whitespace-nowrap">
                 Bấm để chat với Stylist AI
@@ -969,7 +1020,6 @@ export default function ChatBoxStylistAI({
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  {/* Voice settings button */}
                   <button
                     onClick={() => setShowVoiceSettings(true)}
                     className="p-2 rounded-xl bg-white/10 hover:bg-white/20 transition-colors backdrop-blur-sm group"
@@ -977,8 +1027,6 @@ export default function ChatBoxStylistAI({
                   >
                     <Settings className="h-4 w-4 text-white group-hover:rotate-45 transition-transform duration-300" />
                   </button>
-
-                  {/* Voice toggle button */}
                   <button
                     onClick={toggleVoice}
                     className={clsx(
@@ -997,8 +1045,6 @@ export default function ChatBoxStylistAI({
                       <VolumeX className="h-4 w-4 text-white/60" />
                     )}
                   </button>
-
-                  {/* Minimize/Maximize button */}
                   <button
                     onClick={() => setIsMinimized(!isMinimized)}
                     className="p-2 rounded-xl bg-white/10 hover:bg-white/20 transition-colors backdrop-blur-sm"
@@ -1010,14 +1056,10 @@ export default function ChatBoxStylistAI({
                       <Minimize2 className="h-4 w-4 text-white" />
                     )}
                   </button>
-
-                  {/* Close button */}
                   <button
-                    onClick={() => {
-                      setIsOpen(false);
-                      onClose?.(); // gọi hàm này nếu có truyền từ ngoài vào
-                    }}
+                    onClick={() => setIsOpen(false)}
                     className="p-2 rounded-xl bg-white/10 hover:bg-white/20 transition-colors backdrop-blur-sm"
+                    title="Đóng"
                   >
                     <X className="h-4 w-4 text-white" />
                   </button>
@@ -1025,7 +1067,6 @@ export default function ChatBoxStylistAI({
               </div>
             </div>
 
-            {/* Messages - Hidden when minimized */}
             {!isMinimized && (
               <div
                 ref={listRef}
@@ -1072,7 +1113,6 @@ export default function ChatBoxStylistAI({
               </div>
             )}
 
-            {/* Input - Hidden when minimized */}
             {!isMinimized && (
               <div className="border-t border-white/10 bg-white/5 backdrop-blur-sm p-4">
                 <div className="relative">
@@ -1090,9 +1130,7 @@ export default function ChatBoxStylistAI({
                     rows={1}
                     disabled={isListening}
                   />
-
                   <div className="absolute right-2 bottom-2 flex items-center gap-2">
-                    {/* Stop speaking button */}
                     {isSpeaking && (
                       <button
                         onClick={stopSpeaking}
@@ -1102,8 +1140,6 @@ export default function ChatBoxStylistAI({
                         <PauseCircle className="h-4 w-4" />
                       </button>
                     )}
-
-                    {/* Voice input button */}
                     <button
                       onClick={isListening ? stopListening : startListening}
                       disabled={sending}
@@ -1126,8 +1162,6 @@ export default function ChatBoxStylistAI({
                         <Mic className="h-4 w-4" />
                       )}
                     </button>
-
-                    {/* Send button */}
                     <button
                       onClick={sendInput}
                       disabled={sending || !input.trim()}
@@ -1209,7 +1243,6 @@ function MessageBubble({
         isUser ? "flex-row-reverse" : "flex-row"
       )}
     >
-      {/* Avatar */}
       <div
         className={clsx(
           "flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center ring-2 ring-white/50 transition-all duration-200 group-hover:scale-110",
@@ -1224,8 +1257,6 @@ function MessageBubble({
           <Bot className="h-4 w-4 text-white" />
         )}
       </div>
-
-      {/* Message Content */}
       <div
         className={clsx(
           "flex-1 max-w-[85%]",
@@ -1247,7 +1278,6 @@ function MessageBubble({
                   {msg.text}
                 </div>
               )}
-
               {msg.timestamp && (
                 <div
                   className={clsx(
@@ -1265,8 +1295,6 @@ function MessageBubble({
                 </div>
               )}
             </div>
-
-            {/* Voice playback button for assistant messages */}
             {!isUser && msg.text && voiceSettings.enabled && (
               <div className="flex-shrink-0 flex items-center gap-1">
                 <button
@@ -1292,8 +1320,6 @@ function MessageBubble({
             )}
           </div>
         </div>
-
-        {/* Attachments */}
         {!isUser && msg.attachment?.kind === "style" && (
           <div className="mt-3 space-y-3 w-full">
             <StyleSummary
@@ -1363,7 +1389,13 @@ function StyleSummary({
   );
 }
 
-function MixAndMatch({ names }: { names: string[] }) {
+function MixAndMatch({
+  names,
+}: {
+  names: (string | MixAndMatchItem)[] | null | undefined;
+}) {
+  if (!names || names.length === 0) return null;
+
   return (
     <div className="rounded-2xl bg-gradient-to-br from-orange-50 to-red-50 border border-orange-200/50 p-4 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
       <div className="flex items-center gap-2 text-sm font-semibold text-orange-700 mb-3">
@@ -1375,15 +1407,18 @@ function MixAndMatch({ names }: { names: string[] }) {
         </span>
       </div>
       <div className="space-y-3">
-        {names.map((n, i) => (
-          <div
-            key={i}
-            className="flex items-center gap-3 text-sm text-slate-700 bg-white/50 rounded-lg p-3 border border-orange-100 hover:bg-white/70 transition-colors"
-          >
-            <div className="w-3 h-3 bg-gradient-to-r from-orange-400 to-red-400 rounded-full shadow-sm flex-shrink-0" />
-            <span className="font-medium">{n}</span>
-          </div>
-        ))}
+        {names.map((n, i) => {
+          const itemName = typeof n === "string" ? n : n.name;
+          return (
+            <div
+              key={i}
+              className="flex items-center gap-3 text-sm text-slate-700 bg-white/50 rounded-lg p-3 border border-orange-100 hover:bg-white/70 transition-colors"
+            >
+              <div className="w-3 h-3 bg-gradient-to-r from-orange-400 to-red-400 rounded-full shadow-sm flex-shrink-0" />
+              <span className="font-medium">{itemName}</span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -1413,7 +1448,6 @@ function ProductsGrid({
           Sản phẩm gợi ý ({products.length})
         </span>
       </div>
-
       <div className="grid grid-cols-1 gap-4">
         {displayProducts.map((p) => (
           <ProductCard
@@ -1422,7 +1456,6 @@ function ProductsGrid({
           />
         ))}
       </div>
-
       {hasMore && (
         <button
           onClick={onToggleExpanded}
@@ -1452,196 +1485,301 @@ function ProductCard({
 }: {
   product: ApiProductBasic | ApiProductFull;
 }) {
+  const dispatch = useAppDispatch();
   const cover =
     product.images && product.images.length > 0 ? product.images[0] : null;
   const hasVariants = Array.isArray((product as ApiProductFull).variant);
   const variants = (product as ApiProductFull).variant || [];
+  const selectedVariant = variants[0]; // Lấy biến thể đầu tiên (có thể thêm logic chọn biến thể sau)
   const [showVariants, setShowVariants] = useState(false);
-
-  // Compute display price
+  const [isHovered, setIsHovered] = useState(false);
   const basePrice = "price" in product ? product.price ?? null : null;
   const firstSale =
     variants.find((v) => v.sale_price != null)?.sale_price ?? null;
   const firstPrice = variants.find((v) => v.price != null)?.price ?? null;
-  const displayPrice = basePrice ?? firstSale ?? firstPrice ?? null;
-
-  // Đường dẫn tới trang chi tiết sản phẩm
+  const displayPrice = firstSale ?? firstPrice ?? basePrice ?? null;
   const productUrl = `/products/${product.id}`;
 
+  const handleAddToCart = () => {
+    if (hasVariants && !selectedVariant) {
+      toast.error(`❌ Sản phẩm ${product.name} không có biến thể hợp lệ!`);
+      return;
+    }
+
+    if (hasVariants && selectedVariant.stock_quantity <= 0) {
+      toast.error(`❌ Sản phẩm ${product.name} đã hết hàng!`);
+      return;
+    }
+
+    const priceToUse =
+      selectedVariant?.sale_price && Number(selectedVariant.sale_price) > 0
+        ? Number(selectedVariant.sale_price)
+        : selectedVariant?.price ?? basePrice ?? 0;
+
+    if (priceToUse === 0) {
+      toast.error(`❌ Sản phẩm ${product.name} không có giá hợp lệ!`);
+      return;
+    }
+
+    const cartItem: CartItem = {
+      productId: product.id,
+      variantId: selectedVariant ? selectedVariant.id : 0,
+      name: selectedVariant
+        ? `${product.name} - Size ${selectedVariant.size}`
+        : product.name,
+      img: cover || "/img/no-image.jpg",
+      price: priceToUse,
+      sale_price:
+        selectedVariant?.sale_price != null
+          ? String(selectedVariant.sale_price)
+          : null,
+      size: selectedVariant ? selectedVariant.size : "N/A",
+      quantity: 1,
+      variantList: hasVariants
+        ? variants.map((v) => mapApiVariantToProductVariant(v, product.id))
+        : [],
+    };
+
+    dispatch(addToCart(cartItem));
+    toast.success(`🛒 Đã thêm "${cartItem.name}" vào giỏ hàng!`);
+  };
+
+  const discountPercent =
+    selectedVariant?.sale_price != null &&
+    selectedVariant?.price != null &&
+    Number(selectedVariant.sale_price) > 0 &&
+    selectedVariant.price > Number(selectedVariant.sale_price)
+      ? Math.round(
+          ((selectedVariant.price - Number(selectedVariant.sale_price)) /
+            selectedVariant.price) *
+            100
+        )
+      : 0;
+
   return (
-    <div className="group rounded-2xl overflow-hidden bg-white border border-slate-200/50 shadow-lg hover:shadow-2xl transition-all duration-500 hover:scale-[1.03] hover:border-purple-300/50">
-      <div className="relative aspect-[16/9] bg-gradient-to-br from-slate-100 to-slate-200 overflow-hidden">
-        {cover ? (
-          <Link
-            href={productUrl}
-            aria-label={`Xem chi tiết sản phẩm ${product.name}`}
-          >
-            <Image
-              src={cover}
-              alt={product.name}
-              className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-700"
-              width={500}
-              height={281}
-              unoptimized
-              loading="lazy"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-          </Link>
-        ) : (
-          <div className="h-full w-full flex items-center justify-center text-slate-400 text-sm">
-            <div className="text-center">
-              <ShoppingBag className="h-8 w-8 mx-auto mb-2 opacity-50" />
-              Không có ảnh
-            </div>
-          </div>
-        )}
-
-        {/* Quick action buttons */}
-        <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
-          <button className="p-2 bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:bg-white hover:scale-110 transition-all duration-200">
-            <Heart className="h-4 w-4 text-slate-600 hover:text-red-500 transition-colors" />
-          </button>
-        </div>
-
-        {/* Price badge */}
-        {displayPrice != null && (
-          <div className="absolute bottom-3 left-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
-            <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
-              {formatPrice(displayPrice)}
-            </div>
-          </div>
-        )}
-      </div>
-
-      <div className="p-4">
-        <div className="font-semibold text-slate-800 line-clamp-2 mb-2 group-hover:text-purple-600 transition-colors duration-200 text-base">
-          {product.name}
-        </div>
-
-        {displayPrice != null && (
-          <div className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-3">
-            {formatPrice(displayPrice)}
-          </div>
-        )}
-
-        {product.description && (
-          <div className="text-sm text-slate-500 line-clamp-2 mb-3 bg-slate-50 rounded-lg p-2 border border-slate-100">
-            {product.description}
-          </div>
-        )}
-
-        {hasVariants && variants.length > 0 && (
-          <div className="space-y-3 mb-4">
-            <button
-              onClick={() => setShowVariants(!showVariants)}
-              className="flex items-center gap-2 text-sm text-slate-600 hover:text-purple-600 transition-colors w-full bg-slate-50 hover:bg-purple-50 p-2 rounded-lg border border-slate-200 hover:border-purple-200"
-            >
-              <Shirt className="h-4 w-4" />
-              <span className="flex-1 text-left font-medium">
-                Chi tiết size & màu ({variants.length} biến thể)
-              </span>
-              {showVariants ? (
-                <ChevronUp className="h-4 w-4" />
-              ) : (
-                <ChevronDown className="h-4 w-4" />
-              )}
-            </button>
-
-            {showVariants && (
-              <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-4 border border-slate-200 shadow-inner">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-xs">
-                    <thead>
-                      <tr className="text-slate-600 border-b border-slate-300">
-                        <th className="text-left font-semibold py-2 px-2">
-                          Size
-                        </th>
-                        <th className="text-left font-semibold py-2 px-2">
-                          Màu
-                        </th>
-                        <th className="text-left font-semibold py-2 px-2">
-                          Giá
-                        </th>
-                        <th className="text-left font-semibold py-2 px-2">
-                          Giá KM
-                        </th>
-                        <th className="text-left font-semibold py-2 px-2">
-                          Kho
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {variants.map((v, i) => (
-                        <tr
-                          key={v.id ?? i}
-                          className="text-slate-700 hover:bg-white/70 transition-colors border-b border-slate-200 last:border-0"
-                        >
-                          <td className="py-2 px-2 font-medium">
-                            {v.size ?? "-"}
-                          </td>
-                          <td className="py-2 px-2">
-                            {v.color ? (
-                              <span className="inline-flex items-center gap-2">
-                                <div
-                                  className="w-4 h-4 rounded-full border-2 border-white shadow-sm ring-1 ring-slate-300"
-                                  style={{
-                                    backgroundColor: v.color.toLowerCase(),
-                                  }}
-                                />
-                                <span className="font-medium">{v.color}</span>
-                              </span>
-                            ) : (
-                              "-"
-                            )}
-                          </td>
-                          <td className="py-2 px-2 font-medium">
-                            {v.price != null ? formatPrice(v.price) : "-"}
-                          </td>
-                          <td className="py-2 px-2">
-                            {v.sale_price != null ? (
-                              <span className="text-red-600 font-bold bg-red-50 px-2 py-1 rounded-full">
-                                {formatPrice(v.sale_price)}
-                              </span>
-                            ) : (
-                              "-"
-                            )}
-                          </td>
-                          <td className="py-2 px-2">
-                            <span
-                              className={clsx(
-                                "px-2 py-1 rounded-full text-xs font-bold",
-                                (v.stock_quantity ?? 0) > 10
-                                  ? "bg-green-100 text-green-700 border border-green-200"
-                                  : (v.stock_quantity ?? 0) > 0
-                                  ? "bg-yellow-100 text-yellow-700 border border-yellow-200"
-                                  : "bg-red-100 text-red-700 border border-red-200"
-                              )}
-                            >
-                              {v.stock_quantity ?? 0}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+    <div
+      className="group relative overflow-hidden rounded-2xl bg-white border border-gray-100 shadow-lg hover:shadow-2xl hover:shadow-orange-500/20 transition-all duration-700 hover:scale-[1.02]"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <div className="absolute -inset-4 bg-gradient-to-br from-orange-400/20 via-red-400/20 to-pink-400/20 rounded-3xl blur-2xl group-hover:blur-xl opacity-0 group-hover:opacity-100 transition-all duration-700 animate-pulse"></div>
+      <div className="relative">
+        <div className="h-1 bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+        <div className="p-4 pb-2 relative">
+          <div className="relative">
+            <Link href={productUrl} className="block relative group/image">
+              {discountPercent > 0 && (
+                <div className="absolute -top-2 -left-2 z-20 transform group-hover:scale-110 transition-all duration-500">
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-orange-500 rounded-full blur-md opacity-60 animate-pulse"></div>
+                    <div className="relative bg-gradient-to-r from-red-500 to-orange-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg border-2 border-white transform -rotate-12 group-hover:-rotate-6 transition-transform duration-300">
+                      <span className="drop-shadow-sm">
+                        {discountPercent}% GIẢM
+                      </span>
+                      <div className="absolute -bottom-1 -right-1 w-0 h-0 border-l-[8px] border-l-transparent border-t-[8px] border-t-red-600"></div>
+                    </div>
+                  </div>
                 </div>
+              )}
+              <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-orange-50 to-red-50 group-hover:rounded-2xl transition-all duration-700 border-2 border-transparent group-hover:border-orange-200">
+                {cover ? (
+                  <Image
+                    src={cover}
+                    alt={product.name}
+                    className="w-full h-64 object-cover transition-all duration-700 group-hover/image:scale-110"
+                    width={500}
+                    height={600}
+                    loading="lazy"
+                  />
+                ) : (
+                  <div className="w-full h-64 bg-gradient-to-br from-orange-50 to-red-50 flex items-center justify-center text-gray-400 rounded-xl">
+                    <div className="text-center">
+                      <ShoppingBag className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                      Không có ảnh
+                    </div>
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent opacity-0 group-hover/image:opacity-100 transition-all duration-500"></div>
+                <div className="absolute inset-0 rounded-xl border-2 border-orange-400/0 group-hover:border-orange-400/50 transition-all duration-500"></div>
+              </div>
+            </Link>
+            <div
+              className={`absolute top-6 right-6 flex flex-col gap-2 transition-all duration-500 ${
+                isHovered
+                  ? "translate-x-0 opacity-100"
+                  : "translate-x-12 opacity-0"
+              }`}
+            >
+              <button
+                className="group/btn relative bg-gradient-to-r from-orange-500 to-red-500 p-3 rounded-xl shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={handleAddToCart}
+                aria-label="Thêm vào giỏ hàng"
+              >
+                <ShoppingBag className="h-4 w-4 text-white drop-shadow-sm" />
+                <div className="absolute inset-0 bg-white/20 rounded-xl scale-0 group-hover/btn:scale-100 transition-transform duration-200"></div>
+              </button>
+              <button
+                className="group/btn relative bg-white/90 backdrop-blur-sm p-3 rounded-xl shadow-lg border border-orange-200 hover:bg-orange-50 hover:border-orange-300 hover:shadow-xl hover:scale-110 transition-all duration-300"
+                aria-label="Xem chi tiết"
+              >
+                <Link href={productUrl}>
+                  <ChevronDown className="h-4 w-4 text-orange-600 group-hover/btn:text-orange-700 rotate-[-90deg]" />
+                </Link>
+              </button>
+            </div>
+          </div>
+          <div className="p-4 space-y-3">
+            <h2 className="text-lg font-semibold text-gray-800 line-clamp-2 group-hover:text-orange-700 transition-colors duration-300 leading-snug">
+              {product.name}
+            </h2>
+            {displayPrice != null && (
+              <div className="flex items-baseline gap-2 flex-wrap">
+                {selectedVariant?.sale_price &&
+                Number(selectedVariant.sale_price) > 0 ? (
+                  <>
+                    <span className="text-xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+                      {formatPrice(Number(selectedVariant.sale_price))}
+                    </span>
+                    <span className="text-sm text-gray-500 line-through bg-gray-100 px-1.5 py-0.5 rounded">
+                      {formatPrice(selectedVariant.price)}
+                    </span>
+                    <span className="text-xs text-green-600 font-medium bg-green-50 px-1.5 py-0.5 rounded">
+                      Tiết kiệm{" "}
+                      {formatPrice(
+                        (selectedVariant.price ?? 0) -
+                          Number(selectedVariant.sale_price)
+                      )}
+                    </span>
+                  </>
+                ) : (
+                  <span className="text-xl font-bold text-gray-800">
+                    {formatPrice(displayPrice)}
+                  </span>
+                )}
               </div>
             )}
+            {product.description && (
+              <div className="text-sm text-slate-500 line-clamp-2 mb-3 bg-slate-50 rounded-lg p-2 border border-slate-100">
+                {product.description}
+              </div>
+            )}
+            {hasVariants && variants.length > 0 && (
+              <div className="space-y-3">
+                <button
+                  onClick={() => setShowVariants(!showVariants)}
+                  className="flex items-center gap-2 text-sm text-slate-600 hover:text-purple-600 transition-colors w-full bg-slate-50 hover:bg-purple-50 p-2 rounded-lg border border-slate-200 hover:border-purple-200"
+                >
+                  <Shirt className="h-4 w-4" />
+                  <span className="flex-1 text-left font-medium">
+                    Chi tiết size & màu ({variants.length} biến thể)
+                  </span>
+                  {showVariants ? (
+                    <ChevronUp className="h-4 w-4" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4" />
+                  )}
+                </button>
+                {showVariants && (
+                  <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-4 border border-slate-200 shadow-inner">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-xs">
+                        <thead>
+                          <tr className="text-slate-600 border-b border-slate-300">
+                            <th className="text-left font-semibold py-2 px-2">
+                              Size
+                            </th>
+                            <th className="text-left font-semibold py-2 px-2">
+                              Màu
+                            </th>
+                            <th className="text-left font-semibold py-2 px-2">
+                              Giá
+                            </th>
+                            <th className="text-left font-semibold py-2 px-2">
+                              Giá KM
+                            </th>
+                            <th className="text-left font-semibold py-2 px-2">
+                              Kho
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {variants.map((v, i) => (
+                            <tr
+                              key={v.id ?? i}
+                              className="text-slate-700 hover:bg-white/70 transition-colors border-b border-slate-200 last:border-0"
+                            >
+                              <td className="py-2 px-2 font-medium">
+                                {v.size ?? "-"}
+                              </td>
+                              <td className="py-2 px-2">
+                                {v.color ? (
+                                  <span className="inline-flex items-center gap-2">
+                                    <div
+                                      className="w-4 h-4 rounded-full border-2 border-white shadow-sm ring-1 ring-slate-300"
+                                      style={{
+                                        backgroundColor: v.color.toLowerCase(),
+                                      }}
+                                    />
+                                    <span className="font-medium">
+                                      {v.color}
+                                    </span>
+                                  </span>
+                                ) : (
+                                  "-"
+                                )}
+                              </td>
+                              <td className="py-2 px-2 font-medium">
+                                {v.price != null ? formatPrice(v.price) : "-"}
+                              </td>
+                              <td className="py-2 px-2">
+                                {v.sale_price != null ? (
+                                  <span className="text-red-600 font-bold bg-red-50 px-2 py-1 rounded-full">
+                                    {formatPrice(v.sale_price)}
+                                  </span>
+                                ) : (
+                                  "-"
+                                )}
+                              </td>
+                              <td className="py-2 px-2">
+                                <span
+                                  className={clsx(
+                                    "px-2 py-1 rounded-full text-xs font-bold",
+                                    (v.stock_quantity ?? 0) > 10
+                                      ? "bg-green-100 text-green-700 border border-green-200"
+                                      : (v.stock_quantity ?? 0) > 0
+                                      ? "bg-yellow-100 text-yellow-700 border border-yellow-200"
+                                      : "bg-red-100 text-red-700 border border-red-200"
+                                  )}
+                                >
+                                  {v.stock_quantity ?? 0}
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+            <div className="flex gap-3 mt-4">
+              <Link
+                href={productUrl}
+                className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-center py-3 px-4 rounded-xl text-sm font-bold transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-purple-500/30 flex items-center justify-center gap-2"
+              >
+                <span>Xem chi tiết</span>
+                <ChevronDown className="h-4 w-4 rotate-[-90deg]" />
+              </Link>
+              <button
+                onClick={handleAddToCart}
+                className="flex-1 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white text-center py-3 px-4 rounded-xl text-sm font-bold transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-orange-500/30 flex items-center justify-center gap-2"
+              >
+                <ShoppingBag className="h-4 w-4" />
+                <span>Thêm vào giỏ</span>
+              </button>
+            </div>
           </div>
-        )}
-
-        {/* Action buttons */}
-        <div className="flex gap-3 mt-4">
-          <Link
-            href={productUrl}
-            className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-center py-3 px-4 rounded-xl text-sm font-bold transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-purple-500/30 flex items-center justify-center gap-2"
-          >
-            <span>Xem chi tiết</span>
-            <ChevronDown className="h-4 w-4 rotate-[-90deg]" />
-          </Link>
-          <button className="p-3 bg-gradient-to-r from-slate-100 to-slate-200 hover:from-slate-200 hover:to-slate-300 rounded-xl transition-all duration-200 hover:scale-105 shadow-md">
-            <ShoppingBag className="h-4 w-4 text-slate-600" />
-          </button>
         </div>
       </div>
     </div>
@@ -1700,7 +1838,6 @@ const enhancedCustomStyles = `
     overflow: hidden;
   }
 
-  /* Enhanced scrollbar */
   .custom-scrollbar::-webkit-scrollbar {
     width: 6px;
   }
@@ -1721,7 +1858,6 @@ const enhancedCustomStyles = `
     width: 8px;
   }
 
-  /* Enhanced slider styles */
   .slider::-webkit-slider-thumb {
     appearance: none;
     height: 20px;
@@ -1745,26 +1881,22 @@ const enhancedCustomStyles = `
     border: none;
   }
 
-  /* Glass morphism effects */
   .glass-effect {
     backdrop-filter: blur(20px);
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
   }
 
-  /* Hover glow effects */
   .glow-hover:hover {
     box-shadow: 0 0 20px rgba(168, 85, 247, 0.3), 0 0 40px rgba(236, 72, 153, 0.2);
   }
 
-  /* Message bubble animations */
   .message-bubble {
     transform: translateY(10px);
     opacity: 0;
     animation: slide-up 0.4s ease-out forwards;
   }
 
-  /* Voice wave animation */
   @keyframes voice-wave {
     0%, 100% { height: 4px; }
     50% { height: 16px; }
@@ -1783,7 +1915,6 @@ const enhancedCustomStyles = `
   .voice-wave:nth-child(3) { animation-delay: 0.2s; }
   .voice-wave:nth-child(4) { animation-delay: 0.3s; }
 
-  /* Enhanced button hover effects */
   .btn-gradient {
     position: relative;
     overflow: hidden;
@@ -1804,7 +1935,6 @@ const enhancedCustomStyles = `
     left: 100%;
   }
 
-  /* Product card enhancements */
   .product-card {
     transform: translateY(0);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1814,7 +1944,6 @@ const enhancedCustomStyles = `
     transform: translateY(-8px);
   }
 
-  /* Loading spinner enhancement */
   @keyframes enhanced-spin {
     from {
       transform: rotate(0deg);
@@ -1828,16 +1957,6 @@ const enhancedCustomStyles = `
     animation: enhanced-spin 1s linear infinite;
   }
 
-  /* Notification styles */
-  .notification {
-    animation: slide-up 0.4s ease-out;
-  }
-
-  .notification.fade-out {
-    animation: fade-in 0.3s ease-out reverse;
-  }
-
-  /* Voice settings modal animations */
   .modal-backdrop {
     animation: fade-in 0.2s ease-out;
   }
@@ -1846,14 +1965,12 @@ const enhancedCustomStyles = `
     animation: slide-up 0.3s ease-out;
   }
 
-  /* Enhanced focus styles */
   .focus-enhanced:focus {
     outline: none;
     box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.3);
     border-color: #a855f7;
   }
 
-  /* Typing indicator enhancement */
   .typing-dots {
     display: inline-flex;
     gap: 2px;
@@ -1881,7 +1998,6 @@ const enhancedCustomStyles = `
     }
   }
 
-  /* Responsive improvements */
   @media (max-width: 640px) {
     .custom-scrollbar::-webkit-scrollbar {
       width: 4px;
@@ -1889,7 +2005,6 @@ const enhancedCustomStyles = `
   }
 `;
 
-// Inject enhanced custom styles
 if (typeof document !== "undefined") {
   const styleElement = document.getElementById("chatbox-enhanced-styles");
   if (!styleElement) {

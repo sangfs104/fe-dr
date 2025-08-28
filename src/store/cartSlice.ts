@@ -14,7 +14,8 @@ export interface CartItem {
   name: string;
   img: string;
   price: number;
-  sale_price: string | null;
+  // sale_price: string | null;
+  sale_price: string | null | undefined; // Cần sửa
   size: string;
   color?: string;
   variantList: ProductVariant[];

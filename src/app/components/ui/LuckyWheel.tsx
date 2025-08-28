@@ -1,4 +1,3 @@
-// pages/lucky/page.jsx
 "use client";
 
 import dynamic from "next/dynamic";

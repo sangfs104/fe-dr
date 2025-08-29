@@ -2983,16 +2983,29 @@ export default function ChatBoxStylistAI({
             </button>
 
             {isTooltipVisible && (
+              // <div className="absolute top-1/2 right-full -translate-y-1/2 mr-4 pointer-events-auto">
+              //   <div className="flex items-center bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm py-2 px-4 rounded-lg shadow-lg whitespace-nowrap relative">
+              //     <Stars className="h-5 w-5 mr-2" />
+              //     <ShoppingBag className="h-5 w-5 mr-2" />
+              //     <span>
+              //       Tôi là ChatAI - Nếu chưa biết mua sắm gì hãy click tôi!
+              //     </span>
+              //     <button
+              //       onClick={() => setIsTooltipVisible(false)}
+              //       className="ml-2 text-white hover:text-gray-200 transition-colors"
+              //     >
+              //       <X className="h-4 w-4" />
+              //     </button>
+              //   </div>
+              // </div>
               <div className="absolute top-1/2 right-full -translate-y-1/2 mr-4 pointer-events-auto">
-                <div className="flex items-center bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm py-2 px-4 rounded-lg shadow-lg whitespace-nowrap relative">
+                <div className="flex items-center bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm py-2 px-4 rounded-lg shadow-lg whitespace-nowrap">
                   <Stars className="h-5 w-5 mr-2" />
                   <ShoppingBag className="h-5 w-5 mr-2" />
-                  <span>
-                    Tôi là ChatAI - Nếu chưa biết mua sắm gì hãy click tôi!
-                  </span>
+                  <span>ChatAI - Click để mua sắm!</span>
                   <button
                     onClick={() => setIsTooltipVisible(false)}
-                    className="ml-2 text-white hover:text-gray-200 transition-colors"
+                    className="ml-2 text-white hover:text-gray-200"
                   >
                     <X className="h-4 w-4" />
                   </button>

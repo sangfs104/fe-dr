@@ -754,7 +754,7 @@ function PaymentPage() {
                     <p className="text-base text-gray-500">
                       Không có địa chỉ nào.{" "}
                       <a
-                        href="/addresses"
+                        href="/account"
                         className="text-orange-500 hover:underline"
                       >
                         Thêm địa chỉ

@@ -2114,7 +2114,7 @@ export default function VoiceQuickOrderFlexible() {
                 boxShadow: "0 10px 20px rgba(102, 126, 234, 0.3)",
               }}
             >
-              {/* <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2">
                 <Sparkles size={14} className="animate-pulse" />
                 {t.clickMe}
                 <button
@@ -2123,23 +2123,6 @@ export default function VoiceQuickOrderFlexible() {
                   title={t.hideTooltip}
                 >
                   <X size={12} />
-                </button>
-              </div> */}
-              <div className="relative inline-flex items-center gap-2 px-3 py-1 bg-gray-800/80 rounded-md">
-                {/* Hiệu ứng đám mây xung quanh */}
-                <div className="absolute inset-0 -m-2 animate-cloud-wrapper">
-                  <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/10 to-transparent rounded-lg blur-md animate-cloud" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-transparent via-yellow-300/20 to-transparent rounded-lg blur-md animate-cloud-delayed" />
-                </div>
-                {/* Nội dung chính */}
-                <Sparkles size={14} className="animate-pulse text-yellow-400" />
-                <span className="text-white">{t.clickMe}</span>
-                <button
-                  onClick={handleHideTooltip}
-                  className="ml-2 p-1 bg-white/20 rounded-full hover:bg-white/30 transition-all duration-200"
-                  title={t.hideTooltip}
-                >
-                  <X size={12} className="text-white" />
                 </button>
               </div>
               <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-6 border-transparent border-t-purple-500"></div>
